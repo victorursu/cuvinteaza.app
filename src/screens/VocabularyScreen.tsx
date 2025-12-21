@@ -198,7 +198,7 @@ export function VocabularyScreen() {
               horizontal
               showsHorizontalScrollIndicator={false}
               data={state.data}
-              keyExtractor={(item, idx) => `${item.title}-${idx}`}
+              keyExtractor={(item) => item.id}
               decelerationRate="fast"
               snapToInterval={snapInterval}
               snapToAlignment="start"
@@ -294,7 +294,7 @@ function WordCard({ word }: { word: VocabularyWord }) {
             <Text style={styles.sectionTitle}>Exemple</Text>
             <View style={styles.examplesWrap}>
               {word.examples.map((ex, idx) => (
-                <Text key={`${word.title}-ex-${idx}`} style={styles.exampleText}>
+                <Text key={`${word.id}-ex-${idx}`} style={styles.exampleText}>
                   {idx + 1}. {ex}
                 </Text>
               ))}
@@ -302,7 +302,7 @@ function WordCard({ word }: { word: VocabularyWord }) {
 
             <View style={styles.tagRow}>
               {word.tags.map((t) => (
-                <View key={`${word.title}-${t}`} style={styles.tag}>
+                <View key={`${word.id}-${t}`} style={styles.tag}>
                   <Text style={styles.tagText}>{t}</Text>
                 </View>
               ))}
@@ -419,7 +419,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "900",
     color: "#EEF3FF",
-    marginTop: 4,
+    marginTop: 14,
   },
   examplesWrap: { gap: 10 },
   exampleText: {
@@ -427,7 +427,7 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     color: "rgba(225, 234, 255, 0.95)",
   },
-  tagRow: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+  tagRow: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 14 },
   tag: {
     paddingVertical: 8,
     paddingHorizontal: 12,

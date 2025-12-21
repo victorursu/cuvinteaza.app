@@ -1,5 +1,6 @@
 [
   {
+    "id": "dor-1",
     "title": "dor",
     "grammar_block": "substantiv (n.)",
     "definition": "Un sentiment profund de lipsă și nostalgie, greu de tradus într-un singur cuvânt. Dorul poate fi după oameni, locuri, timpuri sau stări, amestecând tristețea cu speranța reîntâlnirii.",
@@ -11,6 +12,7 @@
     ]
   },
   {
+    "id": "ragaz-2",
     "title": "răgaz",
     "grammar_block": "substantiv (n.)",
     "definition": "Pauză scurtă sau perioadă de respiro în care te poți opri din alergătura zilnică. Un răgaz e timpul pe care ți-l iei ca să-ți aduni gândurile și să-ți reîncarci energia.",
@@ -22,6 +24,7 @@
     ]
   },
   {
+    "id": "sueta-3",
     "title": "șuetă",
     "grammar_block": "substantiv (f.)",
     "definition": "Conversație lejeră, prietenoasă, fără un scop strict, purtată de obicei între cunoscuți. O șuetă bună relaxează și creează apropiere, ca un fir subțire care leagă oamenii.",
@@ -33,6 +36,7 @@
     ]
   },
   {
+    "id": "zabava-4",
     "title": "zăbavă",
     "grammar_block": "substantiv (f.)",
     "definition": "Întârziere sau oprire mai lungă decât era nevoie; uneori și o rămânere pe loc din plăcere, ca atunci când zăbovești privind ceva frumos. Poate sugera atât lene, cât și contemplare.",
@@ -44,6 +48,7 @@
     ]
   },
   {
+    "id": "sovaiala-5",
     "title": "șovăială",
     "grammar_block": "substantiv (f.)",
     "definition": "Neîncredere sau ezitare înainte de a lua o decizie. Șovăiala apare când cântărești opțiuni, când ți-e teamă de greșeală sau când nu ești sigur pe tine.",
@@ -55,6 +60,7 @@
     ]
   },
   {
+    "id": "prag-6",
     "title": "prag",
     "grammar_block": "substantiv (n.)",
     "definition": "Partea de jos a unei uși peste care treci când intri sau ieși. În sens figurat, pragul este o limită sau un moment de trecere între două etape: pragul maturității, pragul unei schimbări.",
@@ -66,6 +72,7 @@
     ]
   },
   {
+    "id": "mester-7",
     "title": "meșter",
     "grammar_block": "substantiv (m.)",
     "definition": "Om priceput la o meserie, care lucrează cu îndemânare și grijă pentru detalii. Un meșter bun nu doar repară sau construiește, ci pune în lucru experiența și respectul pentru material.",
@@ -77,6 +84,7 @@
     ]
   },
   {
+    "id": "zugravi-8",
     "title": "a zugrăvi",
     "grammar_block": "verb (infinitiv)",
     "definition": "A vopsi sau a varui pereți, de obicei în interiorul unei clădiri. În sens figurat, a zugrăvi înseamnă a descrie viu o situație, ca și cum ai picta cuvinte pe un perete.",
@@ -88,6 +96,7 @@
     ]
   },
   {
+    "id": "furisa-9",
     "title": "a se furișa",
     "grammar_block": "verb (reflexiv, infinitiv)",
     "definition": "A merge sau a te strecura în tăcere, cu grijă, ca să nu fii observat. Te poți furișa dintr-o cameră, dar și dintr-o situație incomodă, fără să lași urme.",
@@ -99,6 +108,7 @@
     ]
   },
   {
+    "id": "imbucurator-10",
     "title": "îmbucurător",
     "grammar_block": "adjectiv",
     "definition": "Care aduce bucurie sau dă speranță; încurajator. Un semn îmbucurător poate fi o veste bună, un progres mic dar sigur sau o schimbare care arată că lucrurile merg în direcția potrivită.",
@@ -110,6 +120,7 @@
     ]
   },
   {
+    "id": "incalcit-11",
     "title": "încâlcit",
     "grammar_block": "adjectiv",
     "definition": "Complicat, greu de descurcat, ca un ghem de ațe. Poate fi un drum încâlcit, o problemă încâlcită sau o poveste încâlcită, cu multe detalii care se leagă între ele.",
@@ -121,6 +132,7 @@
     ]
   },
   {
+    "id": "miji-12",
     "title": "a miji",
     "grammar_block": "verb (infinitiv)",
     "definition": "A apărea puțin câte puțin, abia zărindu-se: mijește soarele, mijește zorile. Este un verb care surprinde începutul discret al luminii sau al unui lucru care prinde contur.",
@@ -143,6 +155,7 @@
     ]
   },
   {
+    "id": "murmur-13",
     "title": "murmur",
     "grammar_block": "substantiv (n.)",
     "definition": "Zgomot domol și continuu, ca al frunzelor, al apei sau al unei mulțimi care vorbește încet. Murmurul sugerează o prezență blândă, aproape hipnotică, în fundal.",

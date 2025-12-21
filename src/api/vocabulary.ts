@@ -4,9 +4,20 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
+function slugifyId(input: string) {
+  return input
+    .trim()
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)+/g, "");
+}
+
 function isVocabularyWord(value: unknown): value is VocabularyWord {
   if (!isRecord(value)) return false;
   return (
+    // id can be added later by parseVocabulary for backward compatibility
     typeof value.title === "string" &&
     typeof value.grammar_block === "string" &&
     typeof value.definition === "string" &&
@@ -31,7 +42,12 @@ export function parseVocabulary(data: unknown): VocabularyWord[] {
     throw new Error("Invalid vocabulary word entries");
   }
 
-  return words;
+  // Backward-compatible: if `id` is missing, derive one from title + index.
+  return words.map((w, idx) => {
+    const maybeId = isRecord(w) && typeof w.id === "string" ? w.id : "";
+    const id = maybeId || `${slugifyId(String(w.title)) || "word"}-${idx + 1}`;
+    return { ...(w as Omit<VocabularyWord, "id">), id };
+  });
 }
 
 export async function fetchVocabulary(url: string): Promise<VocabularyWord[]> {

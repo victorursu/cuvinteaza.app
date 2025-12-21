@@ -1,4 +1,5 @@
 export type VocabularyWord = {
+  id: string;
   title: string;
   grammar_block: string;
   definition: string;
