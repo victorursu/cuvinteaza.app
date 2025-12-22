@@ -4,6 +4,7 @@ import { Animated, StyleSheet, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { BottomTabs, type TabKey } from "./src/components/BottomTabs";
 import { PlaceholderScreen } from "./src/screens/PlaceholderScreen";
+import { AccountScreen } from "./src/screens/AccountScreen";
 import { VocabularyScreen } from "./src/screens/VocabularyScreen";
 import { ThemeProvider, useTheme } from "./src/theme/theme";
 import { TestScreen } from "./src/screens/TestScreen";
@@ -75,7 +76,7 @@ function AppInner() {
   const screen = useMemo(() => {
     switch (tab) {
       case "account":
-        return <PlaceholderScreen title="Account" />;
+        return <AccountScreen />;
       case "testare":
         return <TestScreen />;
       case "regionalisme":
