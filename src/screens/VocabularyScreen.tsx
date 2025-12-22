@@ -42,20 +42,29 @@ export function VocabularyScreen() {
   });
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  const scrollToStart = useCallback(() => {
+    setCurrentIndex(0);
+    requestAnimationFrame(() => {
+      listRef.current?.scrollToIndex({ index: 0, animated: false, viewPosition: 0 });
+    });
+  }, []);
+
   const load = useCallback(async () => {
     setState((s) => ({ ...s, status: "loading", error: undefined }));
     try {
       const words = await fetchVocabulary(VOCABULARY_URL);
-      setState({ status: "ready", data: words, source: "remote" });
+      setState({ status: "ready", data: shuffle(words.slice()), source: "remote" });
+      scrollToStart();
     } catch (e) {
       // Fallback to bundled JSON if remote isn't reachable / invalid.
       try {
         const localWords = parseVocabulary(fallbackVocabulary as unknown);
         setState({
           status: "ready",
-          data: localWords,
+          data: shuffle(localWords.slice()),
           source: "local",
         });
+        scrollToStart();
       } catch (fallbackErr) {
         const message = e instanceof Error ? e.message : "Unknown error";
         const fallbackMessage =
@@ -67,7 +76,7 @@ export function VocabularyScreen() {
         }));
       }
     }
-  }, []);
+  }, [scrollToStart]);
 
   useEffect(() => {
     void load();
@@ -76,10 +85,7 @@ export function VocabularyScreen() {
   useEffect(() => {
     // Always start from the beginning to avoid half-snapped initial positions.
     if (state.data.length === 0) return;
-    setCurrentIndex(0);
-    requestAnimationFrame(() => {
-      listRef.current?.scrollToIndex({ index: 0, animated: false, viewPosition: 0 });
-    });
+    scrollToStart();
   }, [state.data.length]);
 
   const header = useMemo(() => {
@@ -320,6 +326,17 @@ function WordCard({ word }: { word: VocabularyWord }) {
 
 function escapeRegex(input: string) {
   return input.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function shuffle<T>(arr: T[]) {
+  // Fisher–Yates
+  for (let i = arr.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const tmp = arr[i];
+    arr[i] = arr[j];
+    arr[j] = tmp;
+  }
+  return arr;
 }
 
 function getHighlightNeedles(title: string) {
