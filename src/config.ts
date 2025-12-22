@@ -10,4 +10,12 @@ export const TEST_COUNT = Number(process.env.EXPO_PUBLIC_TEST_COUNT ?? "30") || 
 export const TEST_REVEAL_MS =
   Number(process.env.EXPO_PUBLIC_TEST_REVEAL_MS ?? "2000") || 2000;
 
+export const REGIONALISME_URL =
+  process.env.EXPO_PUBLIC_REGIONALISME_URL ??
+  "https://example.com/regionalisme.ro.json";
+
+export const URBANISME_URL =
+  process.env.EXPO_PUBLIC_URBANISME_URL ??
+  "https://example.com/urbanisme.ro.json";
+
 

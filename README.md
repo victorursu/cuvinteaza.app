@@ -38,6 +38,8 @@ The app reads:
  - `EXPO_PUBLIC_TEST_URL`
  - `EXPO_PUBLIC_TEST_COUNT` (defaults to 30)
  - `EXPO_PUBLIC_TEST_REVEAL_MS` (defaults to 2000)
+ - `EXPO_PUBLIC_REGIONALISME_URL`
+ - `EXPO_PUBLIC_URBANISME_URL`
 
 ### Option A: `.env` file (recommended)
 
@@ -48,6 +50,8 @@ EXPO_PUBLIC_VOCABULARY_URL=https://your-domain.com/vocabulary.ro.json
 EXPO_PUBLIC_TEST_URL=https://your-domain.com/test.ro.json
 EXPO_PUBLIC_TEST_COUNT=30
 EXPO_PUBLIC_TEST_REVEAL_MS=2000
+EXPO_PUBLIC_REGIONALISME_URL=https://your-domain.com/regionalisme.ro.json
+EXPO_PUBLIC_URBANISME_URL=https://your-domain.com/urbanisme.ro.json
 ```
 
 Restart the dev server after changing env vars.

@@ -1,0 +1,184 @@
+[
+  {
+    "id": "reg-001",
+    "title": "cucuruz",
+    "grammar_block": "substantiv (n.)",
+    "definition": "Regionalism (mai ales Moldova/Ardeal) pentru „porumb”. Se folosește frecvent în vorbirea de la sat și în unele zone rurale.",
+    "image": "https://picsum.photos/seed/reg-cucuruz/800/600",
+    "tags": ["regionalisme", "rural", "moldova", "agricultură"],
+    "examples": [
+      "Am pus <strong>cucuruz</strong> în grădină, să avem pentru iarnă.",
+      "La piață, bunica a cerut un sac de <strong>cucuruz</strong>."
+    ]
+  },
+  {
+    "id": "reg-002",
+    "title": "oleacă",
+    "grammar_block": "adverb",
+    "definition": "Regionalism (mai ales Moldova) cu sensul „puțin”, „un pic”.",
+    "image": "https://picsum.photos/seed/reg-oleaca/800/600",
+    "tags": ["regionalisme", "moldova", "vorbire"],
+    "examples": [
+      "Stai <strong>oleacă</strong> să termin treaba asta.",
+      "Mai pune <strong>oleacă</strong> sare, te rog."
+    ]
+  },
+  {
+    "id": "reg-003",
+    "title": "șură",
+    "grammar_block": "substantiv (f.)",
+    "definition": "Construcție la țară folosită pentru depozitarea fânului, paielor sau a uneltelor; hambar.",
+    "image": "https://picsum.photos/seed/reg-sura/800/600",
+    "tags": ["regionalisme", "rural", "gospodărie"],
+    "examples": [
+      "Am băgat căruța în <strong>șură</strong> înainte să înceapă ploaia.",
+      "Fânul mirosea a vară în <strong>șură</strong>."
+    ]
+  },
+  {
+    "id": "reg-004",
+    "title": "cocon",
+    "grammar_block": "substantiv (m.)",
+    "definition": "Regionalism (în diferite zone) pentru „copil/băiat”, uneori cu nuanță afectivă.",
+    "image": "https://picsum.photos/seed/reg-cocon/800/600",
+    "tags": ["regionalisme", "familie", "rural"],
+    "examples": [
+      "Când era <strong>cocon</strong>, alerga toată ziua pe uliță.",
+      "Hai, <strong>cocon</strong>, îmbracă-te și vino la masă!"
+    ]
+  },
+  {
+    "id": "reg-005",
+    "title": "pălincă",
+    "grammar_block": "substantiv (f.)",
+    "definition": "Băutură spirtoasă tradițională (mai ales în Ardeal), distilată din fructe (prune, mere etc.).",
+    "image": "https://picsum.photos/seed/reg-palinca/800/600",
+    "tags": ["regionalisme", "ardeal", "tradiție"],
+    "examples": [
+      "Ne-au omenit cu o <strong>pălincă</strong> de prune, tare și aromată.",
+      "La nuntă, a curs <strong>pălinca</strong> din partea casei."
+    ]
+  },
+  {
+    "id": "reg-006",
+    "title": "șogor",
+    "grammar_block": "substantiv (m.)",
+    "definition": "Regionalism ardelean (împrumut din maghiară) pentru „cumnat” (soțul surorii / fratele soțului etc., în funcție de uz local).",
+    "image": "https://picsum.photos/seed/reg-sogor/800/600",
+    "tags": ["regionalisme", "ardeal", "împrumut", "maghiară", "familie"],
+    "examples": [
+      "Merg la <strong>șogor</strong> la o cafea, că n-am mai vorbit de mult.",
+      "<strong>Șogorul</strong> meu e din Cluj și are mereu povești bune."
+    ]
+  },
+  {
+    "id": "reg-007",
+    "title": "șnițel",
+    "grammar_block": "substantiv (n.)",
+    "definition": "Preparat din carne bătută, dată prin făină/ou/pesmet și prăjită. Termen răspândit, dar asociat puternic cu influențe central-europene (inclusiv maghiare/germane).",
+    "image": "https://picsum.photos/seed/reg-snitzel/800/600",
+    "tags": ["regionalisme", "împrumut", "gastronomie"],
+    "examples": [
+      "Am făcut <strong>șnițel</strong> cu piure, ca la bunica.",
+      "La cantină, <strong>șnițelul</strong> a fost surprinzător de bun."
+    ]
+  },
+  {
+    "id": "reg-008",
+    "title": "gulaș",
+    "grammar_block": "substantiv (n.)",
+    "definition": "Tocană/supă consistentă cu carne și boia, asociată cu bucătăria maghiară și zonele din vestul României.",
+    "image": "https://picsum.photos/seed/reg-gulas/800/600",
+    "tags": ["regionalisme", "ardeal", "împrumut", "maghiară", "gastronomie"],
+    "examples": [
+      "La târg, am mâncat un <strong>gulaș</strong> fierbinte, cu boia.",
+      "În Ardeal, <strong>gulașul</strong> e nelipsit la evenimentele de iarnă."
+    ]
+  },
+  {
+    "id": "reg-009",
+    "title": "baftă",
+    "grammar_block": "substantiv (f.)",
+    "definition": "Noroc, succes; termen foarte răspândit, cu origine atribuită limbii rrome (romani) în multe surse.",
+    "image": "https://picsum.photos/seed/reg-bafta/800/600",
+    "tags": ["regionalisme", "împrumut", "romani", "vorbire"],
+    "examples": [
+      "<strong>Baftă</strong> la examen, să-ți pice subiecte ușoare!",
+      "Cu <strong>baftă</strong> și muncă, le rezolvi pe toate."
+    ]
+  },
+  {
+    "id": "reg-010",
+    "title": "mișto",
+    "grammar_block": "adjectiv / adverb (col.)",
+    "definition": "Colocvial: „bun”, „tare”, „plăcut”. De multe ori indicat ca împrumut din romani.",
+    "image": "https://picsum.photos/seed/reg-misto/800/600",
+    "tags": ["regionalisme", "împrumut", "romani", "colocvial"],
+    "examples": [
+      "A fost <strong>mișto</strong> filmul, m-a prins din primele minute.",
+      "Ai o idee <strong>mișto</strong>, chiar merită încercată."
+    ]
+  },
+  {
+    "id": "reg-011",
+    "title": "a se hodini",
+    "grammar_block": "verb (reflexiv, infinitiv)",
+    "definition": "Regionalism (mai ales Moldova) pentru „a se odihni”.",
+    "image": "https://picsum.photos/seed/reg-hodini/800/600",
+    "tags": ["regionalisme", "moldova", "verbe", "rural"],
+    "examples": [
+      "Ne-am <strong>hodinit</strong> oleacă la umbră, că era zăpușeală.",
+      "După prânz, tata se <strong>hodinește</strong> o jumătate de oră."
+    ]
+  },
+  {
+    "id": "reg-012",
+    "title": "a păpușa (mâncarea)",
+    "grammar_block": "verb (infinitiv, col.)",
+    "definition": "Regional/colocvial: a mânca repede sau pe furiș; uzul poate varia mult între zone.",
+    "image": "https://picsum.photos/seed/reg-papusa/800/600",
+    "tags": ["regionalisme", "colocvial", "rural"],
+    "examples": [
+      "A <strong>păpușat</strong> o felie de pâine și a fugit afară.",
+      "Nu mai <strong>păpușa</strong> pe ascuns, vino la masă!"
+    ]
+  },
+  {
+    "id": "reg-013",
+    "title": "pogon",
+    "grammar_block": "substantiv (n.)",
+    "definition": "Unitate de măsură veche pentru suprafață de teren, încă auzită la țară în anumite regiuni.",
+    "image": "https://picsum.photos/seed/reg-pogon/800/600",
+    "tags": ["regionalisme", "rural", "agricultură", "măsuri"],
+    "examples": [
+      "Avem două <strong>pogoane</strong> de vie pe deal.",
+      "Bunicul încă măsoară pământul în <strong>pogon</strong>."
+    ]
+  },
+  {
+    "id": "reg-014",
+    "title": "hârtop",
+    "grammar_block": "substantiv (n.)",
+    "definition": "Groapă mare, denivelare adâncă pe drum; regionalism răspândit în vorbirea populară.",
+    "image": "https://picsum.photos/seed/reg-hartop/800/600",
+    "tags": ["regionalisme", "rural", "drumuri", "vorbire"],
+    "examples": [
+      "Drumul e plin de <strong>hârtoape</strong>, mergem încet.",
+      "Am sărit într-un <strong>hârtop</strong> și mi-am vărsat cafeaua."
+    ]
+  },
+  {
+    "id": "reg-015",
+    "title": "a se chilăvi",
+    "grammar_block": "verb (reflexiv, infinitiv)",
+    "definition": "Regional/colocvial: a slăbi, a se ofili, a se istovi (uz variabil).",
+    "image": "https://picsum.photos/seed/reg-chilavi/800/600",
+    "tags": ["regionalisme", "colocvial", "vorbire"],
+    "examples": [
+      "S-a <strong>chilăvit</strong> de la atâta muncă și stres.",
+      "Nu te mai <strong>chilăvi</strong>, ia-ți un răgaz și odihnește-te."
+    ]
+  }
+]
+
+

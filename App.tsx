@@ -7,6 +7,8 @@ import { PlaceholderScreen } from "./src/screens/PlaceholderScreen";
 import { VocabularyScreen } from "./src/screens/VocabularyScreen";
 import { ThemeProvider, useTheme } from "./src/theme/theme";
 import { TestScreen } from "./src/screens/TestScreen";
+import { RegionalismeScreen } from "./src/screens/RegionalismeScreen";
+import { UrbanismeScreen } from "./src/screens/UrbanismeScreen";
 
 export default function App() {
   return (
@@ -27,9 +29,9 @@ function AppInner() {
       case "testare":
         return <TestScreen />;
       case "regionalisme":
-        return <PlaceholderScreen title="Regionalisme" />;
+        return <RegionalismeScreen />;
       case "urbanisme":
-        return <PlaceholderScreen title="Urbanisme" />;
+        return <UrbanismeScreen />;
       case "setari":
         return <PlaceholderScreen title="Setari" />;
       case "cuvinte":
