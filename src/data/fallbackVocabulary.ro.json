@@ -154,6 +154,30 @@
       "Se auzea un <strong>murmur</strong> de apă dinspre pârâu.",
       "<strong>Murmurul</strong> sălii s-a stins când a început discursul."
     ]
+  },
+  {
+    "id": "incropi-14",
+    "title": "a încropi",
+    "grammar_block": "verb (infinitiv)",
+    "definition": "A face repede și improvizat, din ce ai la îndemână; a alcătui fără prea multă pregătire (un plan, o masă, o soluție).",
+    "image": "https://picsum.photos/seed/incropi/800/600",
+    "tags": ["verbe", "colocvial", "improvizație"],
+    "examples": [
+      "Am <strong>încropit</strong> un prânz rapid din ce am găsit în frigider.",
+      "Au <strong>încropit</strong> un plan pe genunchi și au plecat la drum."
+    ]
+  },
+  {
+    "id": "indaratnic-15",
+    "title": "îndărătnic",
+    "grammar_block": "adjectiv",
+    "definition": "Încăpățânat, greu de înduplecat; care își susține opinia sau comportamentul chiar și când apar argumente contra.",
+    "image": "https://picsum.photos/seed/indaratnic/800/600",
+    "tags": ["adjective", "caracter", "comportament"],
+    "examples": [
+      "E <strong>îndărătnic</strong> și nu renunță ușor la ideea lui.",
+      "Dintr-un orgoliu <strong>îndărătnic</strong>, a refuzat să ceară ajutor."
+    ]
   }
 ]
 

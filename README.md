@@ -84,6 +84,61 @@ The app accepts either:
 }
 ```
 
+## Testare (skill assessment) rules (30 questions)
+
+The assessment uses **all three difficulty levels in a single run** to avoid misclassification.
+
+### Test structure
+
+Total: **30 questions**
+
+- **10 × Easy**
+- **10 × Medium**
+- **10 × Hard**
+
+### Weighted scoring
+
+Each correct answer awards points based on difficulty:
+
+- **Easy**: 1 point
+- **Medium**: 2 points
+- **Hard**: 3 points
+
+Max score for 30 questions:
+
+- Easy: \(10 × 1 = 10\)
+- Medium: \(10 × 2 = 20\)
+- Hard: \(10 × 3 = 30\)
+- **Total max = 60 points**
+
+### Minimum competency gates (tier caps)
+
+Before assigning a level, minimum accuracy requirements apply:
+
+- **Easy gate (Beginner+)**: Easy accuracy **≥ 70%**
+- **Medium gate (Medium+)**: Medium accuracy **≥ 50%**
+- **Hard gate (Expert)**: Hard accuracy **≥ 40%**
+
+If a gate is not met, the user **cannot** be assigned above that tier.
+
+### Final classification
+
+- **Beginner**
+  - Easy accuracy **≥ 70%**
+  - AND (Medium accuracy **< 50%** **OR** Total score **< 25**)
+
+- **Intermediate**
+  - Easy accuracy **≥ 80%**
+  - AND Medium accuracy **≥ 50%**
+  - AND Hard accuracy **< 40%**
+  - AND Total score **25–45**
+
+- **Expert**
+  - Easy accuracy **≥ 90%**
+  - AND Medium accuracy **≥ 70%**
+  - AND Hard accuracy **≥ 40%**
+  - AND Total score **≥ 46**
+
 ## Mock data
 
 The app includes a bundled fallback vocabulary for offline / remote failures:
