@@ -15,6 +15,7 @@ import type { VocabularyWord } from "../types";
 import { fetchVocabulary, parseVocabulary } from "../api/vocabulary";
 import { useTheme } from "../theme/theme";
 import { RefreshIcon } from "../components/icons/RefreshIcon";
+import { ThemeIcon } from "../components/icons/ThemeIcon";
 import { InlineRichText } from "../components/InlineRichText";
 
 type Source = "remote" | "local";
@@ -34,7 +35,7 @@ export function DictionaryScreen({
 }) {
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  const { theme } = useTheme();
+  const { theme, toggle } = useTheme();
   const listRef = useRef<FlatList<VocabularyWord>>(null);
 
   const [state, setState] = useState<LoadState>({ status: "idle", data: [] });
@@ -96,14 +97,24 @@ export function DictionaryScreen({
               {sourceLabel ? ` · ${sourceLabel}` : ""}
             </Text>
           </View>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Refresh"
-            style={[styles.iconBtn, { backgroundColor: theme.colors.headerIconBg }]}
-            onPress={load}
-          >
-            <RefreshIcon color={theme.colors.iconActive} />
-          </Pressable>
+          <View style={styles.headerActions}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Refresh"
+              style={[styles.iconBtn, { backgroundColor: theme.colors.headerIconBg }]}
+              onPress={load}
+            >
+              <RefreshIcon color={theme.colors.iconActive} />
+            </Pressable>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Theme"
+              style={[styles.iconBtn, { backgroundColor: theme.colors.headerIconBg }]}
+              onPress={toggle}
+            >
+              <ThemeIcon mode={theme.mode} color={theme.colors.iconActive} />
+            </Pressable>
+          </View>
         </View>
         {state.status === "error" ? (
           <View style={styles.errorBox}>
@@ -366,6 +377,7 @@ const styles = StyleSheet.create({
   header: { gap: 6 },
   headerRow: { flexDirection: "row", alignItems: "center", gap: 12 },
   headerLeft: { flex: 1, gap: 2 },
+  headerActions: { flexDirection: "row", gap: 8 },
   title: { fontSize: 28, fontWeight: "800" },
   subtitle: { fontSize: 12 },
   iconBtn: {

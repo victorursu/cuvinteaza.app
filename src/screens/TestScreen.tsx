@@ -16,6 +16,7 @@ import { TEST_COUNT, TEST_REVEAL_MS, TEST_URL } from "../config";
 import fallbackTest from "../data/fallbackTest.ro.json";
 import type { TestDifficulty, TestQuestion } from "../types";
 import { useTheme } from "../theme/theme";
+import { ThemeIcon } from "../components/icons/ThemeIcon";
 import Svg, { Circle, Defs, LinearGradient, Stop } from "react-native-svg";
 
 type LoadState =
@@ -33,7 +34,7 @@ type AnswerState = {
 export function TestScreen() {
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  const { theme } = useTheme();
+  const { theme, toggle } = useTheme();
 
   const listRef = useRef<FlatList<TestQuestion>>(null);
   const revealTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -193,14 +194,24 @@ export function TestScreen() {
               {sourceLabel ? ` · ${sourceLabel}` : ""}
             </Text>
           </View>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Restart"
-            style={[styles.smallBtn, { backgroundColor: theme.colors.headerIconBg }]}
-            onPress={reset}
-          >
-            <Text style={[styles.smallBtnText, { color: theme.colors.iconActive }]}>Reset</Text>
-          </Pressable>
+          <View style={styles.headerActions}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Theme"
+              style={[styles.iconBtn, { backgroundColor: theme.colors.headerIconBg }]}
+              onPress={toggle}
+            >
+              <ThemeIcon mode={theme.mode} color={theme.colors.iconActive} />
+            </Pressable>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Restart"
+              style={[styles.smallBtn, { backgroundColor: theme.colors.headerIconBg }]}
+              onPress={reset}
+            >
+              <Text style={[styles.smallBtnText, { color: theme.colors.iconActive }]}>Reset</Text>
+            </Pressable>
+          </View>
         </View>
         {state.status === "error" ? (
           <View style={styles.errorBox}>
@@ -558,6 +569,14 @@ const styles = StyleSheet.create({
   header: { gap: 6 },
   headerRow: { flexDirection: "row", alignItems: "center", gap: 12 },
   headerLeft: { flex: 1, gap: 2 },
+  headerActions: { flexDirection: "row", gap: 8, alignItems: "center" },
+  iconBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   title: { fontSize: 28, fontWeight: "800" },
   subtitle: { fontSize: 12 },
   smallBtn: {

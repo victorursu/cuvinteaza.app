@@ -262,10 +262,10 @@ export function AccountScreen() {
         { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 20 },
       ]}
     >
-      <View style={styles.header}>
-        <Text style={[styles.title, { color: theme.colors.textPrimary }]}>
-          {authMode === "login" ? "Conectare" : "Înregistrare"}
-        </Text>
+        <View style={styles.header}>
+          <Text style={[styles.title, { color: theme.colors.textPrimary }]}>
+            {authMode === "login" ? "Conectare" : "Înregistrare"}
+          </Text>
         <Pressable
           onPress={() => {
             setAuthMode(authMode === "login" ? "register" : "login");
