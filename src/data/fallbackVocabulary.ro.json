@@ -7,8 +7,8 @@
     "image": "https://picsum.photos/seed/dor/800/600",
     "tags": ["emoții", "cultură", "nostalgie"],
     "examples": [
-      "Mi-e dor de bunici și de mirosul de cozonac din copilărie.",
-      "Dorul de casă îl însoțea în fiecare seară."
+      "Mi-e <strong>dor</strong> de bunici și de mirosul de cozonac din copilărie.",
+      "<strong>Dorul</strong> de casă îl însoțea în fiecare seară."
     ]
   },
   {
@@ -19,8 +19,8 @@
     "image": "https://picsum.photos/seed/ragaz/800/600",
     "tags": ["timp", "echilibru", "viață"],
     "examples": [
-      "După ședință, și-a luat un răgaz de zece minute să respire.",
-      "În weekend caut un răgaz pentru lectură și plimbare."
+      "După ședință, și-a luat un <strong>răgaz</strong> de zece minute să respire.",
+      "În weekend caut un <strong>răgaz</strong> pentru lectură și plimbare."
     ]
   },
   {
@@ -31,8 +31,8 @@
     "image": "https://picsum.photos/seed/sueta/800/600",
     "tags": ["comunicare", "social", "relaxare"],
     "examples": [
-      "Am stat la o șuetă cu vecinii în fața blocului.",
-      "O șuetă scurtă la cafea i-a schimbat ziua."
+      "Am stat la o <strong>șuetă</strong> cu vecinii în fața blocului.",
+      "O <strong>șuetă</strong> scurtă la cafea i-a schimbat ziua."
     ]
   },
   {
@@ -43,8 +43,8 @@
     "image": "https://picsum.photos/seed/zabava/800/600",
     "tags": ["timp", "ritm", "limbaj"],
     "examples": [
-      "Fără zăbavă, a pornit la drum înainte să se întunece.",
-      "A făcut zăbavă privind luminile orașului."
+      "Fără <strong>zăbavă</strong>, a pornit la drum înainte să se întunece.",
+      "A făcut <strong>zăbavă</strong> privind luminile orașului."
     ]
   },
   {
@@ -55,8 +55,8 @@
     "image": "https://picsum.photos/seed/sovaiala/800/600",
     "tags": ["psihologie", "decizii", "comportament"],
     "examples": [
-      "A semnat contractul fără șovăială.",
-      "Șovăiala lui s-a văzut în fiecare pas."
+      "A semnat contractul fără <strong>șovăială</strong>.",
+      "<strong>Șovăiala</strong> lui s-a văzut în fiecare pas."
     ]
   },
   {
@@ -67,8 +67,8 @@
     "image": "https://picsum.photos/seed/prag/800/600",
     "tags": ["spațiu", "metaforă", "limite"],
     "examples": [
-      "S-a oprit în prag și a zâmbit.",
-      "A trecut pragul unei noi etape în carieră."
+      "S-a oprit în <strong>prag</strong> și a zâmbit.",
+      "A trecut <strong>pragul</strong> unei noi etape în carieră."
     ]
   },
   {
@@ -79,8 +79,8 @@
     "image": "https://picsum.photos/seed/mester/800/600",
     "tags": ["meserii", "îndemânare", "tradiție"],
     "examples": [
-      "Meșterul a reparat ușa din prima încercare.",
-      "E meșter la vorbă, dar și la treabă."
+      "<strong>Meșterul</strong> a reparat ușa din prima încercare.",
+      "E <strong>meșter</strong> la vorbă, dar și la treabă."
     ]
   },
   {
@@ -91,8 +91,8 @@
     "image": "https://picsum.photos/seed/zugravi/800/600",
     "tags": ["casă", "acțiuni", "limbaj"],
     "examples": [
-      "În weekend am decis să zugrăvim camera copilului.",
-      "Jurnalistul a zugrăvit atmosfera festivalului în detalii."
+      "În weekend am decis să <strong>zugrăvim</strong> camera copilului.",
+      "Jurnalistul a <strong>zugrăvit</strong> atmosfera festivalului în detalii."
     ]
   },
   {
@@ -103,8 +103,8 @@
     "image": "https://picsum.photos/seed/furisa/800/600",
     "tags": ["acțiuni", "mişcare", "discreție"],
     "examples": [
-      "S-a furișat afară ca să nu trezească pe nimeni.",
-      "Gândurile rele se furișează uneori fără să le chemi."
+      "S-a <strong>furișat</strong> afară ca să nu trezească pe nimeni.",
+      "Gândurile rele se <strong>furișează</strong> uneori fără să le chemi."
     ]
   },
   {
@@ -115,8 +115,8 @@
     "image": "https://picsum.photos/seed/imbucurator/800/600",
     "tags": ["stări", "pozitiv", "limbaj"],
     "examples": [
-      "E îmbucurător că analizele au ieșit bine.",
-      "Un mesaj îmbucurător i-a dat curaj să continue."
+      "E <strong>îmbucurător</strong> că analizele au ieșit bine.",
+      "Un mesaj <strong>îmbucurător</strong> i-a dat curaj să continue."
     ]
   },
   {
@@ -127,8 +127,8 @@
     "image": "https://picsum.photos/seed/incalcit/800/600",
     "tags": ["descriere", "complexitate", "limbaj"],
     "examples": [
-      "E un caz încâlcit și avem nevoie de răbdare.",
-      "A urmat un traseu încâlcit prin orașul vechi."
+      "E un caz <strong>încâlcit</strong> și avem nevoie de răbdare.",
+      "A urmat un traseu <strong>încâlcit</strong> prin orașul vechi."
     ]
   },
   {
@@ -139,19 +139,8 @@
     "image": "https://picsum.photos/seed/miji/800/600",
     "tags": ["natură", "verbe", "poetic"],
     "examples": [
-      "Mijeau zorile când am ajuns pe munte.",
-      "Prin perdea, lumina mijea timid.",
-      "Mijeau zorile când am ajuns pe munte.",
-      "Prin perdea, lumina mijea timid.",
-      "Mijeau zorile când am ajuns pe munte.",
-      "Prin perdea, lumina mijea timid.",
-      "Mijeau zorile când am ajuns pe munte.",
-      "Prin perdea, lumina mijea timid.",
-      "Prin perdea, lumina mijea timid.",
-      "Mijeau zorile când am ajuns pe munte.",
-      "Prin perdea, lumina mijea timid.",
-      "Mijeau zorile când am ajuns pe munte.",
-      "Prin perdea, lumina mijea timid."
+      "<strong>Mijeau</strong> zorile când am ajuns pe munte.",
+      "Prin perdea, lumina <strong>mijea</strong> timid."
     ]
   },
   {
@@ -162,8 +151,8 @@
     "image": "https://picsum.photos/seed/murmur/800/600",
     "tags": ["sunete", "natură", "descriere"],
     "examples": [
-      "Se auzea un murmur de apă dinspre pârâu.",
-      "Murmurul sălii s-a stins când a început discursul."
+      "Se auzea un <strong>murmur</strong> de apă dinspre pârâu.",
+      "<strong>Murmurul</strong> sălii s-a stins când a început discursul."
     ]
   }
 ]

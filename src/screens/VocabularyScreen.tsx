@@ -19,6 +19,7 @@ import fallbackVocabulary from "../data/fallbackVocabulary.ro.json";
 import { useTheme } from "../theme/theme";
 import { RefreshIcon } from "../components/icons/RefreshIcon";
 import { ThemeIcon } from "../components/icons/ThemeIcon";
+import { InlineRichText } from "../components/InlineRichText";
 
 type LoadState =
   | {
@@ -40,7 +41,6 @@ export function VocabularyScreen() {
     data: [],
   });
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [startIndex, setStartIndex] = useState<number | null>(null);
 
   const load = useCallback(async () => {
     setState((s) => ({ ...s, status: "loading", error: undefined }));
@@ -73,24 +73,14 @@ export function VocabularyScreen() {
     void load();
   }, [load]);
 
-  // Pick a random starting word once we have data (stable for the session).
   useEffect(() => {
-    if (startIndex !== null) return;
+    // Always start from the beginning to avoid half-snapped initial positions.
     if (state.data.length === 0) return;
-
-    const idx = Math.floor(Math.random() * state.data.length);
-    setStartIndex(idx);
-    setCurrentIndex(idx);
-
-    // Scroll after layout to ensure it sticks.
+    setCurrentIndex(0);
     requestAnimationFrame(() => {
-      listRef.current?.scrollToIndex({
-        index: idx,
-        animated: false,
-        viewPosition: 0.5,
-      });
+      listRef.current?.scrollToIndex({ index: 0, animated: false, viewPosition: 0 });
     });
-  }, [state.data.length, startIndex]);
+  }, [state.data.length]);
 
   const header = useMemo(() => {
     const total = state.data.length;
@@ -199,6 +189,7 @@ export function VocabularyScreen() {
               showsHorizontalScrollIndicator={false}
               data={state.data}
               keyExtractor={(item) => item.id}
+              initialScrollIndex={0}
               decelerationRate="fast"
               snapToInterval={snapInterval}
               snapToAlignment="start"
@@ -263,6 +254,11 @@ function WordCard({ word }: { word: VocabularyWord }) {
   const canScroll = contentH > viewportH + 2;
   const atBottom = scrollY + viewportH >= contentH - 8;
 
+  const examples = useMemo(() => {
+    const needles = getHighlightNeedles(word.title);
+    return word.examples.map((ex) => highlightExampleHtml(ex, needles));
+  }, [word.examples, word.title]);
+
   return (
     <View style={styles.card}>
       <ImageBackground
@@ -293,10 +289,11 @@ function WordCard({ word }: { word: VocabularyWord }) {
 
             <Text style={styles.sectionTitle}>Exemple</Text>
             <View style={styles.examplesWrap}>
-              {word.examples.map((ex, idx) => (
-                <Text key={`${word.id}-ex-${idx}`} style={styles.exampleText}>
-                  {idx + 1}. {ex}
-                </Text>
+              {examples.map((ex, idx) => (
+                <View key={`${word.id}-ex-${idx}`} style={styles.exampleRow}>
+                  <Text style={styles.exampleIndex}>{idx + 1}.</Text>
+                  <InlineRichText text={ex} style={styles.exampleText} />
+                </View>
               ))}
             </View>
 
@@ -319,6 +316,69 @@ function WordCard({ word }: { word: VocabularyWord }) {
       </ImageBackground>
     </View>
   );
+}
+
+function escapeRegex(input: string) {
+  return input.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function getHighlightNeedles(title: string) {
+  // Highlight the full title and also a simplified base form for infinitives like:
+  // "a miji" -> "miji", "a se furișa" -> "furișa"
+  const needles = new Set<string>();
+  const trimmed = title.trim();
+  if (trimmed) needles.add(trimmed);
+
+  const lower = trimmed.toLowerCase();
+  if (lower.startsWith("a se ")) {
+    const base = trimmed.slice(5).trim();
+    if (base) needles.add(base);
+  } else if (lower.startsWith("a ")) {
+    const base = trimmed.slice(2).trim();
+    if (base) needles.add(base);
+  }
+
+  // Prefer longer matches first (avoid partial overlaps).
+  return Array.from(needles).sort((a, b) => b.length - a.length);
+}
+
+function highlightExampleHtml(input: string, needles: string[]) {
+  if (needles.length === 0) return input;
+
+  // Only operate on text portions outside of <strong>/<em>/<b>/<i> tags,
+  // and do not add <strong> inside an existing <strong>.
+  const tokens = input.split(/(<\/?(?:strong|em|b|i)>)/g).filter(Boolean);
+  let boldDepth = 0;
+
+  const apply = (text: string) => {
+    if (!text) return text;
+    let out = text;
+    for (const n of needles) {
+      const re = new RegExp(
+        `(^|[^\\p{L}])(${escapeRegex(n)})(?=[^\\p{L}]|$)`,
+        "giu"
+      );
+      out = out.replace(re, `$1<strong>$2</strong>`);
+    }
+    return out;
+  };
+
+  return tokens
+    .map((t) => {
+      switch (t) {
+        case "<strong>":
+        case "<b>":
+          boldDepth += 1;
+          return t;
+        case "</strong>":
+        case "</b>":
+          boldDepth = Math.max(0, boldDepth - 1);
+          return t;
+        default:
+          return boldDepth > 0 ? t : apply(t);
+      }
+    })
+    .join("");
 }
 
 const styles = StyleSheet.create({
@@ -422,6 +482,13 @@ const styles = StyleSheet.create({
     marginTop: 14,
   },
   examplesWrap: { gap: 10 },
+  exampleRow: { flexDirection: "row", gap: 8, alignItems: "flex-start" },
+  exampleIndex: {
+    fontSize: 18,
+    lineHeight: 24,
+    color: "rgba(225, 234, 255, 0.95)",
+    fontWeight: "900",
+  },
   exampleText: {
     fontSize: 18,
     lineHeight: 24,

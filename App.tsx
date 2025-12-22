@@ -6,6 +6,7 @@ import { BottomTabs, type TabKey } from "./src/components/BottomTabs";
 import { PlaceholderScreen } from "./src/screens/PlaceholderScreen";
 import { VocabularyScreen } from "./src/screens/VocabularyScreen";
 import { ThemeProvider, useTheme } from "./src/theme/theme";
+import { TestScreen } from "./src/screens/TestScreen";
 
 export default function App() {
   return (
@@ -23,6 +24,8 @@ function AppInner() {
     switch (tab) {
       case "account":
         return <PlaceholderScreen title="Account" />;
+      case "testare":
+        return <TestScreen />;
       case "regionalisme":
         return <PlaceholderScreen title="Regionalisme" />;
       case "urbanisme":

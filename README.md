@@ -35,6 +35,9 @@ npm run web
 The app reads:
 
 - `EXPO_PUBLIC_VOCABULARY_URL`
+ - `EXPO_PUBLIC_TEST_URL`
+ - `EXPO_PUBLIC_TEST_COUNT` (defaults to 30)
+ - `EXPO_PUBLIC_TEST_REVEAL_MS` (defaults to 2000)
 
 ### Option A: `.env` file (recommended)
 
@@ -42,6 +45,9 @@ Create a `.env` file in the project root:
 
 ```bash
 EXPO_PUBLIC_VOCABULARY_URL=https://your-domain.com/vocabulary.ro.json
+EXPO_PUBLIC_TEST_URL=https://your-domain.com/test.ro.json
+EXPO_PUBLIC_TEST_COUNT=30
+EXPO_PUBLIC_TEST_REVEAL_MS=2000
 ```
 
 Restart the dev server after changing env vars.

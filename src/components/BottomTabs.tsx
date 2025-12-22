@@ -3,9 +3,15 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AccountIcon } from "./icons/AccountIcon";
 import { useTheme } from "../theme/theme";
+import { BookIcon } from "./icons/BookIcon";
+import { BuildingsIcon } from "./icons/BuildingsIcon";
+import { GearIcon } from "./icons/GearIcon";
+import { MapPinIcon } from "./icons/MapPinIcon";
+import { QuizIcon } from "./icons/QuizIcon";
 
 export type TabKey =
   | "account"
+  | "testare"
   | "cuvinte"
   | "regionalisme"
   | "urbanisme"
@@ -13,6 +19,7 @@ export type TabKey =
 
 const LABELS: Record<TabKey, string> = {
   account: "Account",
+  testare: "Testare",
   cuvinte: "Cuvinte",
   regionalisme: "Regionalisme",
   urbanisme: "Urbanisme",
@@ -51,37 +58,35 @@ export function BottomTabs({
           onPress={() => onChange("account")}
           icon={({ color }) => <AccountIcon color={color} />}
         />
-        <View
-          style={[styles.divider, { backgroundColor: theme.colors.tabDivider }]}
+        <TabButton
+          label={LABELS.testare}
+          active={active === "testare"}
+          onPress={() => onChange("testare")}
+          icon={({ color }) => <QuizIcon color={color} />}
         />
         <TabButton
           label={LABELS.cuvinte}
           active={active === "cuvinte"}
           onPress={() => onChange("cuvinte")}
-        />
-        <View
-          style={[styles.divider, { backgroundColor: theme.colors.tabDivider }]}
+          icon={({ color }) => <BookIcon color={color} />}
         />
         <TabButton
           label={LABELS.regionalisme}
           active={active === "regionalisme"}
           onPress={() => onChange("regionalisme")}
-        />
-        <View
-          style={[styles.divider, { backgroundColor: theme.colors.tabDivider }]}
+          icon={({ color }) => <MapPinIcon color={color} />}
         />
         <TabButton
           label={LABELS.urbanisme}
           active={active === "urbanisme"}
           onPress={() => onChange("urbanisme")}
-        />
-        <View
-          style={[styles.divider, { backgroundColor: theme.colors.tabDivider }]}
+          icon={({ color }) => <BuildingsIcon color={color} />}
         />
         <TabButton
           label={LABELS.setari}
           active={active === "setari"}
           onPress={() => onChange("setari")}
+          icon={({ color }) => <GearIcon color={color} />}
         />
       </ScrollView>
     </View>
@@ -129,10 +134,6 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     flexDirection: "row",
     alignItems: "center",
-  },
-  divider: {
-    width: 1,
-    alignSelf: "stretch",
   },
   btn: {
     height: "100%",

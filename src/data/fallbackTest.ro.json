@@ -1,0 +1,909 @@
+[
+  {
+    "id": "q-001",
+    "question": "Ce înseamnă „vocabular”?",
+    "options": [
+      "Un set de reguli de circulație",
+      "Un scaun",
+      "Președintele unui stat",
+      "Totalitatea cuvintelor folosite într-o limbă sau de o persoană"
+    ],
+    "correct_options": [3],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-001/900/1200"
+  },
+  {
+    "id": "q-002",
+    "question": "Ce înseamnă cuvântul „definiție”?",
+    "options": [
+      "O explicație a sensului unui termen",
+      "O rețetă de prăjituri",
+      "O clădire înaltă",
+      "Un bilet de autobuz"
+    ],
+    "correct_options": [0],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-002/900/1200"
+  },
+  {
+    "id": "q-003",
+    "question": "Care dintre următoarele este un sinonim pentru „rapid”?",
+    "options": ["lent", "iute", "greu", "tăcut"],
+    "correct_options": [1],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-003/900/1200"
+  },
+  {
+    "id": "q-004",
+    "question": "Ce este un „regionalism”?",
+    "options": [
+      "Un cuvânt folosit doar într-o anumită zonă",
+      "Un instrument muzical",
+      "Un animal sălbatic",
+      "Un tip de sport"
+    ],
+    "correct_options": [0],
+    "difficulty": "medium",
+    "image": "https://picsum.photos/seed/test-004/900/1200"
+  },
+  {
+    "id": "q-005",
+    "question": "Care propoziție folosește corect cuvântul „dor”?",
+    "options": [
+      "Am dor un sandviș.",
+      "Mi-e dor de tine.",
+      "Dorul este un fel de telefon.",
+      "Dor înseamnă roată."
+    ],
+    "correct_options": [1],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-005/900/1200"
+  },
+  {
+    "id": "q-006",
+    "question": "Ce parte de vorbire este „îmbucurător”?",
+    "options": ["substantiv", "verb", "adjectiv", "pronume"],
+    "correct_options": [2],
+    "difficulty": "medium",
+    "image": "https://picsum.photos/seed/test-006/900/1200"
+  },
+  {
+    "id": "q-007",
+    "question": "Ce înseamnă expresia „a se furișa”?",
+    "options": [
+      "A merge încet și pe ascuns",
+      "A cânta tare",
+      "A construi o casă",
+      "A conduce un autobuz"
+    ],
+    "correct_options": [0],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-007/900/1200"
+  },
+  {
+    "id": "q-008",
+    "question": "Alege varianta corectă: „încâlcit” înseamnă…",
+    "options": ["simplu", "complicat", "ușor", "strălucitor"],
+    "correct_options": [1],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-008/900/1200"
+  },
+  {
+    "id": "q-009",
+    "question": "Care este definiția unui „răgaz”?",
+    "options": [
+      "O pauză / un timp scurt de odihnă",
+      "O competiție sportivă",
+      "O piesă de mobilier",
+      "O monedă veche"
+    ],
+    "correct_options": [0],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-009/900/1200"
+  },
+  {
+    "id": "q-010",
+    "question": "În propoziția „Mijeau zorile”, „a miji” înseamnă…",
+    "options": [
+      "a dispărea complet",
+      "a apare treptat",
+      "a striga tare",
+      "a îngheța"
+    ],
+    "correct_options": [1],
+    "difficulty": "hard",
+    "image": "https://picsum.photos/seed/test-010/900/1200"
+  },
+  {
+    "id": "q-011",
+    "question": "Ce înseamnă „sinonim”?",
+    "options": [
+      "Cuvânt cu sens opus",
+      "Cuvânt cu sens asemănător",
+      "Semn de punctuație",
+      "Nume de persoană"
+    ],
+    "correct_options": [1],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-011/900/1200"
+  },
+  {
+    "id": "q-012",
+    "question": "Ce înseamnă „antonim”?",
+    "options": [
+      "Cuvânt cu sens asemănător",
+      "Cuvânt inventat",
+      "Cuvânt cu sens opus",
+      "Un tip de propoziție"
+    ],
+    "correct_options": [2],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-012/900/1200"
+  },
+  {
+    "id": "q-013",
+    "question": "Care este sinonimul lui „fericit”?",
+    "options": ["trist", "bucuros", "supărat", "obosit"],
+    "correct_options": [1],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-013/900/1200"
+  },
+  {
+    "id": "q-014",
+    "question": "Care este antonimul lui „ușor”?",
+    "options": ["greu", "iute", "mic", "cald"],
+    "correct_options": [0],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-014/900/1200"
+  },
+  {
+    "id": "q-015",
+    "question": "Ce parte de vorbire este „a citi”?",
+    "options": ["substantiv", "verb", "adjectiv", "prepoziție"],
+    "correct_options": [1],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-015/900/1200"
+  },
+  {
+    "id": "q-016",
+    "question": "Ce parte de vorbire este „carte”?",
+    "options": ["verb", "adjectiv", "substantiv", "adverb"],
+    "correct_options": [2],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-016/900/1200"
+  },
+  {
+    "id": "q-017",
+    "question": "Ce parte de vorbire este „frumos” în propoziția „un peisaj frumos”?",
+    "options": ["substantiv", "adjectiv", "verb", "pronume"],
+    "correct_options": [1],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-017/900/1200"
+  },
+  {
+    "id": "q-018",
+    "question": "Ce parte de vorbire este „mâine” în propoziția „Plec mâine.”?",
+    "options": ["adverb", "substantiv", "adjectiv", "conjuncție"],
+    "correct_options": [0],
+    "difficulty": "medium",
+    "image": "https://picsum.photos/seed/test-018/900/1200"
+  },
+  {
+    "id": "q-019",
+    "question": "Care dintre următoarele este o prepoziție?",
+    "options": ["și", "în", "frumos", "aleargă"],
+    "correct_options": [1],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-019/900/1200"
+  },
+  {
+    "id": "q-020",
+    "question": "Care dintre următoarele este o conjuncție?",
+    "options": ["și", "sub", "mare", "albastru"],
+    "correct_options": [0],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-020/900/1200"
+  },
+  {
+    "id": "q-021",
+    "question": "Care propoziție este corectă?",
+    "options": [
+      "Am mers la școală ieri.",
+      "Am mers la școală iera.",
+      "Am mers la școală ieriă.",
+      "Am mers la școală ier."
+    ],
+    "correct_options": [0],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-021/900/1200"
+  },
+  {
+    "id": "q-022",
+    "question": "Ce înseamnă „șuetă”?",
+    "options": ["o ceartă", "o conversație lejeră", "un fel de mâncare", "o unealtă"],
+    "correct_options": [1],
+    "difficulty": "medium",
+    "image": "https://picsum.photos/seed/test-022/900/1200"
+  },
+  {
+    "id": "q-023",
+    "question": "Ce înseamnă „zăbavă”?",
+    "options": ["grabă", "întârziere / zăbovire", "bucurie", "frig"],
+    "correct_options": [1],
+    "difficulty": "medium",
+    "image": "https://picsum.photos/seed/test-023/900/1200"
+  },
+  {
+    "id": "q-024",
+    "question": "Ce înseamnă „șovăială”?",
+    "options": ["ezitare", "curaj", "furie", "liniște"],
+    "correct_options": [0],
+    "difficulty": "medium",
+    "image": "https://picsum.photos/seed/test-024/900/1200"
+  },
+  {
+    "id": "q-025",
+    "question": "Ce înseamnă „prag” (sens figurat)?",
+    "options": ["un animal", "o limită / o trecere", "o culoare", "un instrument"],
+    "correct_options": [1],
+    "difficulty": "medium",
+    "image": "https://picsum.photos/seed/test-025/900/1200"
+  },
+  {
+    "id": "q-026",
+    "question": "Ce înseamnă „meșter”?",
+    "options": ["un om priceput la o meserie", "un medic", "un elev", "un munte"],
+    "correct_options": [0],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-026/900/1200"
+  },
+  {
+    "id": "q-027",
+    "question": "Ce înseamnă „a zugrăvi” (sens propriu)?",
+    "options": ["a vopsi pereți", "a adormi", "a alerga", "a citi"],
+    "correct_options": [0],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-027/900/1200"
+  },
+  {
+    "id": "q-028",
+    "question": "Ce înseamnă „murmur”?",
+    "options": ["un zgomot domol și continuu", "un strigăt puternic", "o tăcere totală", "un dans"],
+    "correct_options": [0],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-028/900/1200"
+  },
+  {
+    "id": "q-029",
+    "question": "Care este sinonimul lui „încâlcit”?",
+    "options": ["complicat", "simplu", "clar", "scurt"],
+    "correct_options": [0],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-029/900/1200"
+  },
+  {
+    "id": "q-030",
+    "question": "Care dintre următoarele este un adverb?",
+    "options": ["repede", "frumos", "copil", "a merge"],
+    "correct_options": [0],
+    "difficulty": "medium",
+    "image": "https://picsum.photos/seed/test-030/900/1200"
+  },
+  {
+    "id": "q-031",
+    "question": "Ce parte de vorbire este „eu”?",
+    "options": ["pronume", "substantiv", "adjectiv", "prepoziție"],
+    "correct_options": [0],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-031/900/1200"
+  },
+  {
+    "id": "q-032",
+    "question": "Ce parte de vorbire este „și”?",
+    "options": ["conjuncție", "prepoziție", "adjectiv", "substantiv"],
+    "correct_options": [0],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-032/900/1200"
+  },
+  {
+    "id": "q-033",
+    "question": "Care este pluralul corect pentru „cuvânt”?",
+    "options": ["cuvânți", "cuvinte", "cuvânturi", "cuvânti"],
+    "correct_options": [1],
+    "difficulty": "medium",
+    "image": "https://picsum.photos/seed/test-033/900/1200"
+  },
+  {
+    "id": "q-034",
+    "question": "Ce înseamnă „urbanism” (în sens general)?",
+    "options": [
+      "Studiul și organizarea orașelor",
+      "Un sport de iarnă",
+      "O specie de pasăre",
+      "Un instrument medical"
+    ],
+    "correct_options": [0],
+    "difficulty": "medium",
+    "image": "https://picsum.photos/seed/test-034/900/1200"
+  },
+  {
+    "id": "q-035",
+    "question": "Care propoziție folosește corect „răgaz”?",
+    "options": [
+      "Am răgaz o mașină nouă.",
+      "Mi-am luat un răgaz după muncă.",
+      "Răgazul este o floare.",
+      "Răgaz înseamnă roată."
+    ],
+    "correct_options": [1],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-035/900/1200"
+  },
+  {
+    "id": "q-036",
+    "question": "Care este antonimul lui „bucuros”?",
+    "options": ["fericit", "trist", "iute", "calm"],
+    "correct_options": [1],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-036/900/1200"
+  },
+  {
+    "id": "q-037",
+    "question": "Ce înseamnă „a explica”?",
+    "options": ["a clarifica", "a ascunde", "a strica", "a adormi"],
+    "correct_options": [0],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-037/900/1200"
+  },
+  {
+    "id": "q-038",
+    "question": "Ce înseamnă „a defini”?",
+    "options": ["a da o explicație / un sens", "a alerga", "a mânca", "a picta"],
+    "correct_options": [0],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-038/900/1200"
+  },
+  {
+    "id": "q-039",
+    "question": "Care dintre următoarele este un adjectiv?",
+    "options": ["albastru", "a cânta", "și", "în"],
+    "correct_options": [0],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-039/900/1200"
+  },
+  {
+    "id": "q-040",
+    "question": "Care propoziție este scrisă corect?",
+    "options": [
+      "Îmi place să citesc.",
+      "Imi place să citesc.",
+      "Îmi place sa citesc.",
+      "Imi place sa citesc."
+    ],
+    "correct_options": [0],
+    "difficulty": "medium",
+    "image": "https://picsum.photos/seed/test-040/900/1200"
+  },
+  {
+    "id": "q-041",
+    "question": "Care este sinonimul lui „curajos”?",
+    "options": ["viteaz", "fricos", "leneș", "tăcut"],
+    "correct_options": [0],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-041/900/1200"
+  },
+  {
+    "id": "q-042",
+    "question": "Care este antonimul lui „cald”?",
+    "options": ["rece", "umed", "verde", "încet"],
+    "correct_options": [0],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-042/900/1200"
+  },
+  {
+    "id": "q-043",
+    "question": "Ce înseamnă „a se furișa” (sens figurat)?",
+    "options": [
+      "A apărea pe neașteptate și discret",
+      "A străluci puternic",
+      "A dispărea complet",
+      "A lovi tare"
+    ],
+    "correct_options": [0],
+    "difficulty": "hard",
+    "image": "https://picsum.photos/seed/test-043/900/1200"
+  },
+  {
+    "id": "q-044",
+    "question": "Care dintre următoarele este un pronume?",
+    "options": ["acesta", "masă", "frumos", "aleargă"],
+    "correct_options": [0],
+    "difficulty": "medium",
+    "image": "https://picsum.photos/seed/test-044/900/1200"
+  },
+  {
+    "id": "q-045",
+    "question": "Ce înseamnă „îmbucurător”?",
+    "options": ["încurajator", "îngrozitor", "întunecat", "plictisitor"],
+    "correct_options": [0],
+    "difficulty": "medium",
+    "image": "https://picsum.photos/seed/test-045/900/1200"
+  },
+  {
+    "id": "q-046",
+    "question": "Care este sinonimul lui „liniște”?",
+    "options": ["tăcere", "zgomot", "grabă", "furie"],
+    "correct_options": [0],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-046/900/1200"
+  },
+  {
+    "id": "q-047",
+    "question": "Care este antonimul lui „clar”?",
+    "options": ["tulbure", "frumos", "mic", "ușor"],
+    "correct_options": [0],
+    "difficulty": "medium",
+    "image": "https://picsum.photos/seed/test-047/900/1200"
+  },
+  {
+    "id": "q-048",
+    "question": "Ce înseamnă „mijesc zorile”?",
+    "options": ["începe să apară lumina", "se întunecă brusc", "plouă tare", "ninge"],
+    "correct_options": [0],
+    "difficulty": "hard",
+    "image": "https://picsum.photos/seed/test-048/900/1200"
+  },
+  {
+    "id": "q-049",
+    "question": "Alege cuvântul care este substantiv:",
+    "options": ["aleargă", "încet", "copil", "frumos"],
+    "correct_options": [2],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-049/900/1200"
+  },
+  {
+    "id": "q-050",
+    "question": "Alege cuvântul care este verb:",
+    "options": ["carte", "aleargă", "albastru", "și"],
+    "correct_options": [1],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-050/900/1200"
+  },
+  {
+    "id": "q-051",
+    "question": "Alege cuvântul care este adjectiv:",
+    "options": ["repede", "frumos", "astăzi", "în"],
+    "correct_options": [1],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-051/900/1200"
+  },
+  {
+    "id": "q-052",
+    "question": "Alege cuvântul care este adverb:",
+    "options": ["cântec", "aleargă", "repede", "verde"],
+    "correct_options": [2],
+    "difficulty": "medium",
+    "image": "https://picsum.photos/seed/test-052/900/1200"
+  },
+  {
+    "id": "q-053",
+    "question": "Ce înseamnă „opțiune” într-un test?",
+    "options": ["o variantă de răspuns", "un capitol", "un caiet", "o fotografie"],
+    "correct_options": [0],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-053/900/1200"
+  },
+  {
+    "id": "q-054",
+    "question": "Ce înseamnă „corect” într-un test?",
+    "options": ["adevărat / potrivit", "stricat", "întârziat", "scump"],
+    "correct_options": [0],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-054/900/1200"
+  },
+  {
+    "id": "q-055",
+    "question": "Care dintre următoarele este un articol hotărât?",
+    "options": ["-ul", "și", "în", "foarte"],
+    "correct_options": [0],
+    "difficulty": "hard",
+    "image": "https://picsum.photos/seed/test-055/900/1200"
+  },
+  {
+    "id": "q-056",
+    "question": "Care este sinonimul lui „a începe”?",
+    "options": ["a porni", "a termina", "a strica", "a uita"],
+    "correct_options": [0],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-056/900/1200"
+  },
+  {
+    "id": "q-057",
+    "question": "Care este antonimul lui „a construi”?",
+    "options": ["a demola", "a picta", "a citi", "a învăța"],
+    "correct_options": [0],
+    "difficulty": "medium",
+    "image": "https://picsum.photos/seed/test-057/900/1200"
+  },
+  {
+    "id": "q-058",
+    "question": "Ce înseamnă „a descrie”?",
+    "options": ["a prezenta în cuvinte", "a asculta", "a mânca", "a dormi"],
+    "correct_options": [0],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-058/900/1200"
+  },
+  {
+    "id": "q-059",
+    "question": "În propoziția „Am mers acasă”, „acasă” este…",
+    "options": ["adverb", "substantiv", "adjectiv", "conjuncție"],
+    "correct_options": [0],
+    "difficulty": "hard",
+    "image": "https://picsum.photos/seed/test-059/900/1200"
+  },
+  {
+    "id": "q-060",
+    "question": "Care cuvânt este o prepoziție?",
+    "options": ["de", "frumos", "cântă", "rapid"],
+    "correct_options": [0],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-060/900/1200"
+  },
+  {
+    "id": "q-061",
+    "question": "Care cuvânt este o conjuncție?",
+    "options": ["dar", "sub", "mare", "aleargă"],
+    "correct_options": [0],
+    "difficulty": "medium",
+    "image": "https://picsum.photos/seed/test-061/900/1200"
+  },
+  {
+    "id": "q-062",
+    "question": "Ce înseamnă „a îmbogăți vocabularul”?",
+    "options": [
+      "a învăța și folosi mai multe cuvinte",
+      "a cumpăra o carte",
+      "a merge la cinema",
+      "a schimba telefonul"
+    ],
+    "correct_options": [0],
+    "difficulty": "medium",
+    "image": "https://picsum.photos/seed/test-062/900/1200"
+  },
+  {
+    "id": "q-063",
+    "question": "Alege propoziția corectă:",
+    "options": [
+      "Am întâlnit pe el.",
+      "L-am întâlnit.",
+      "Am întâlnit la el.",
+      "Am întâlnit de el."
+    ],
+    "correct_options": [1],
+    "difficulty": "hard",
+    "image": "https://picsum.photos/seed/test-063/900/1200"
+  },
+  {
+    "id": "q-064",
+    "question": "Care este sinonimul lui „a se strecura”?",
+    "options": ["a se furișa", "a striga", "a sări", "a râde"],
+    "correct_options": [0],
+    "difficulty": "medium",
+    "image": "https://picsum.photos/seed/test-064/900/1200"
+  },
+  {
+    "id": "q-065",
+    "question": "Ce înseamnă „a zăbovi”?",
+    "options": ["a întârzia / a rămâne mai mult", "a alerga", "a cânta", "a curăța"],
+    "correct_options": [0],
+    "difficulty": "medium",
+    "image": "https://picsum.photos/seed/test-065/900/1200"
+  },
+  {
+    "id": "q-066",
+    "question": "Care este antonimul lui „încet”?",
+    "options": ["repede", "mic", "rece", "rotund"],
+    "correct_options": [0],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-066/900/1200"
+  },
+  {
+    "id": "q-067",
+    "question": "Care este sinonimul lui „a repara”?",
+    "options": ["a îndrepta", "a strica", "a arunca", "a pierde"],
+    "correct_options": [0],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-067/900/1200"
+  },
+  {
+    "id": "q-068",
+    "question": "În propoziția „El vorbește încet”, „încet” este…",
+    "options": ["adverb", "adjectiv", "substantiv", "pronume"],
+    "correct_options": [0],
+    "difficulty": "medium",
+    "image": "https://picsum.photos/seed/test-068/900/1200"
+  },
+  {
+    "id": "q-069",
+    "question": "Care propoziție folosește corect „murmur”?",
+    "options": [
+      "Am murmur o carte.",
+      "Se auzea un murmur de apă.",
+      "Murmur este o mașină.",
+      "Murmur înseamnă scaun."
+    ],
+    "correct_options": [1],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-069/900/1200"
+  },
+  {
+    "id": "q-070",
+    "question": "Ce înseamnă „a se încurca” într-un context figurat?",
+    "options": [
+      "a deveni complicat / greu de descurcat",
+      "a deveni mai simplu",
+      "a deveni mai scurt",
+      "a deveni mai ieftin"
+    ],
+    "correct_options": [0],
+    "difficulty": "hard",
+    "image": "https://picsum.photos/seed/test-070/900/1200"
+  },
+  {
+    "id": "q-071",
+    "question": "Care dintre următoarele este un exemplu de adverb de timp?",
+    "options": ["ieri", "albastru", "copil", "a merge"],
+    "correct_options": [0],
+    "difficulty": "hard",
+    "image": "https://picsum.photos/seed/test-071/900/1200"
+  },
+  {
+    "id": "q-072",
+    "question": "Alege varianta corectă: „acesta” este…",
+    "options": ["pronume", "verb", "prepoziție", "conjuncție"],
+    "correct_options": [0],
+    "difficulty": "medium",
+    "image": "https://picsum.photos/seed/test-072/900/1200"
+  },
+  {
+    "id": "q-073",
+    "question": "Ce înseamnă „a analiza”?",
+    "options": ["a examina în detaliu", "a dormi", "a mânca", "a cânta"],
+    "correct_options": [0],
+    "difficulty": "medium",
+    "image": "https://picsum.photos/seed/test-073/900/1200"
+  },
+  {
+    "id": "q-074",
+    "question": "Care este sinonimul lui „a privi”?",
+    "options": ["a se uita", "a fugi", "a scrie", "a rupe"],
+    "correct_options": [0],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-074/900/1200"
+  },
+  {
+    "id": "q-075",
+    "question": "Care este antonimul lui „a crește”?",
+    "options": ["a scădea", "a zâmbi", "a miji", "a scrie"],
+    "correct_options": [0],
+    "difficulty": "medium",
+    "image": "https://picsum.photos/seed/test-075/900/1200"
+  },
+  {
+    "id": "q-076",
+    "question": "Ce înseamnă „a întări” (în sens figurat)?",
+    "options": ["a consolida", "a slăbi", "a uita", "a strica"],
+    "correct_options": [0],
+    "difficulty": "hard",
+    "image": "https://picsum.photos/seed/test-076/900/1200"
+  },
+  {
+    "id": "q-077",
+    "question": "Care propoziție folosește corect „îmbucurător”?",
+    "options": [
+      "E îmbucurător că ai venit.",
+      "Îmbucurător este o lingură.",
+      "Îmbucurător am cumpărat.",
+      "Îmbucurător înseamnă autobuz."
+    ],
+    "correct_options": [0],
+    "difficulty": "medium",
+    "image": "https://picsum.photos/seed/test-077/900/1200"
+  },
+  {
+    "id": "q-078",
+    "question": "Ce înseamnă „a învăța”?",
+    "options": ["a dobândi cunoștințe", "a uita", "a pierde", "a strica"],
+    "correct_options": [0],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-078/900/1200"
+  },
+  {
+    "id": "q-079",
+    "question": "Care este sinonimul lui „a povesti”?",
+    "options": ["a relata", "a arde", "a înota", "a rupe"],
+    "correct_options": [0],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-079/900/1200"
+  },
+  {
+    "id": "q-080",
+    "question": "Ce parte de vorbire este „foarte” în „foarte frumos”?",
+    "options": ["adverb", "adjectiv", "substantiv", "conjuncție"],
+    "correct_options": [0],
+    "difficulty": "hard",
+    "image": "https://picsum.photos/seed/test-080/900/1200"
+  },
+  {
+    "id": "q-081",
+    "question": "Care dintre următoarele este un adverb de mod?",
+    "options": ["bine", "ieri", "acolo", "mâine"],
+    "correct_options": [0],
+    "difficulty": "hard",
+    "image": "https://picsum.photos/seed/test-081/900/1200"
+  },
+  {
+    "id": "q-082",
+    "question": "Ce înseamnă „a decide”?",
+    "options": ["a hotărî", "a uita", "a alerga", "a cânta"],
+    "correct_options": [0],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-082/900/1200"
+  },
+  {
+    "id": "q-083",
+    "question": "Care este sinonimul lui „a hotărî”?",
+    "options": ["a decide", "a împrumuta", "a alerga", "a zăbovi"],
+    "correct_options": [0],
+    "difficulty": "medium",
+    "image": "https://picsum.photos/seed/test-083/900/1200"
+  },
+  {
+    "id": "q-084",
+    "question": "Ce înseamnă „a ezita”?",
+    "options": ["a șovăi", "a accelera", "a cânta", "a construi"],
+    "correct_options": [0],
+    "difficulty": "medium",
+    "image": "https://picsum.photos/seed/test-084/900/1200"
+  },
+  {
+    "id": "q-085",
+    "question": "Care propoziție folosește corect „șovăială”?",
+    "options": [
+      "A răspuns cu șovăială.",
+      "Șovăială este un tren.",
+      "Am șovăială o carte.",
+      "Șovăială înseamnă scaun."
+    ],
+    "correct_options": [0],
+    "difficulty": "medium",
+    "image": "https://picsum.photos/seed/test-085/900/1200"
+  },
+  {
+    "id": "q-086",
+    "question": "Ce înseamnă „a strecura” (sens propriu)?",
+    "options": ["a introduce cu grijă printre altele", "a striga", "a rupe", "a sări"],
+    "correct_options": [0],
+    "difficulty": "hard",
+    "image": "https://picsum.photos/seed/test-086/900/1200"
+  },
+  {
+    "id": "q-087",
+    "question": "Ce înseamnă „a strecura” (sens figurat)?",
+    "options": ["a introduce discret o idee", "a spăla vasele", "a cumpăra", "a îngheța"],
+    "correct_options": [0],
+    "difficulty": "hard",
+    "image": "https://picsum.photos/seed/test-087/900/1200"
+  },
+  {
+    "id": "q-088",
+    "question": "Care cuvânt este o interjecție?",
+    "options": ["Ah!", "și", "în", "cuvânt"],
+    "correct_options": [0],
+    "difficulty": "hard",
+    "image": "https://picsum.photos/seed/test-088/900/1200"
+  },
+  {
+    "id": "q-089",
+    "question": "Ce înseamnă „a revedea”?",
+    "options": ["a vedea din nou", "a uita", "a îngheța", "a arde"],
+    "correct_options": [0],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-089/900/1200"
+  },
+  {
+    "id": "q-090",
+    "question": "Care este sinonimul lui „a revedea”?",
+    "options": ["a întâlni din nou", "a pleca", "a ascunde", "a rupe"],
+    "correct_options": [0],
+    "difficulty": "medium",
+    "image": "https://picsum.photos/seed/test-090/900/1200"
+  },
+  {
+    "id": "q-091",
+    "question": "Ce înseamnă „a contempla”?",
+    "options": ["a privi atent, meditativ", "a alerga", "a mânca", "a striga"],
+    "correct_options": [0],
+    "difficulty": "hard",
+    "image": "https://picsum.photos/seed/test-091/900/1200"
+  },
+  {
+    "id": "q-092",
+    "question": "Care este sinonimul lui „a contempla”?",
+    "options": ["a medita", "a rupe", "a înota", "a strica"],
+    "correct_options": [0],
+    "difficulty": "hard",
+    "image": "https://picsum.photos/seed/test-092/900/1200"
+  },
+  {
+    "id": "q-093",
+    "question": "Ce înseamnă „a sublinia”?",
+    "options": ["a evidenția", "a ascunde", "a amesteca", "a micșora"],
+    "correct_options": [0],
+    "difficulty": "medium",
+    "image": "https://picsum.photos/seed/test-093/900/1200"
+  },
+  {
+    "id": "q-094",
+    "question": "Care este antonimul lui „a evidenția”?",
+    "options": ["a ascunde", "a învăța", "a revedea", "a construi"],
+    "correct_options": [0],
+    "difficulty": "medium",
+    "image": "https://picsum.photos/seed/test-094/900/1200"
+  },
+  {
+    "id": "q-095",
+    "question": "Ce înseamnă „a interpreta” (într-un text)?",
+    "options": ["a înțelege și explica sensul", "a construi", "a găti", "a îngheța"],
+    "correct_options": [0],
+    "difficulty": "hard",
+    "image": "https://picsum.photos/seed/test-095/900/1200"
+  },
+  {
+    "id": "q-096",
+    "question": "Care propoziție folosește corect „prag” (sens figurat)?",
+    "options": [
+      "A trecut pragul unei noi etape.",
+      "Am prag o carte.",
+      "Pragul a mâncat.",
+      "Prag înseamnă mașină."
+    ],
+    "correct_options": [0],
+    "difficulty": "medium",
+    "image": "https://picsum.photos/seed/test-096/900/1200"
+  },
+  {
+    "id": "q-097",
+    "question": "Ce înseamnă „a modifica”?",
+    "options": ["a schimba", "a uita", "a dormi", "a cânta"],
+    "correct_options": [0],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-097/900/1200"
+  },
+  {
+    "id": "q-098",
+    "question": "Care este sinonimul lui „a schimba”?",
+    "options": ["a modifica", "a păstra", "a opri", "a rupe"],
+    "correct_options": [0],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-098/900/1200"
+  },
+  {
+    "id": "q-099",
+    "question": "Ce înseamnă „a verifica”?",
+    "options": ["a controla / a confirma", "a strica", "a adormi", "a fugi"],
+    "correct_options": [0],
+    "difficulty": "easy",
+    "image": "https://picsum.photos/seed/test-099/900/1200"
+  },
+  {
+    "id": "q-100",
+    "question": "Care este sinonimul lui „a verifica”?",
+    "options": ["a controla", "a ascunde", "a opri", "a îngheța"],
+    "correct_options": [0],
+    "difficulty": "medium",
+    "image": "https://picsum.photos/seed/test-100/900/1200"
+  }
+]
+
+

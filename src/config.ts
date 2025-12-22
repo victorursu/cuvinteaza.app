@@ -2,4 +2,12 @@ export const VOCABULARY_URL =
   process.env.EXPO_PUBLIC_VOCABULARY_URL ??
   "https://example.com/vocabulary.ro.json";
 
+export const TEST_URL =
+  process.env.EXPO_PUBLIC_TEST_URL ?? "https://example.com/test.ro.json";
+
+export const TEST_COUNT = Number(process.env.EXPO_PUBLIC_TEST_COUNT ?? "30") || 30;
+
+export const TEST_REVEAL_MS =
+  Number(process.env.EXPO_PUBLIC_TEST_REVEAL_MS ?? "2000") || 2000;
+
 
