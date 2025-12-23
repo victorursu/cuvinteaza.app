@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -14,6 +14,7 @@ import { useTheme } from "../theme/theme";
 import { ThemeIcon } from "../components/icons/ThemeIcon";
 import { supabase, isSupabaseConfigured } from "../lib/supabase";
 import type { Session } from "@supabase/supabase-js";
+import { LikedWords } from "../components/LikedWords";
 
 export function AccountScreen() {
   const { theme, toggle } = useTheme();
@@ -28,6 +29,14 @@ export function AccountScreen() {
   const [authLoading, setAuthLoading] = useState(false);
   const [emailVerificationSent, setEmailVerificationSent] = useState(false);
   const [verificationEmail, setVerificationEmail] = useState("");
+  const [isProfileExpanded, setIsProfileExpanded] = useState(false);
+  const [vocabularyLevel, setVocabularyLevel] = useState<"beginner" | "intermediate" | "advanced" | null>(null);
+  const [age, setAge] = useState<string>("47");
+  const [notificationTimeframe, setNotificationTimeframe] = useState<"7-10" | "12-4" | "4-8" | null>(null);
+  const [showPasswordChange, setShowPasswordChange] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [profileLoading, setProfileLoading] = useState(false);
 
   useEffect(() => {
     if (!isSupabaseConfigured || !supabase) {
@@ -39,6 +48,9 @@ export function AccountScreen() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setLoading(false);
+      if (session?.user) {
+        loadUserProfile(session.user.id);
+      }
     });
 
     // Listen for auth changes
@@ -47,12 +59,116 @@ export function AccountScreen() {
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setAuthLoading(false);
+      if (session?.user) {
+        loadUserProfile(session.user.id);
+      } else {
+        setVocabularyLevel(null);
+        setAge("47");
+        setNotificationTimeframe(null);
+      }
     });
 
     return () => {
       authSubscription.unsubscribe();
     };
   }, []);
+
+  const loadUserProfile = useCallback(async (userId: string) => {
+    if (!isSupabaseConfigured || !supabase) return;
+
+    try {
+      const { data, error } = await supabase
+        .from("cuvinteziProfile")
+        .select("*")
+        .eq("user_id", userId)
+        .single();
+
+      if (error && error.code !== "PGRST116") {
+        // PGRST116 is "not found" - that's okay
+        console.error("Failed to load profile:", error);
+        return;
+      }
+
+      if (data) {
+        setVocabularyLevel(data.vocabulary_level || null);
+        setAge(data.age ? String(data.age) : "47");
+        setNotificationTimeframe(data.notification_timeframe || null);
+      }
+    } catch (error) {
+      console.error("Failed to load profile:", error);
+    }
+  }, []);
+
+  const saveProfile = useCallback(async () => {
+    if (!isSupabaseConfigured || !supabase || !session?.user) {
+      Alert.alert("Eroare", "Autentificarea nu este configurată.");
+      return;
+    }
+
+    setProfileLoading(true);
+    try {
+      const profileData = {
+        user_id: session.user.id,
+        vocabulary_level: vocabularyLevel,
+        age: age ? parseInt(age, 10) : null,
+        notification_timeframe: notificationTimeframe,
+      };
+
+      const { error } = await supabase
+        .from("cuvinteziProfile")
+        .upsert(profileData, { onConflict: "user_id" });
+
+      if (error) throw error;
+
+      Alert.alert("Succes", "Profilul a fost actualizat!");
+      setIsProfileExpanded(false);
+    } catch (error: any) {
+      Alert.alert("Eroare", error.message || "A apărut o eroare la salvarea profilului.");
+    } finally {
+      setProfileLoading(false);
+    }
+  }, [session, vocabularyLevel, age, notificationTimeframe]);
+
+  const handlePasswordChange = useCallback(async () => {
+    if (!isSupabaseConfigured || !supabase || !session?.user) {
+      Alert.alert("Eroare", "Autentificarea nu este configurată.");
+      return;
+    }
+
+    if (!newPassword || !confirmNewPassword) {
+      Alert.alert("Eroare", "Te rugăm să completezi ambele câmpuri pentru parolă.");
+      return;
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      Alert.alert("Eroare", "Parolele nu se potrivesc.");
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      Alert.alert("Eroare", "Parola trebuie să aibă cel puțin 6 caractere.");
+      return;
+    }
+
+    setProfileLoading(true);
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword,
+      });
+
+      if (error) throw error;
+
+      Alert.alert("Succes", "Parola a fost actualizată!");
+      setNewPassword("");
+      setConfirmNewPassword("");
+      setShowPasswordChange(false);
+      setIsProfileExpanded(false);
+    } catch (error: any) {
+      Alert.alert("Eroare", error.message || "A apărut o eroare la actualizarea parolei.");
+    } finally {
+      setProfileLoading(false);
+    }
+  }, [session, newPassword, confirmNewPassword]);
 
   const handleEmailAuth = async () => {
     if (!isSupabaseConfigured || !supabase) {
@@ -204,33 +320,280 @@ export function AccountScreen() {
         ]}
       >
         <View style={styles.header}>
-          <Text style={[styles.title, { color: theme.colors.textPrimary }]}>
-            Account
-          </Text>
+          <View style={styles.headerRow}>
+            <Text style={[styles.title, { color: theme.colors.textPrimary }]}>
+              Account
+            </Text>
+            <View style={styles.headerActions}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Theme"
+                style={[styles.iconBtn, { backgroundColor: theme.colors.headerIconBg }]}
+                onPress={toggle}
+              >
+                <ThemeIcon mode={theme.mode} color={theme.colors.iconActive} />
+              </Pressable>
+              <Pressable
+                style={[
+                  styles.logoutButtonHeader,
+                  { backgroundColor: theme.colors.tabActiveBg },
+                ]}
+                onPress={handleSignOut}
+                disabled={authLoading}
+              >
+                {authLoading ? (
+                  <ActivityIndicator size="small" color={theme.colors.textPrimary} />
+                ) : (
+                  <Text style={[styles.logoutButtonText, { color: theme.colors.textPrimary }]}>
+                    Logout
+                  </Text>
+                )}
+              </Pressable>
+            </View>
+          </View>
         </View>
 
         <View style={[styles.card, { backgroundColor: theme.colors.tabBarBg, borderColor: theme.colors.border }]}>
-          <Text style={[styles.welcomeText, { color: theme.colors.textPrimary }]}>
-            Welcome {userName},
-          </Text>
-
-          <Pressable
-            style={[
-              styles.button,
-              styles.logoutButton,
-              { backgroundColor: theme.colors.tabActiveBg },
-            ]}
-            onPress={handleSignOut}
-            disabled={authLoading}
-          >
-            {authLoading ? (
-              <ActivityIndicator size="small" color={theme.colors.textPrimary} />
-            ) : (
-              <Text style={[styles.buttonText, { color: theme.colors.textPrimary }]}>
-                Logout
+          <View style={styles.welcomeRow}>
+            <Text style={[styles.welcomeText, { color: theme.colors.textPrimary }]}>
+              Bine ai venit {userName}!
+            </Text>
+            <Pressable
+              onPress={() => setIsProfileExpanded(!isProfileExpanded)}
+              style={[styles.editButton, { backgroundColor: theme.colors.tabActiveBg }]}
+            >
+              <Text style={[styles.editButtonText, { color: theme.colors.textPrimary }]}>
+                Edit
               </Text>
-            )}
-          </Pressable>
+            </Pressable>
+          </View>
+
+          {isProfileExpanded && (
+            <View style={styles.profileSection}>
+              {/* Vocabulary Level */}
+              <View style={styles.profileField}>
+                <Text style={[styles.profileLabel, { color: theme.colors.textPrimary }]}>
+                  Nivelul tău de vocabular
+                </Text>
+                <View style={styles.radioGroup}>
+                  {(["beginner", "intermediate", "advanced"] as const).map((level) => (
+                    <Pressable
+                      key={level}
+                      onPress={() => setVocabularyLevel(level)}
+                      style={[
+                        styles.radioOption,
+                        {
+                          backgroundColor:
+                            vocabularyLevel === level
+                              ? theme.colors.iconActive
+                              : theme.colors.background,
+                          borderColor: theme.colors.border,
+                        },
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.radioText,
+                          {
+                            color:
+                              vocabularyLevel === level
+                                ? theme.colors.background
+                                : theme.colors.textPrimary,
+                          },
+                        ]}
+                      >
+                        {level === "beginner"
+                          ? "Începător"
+                          : level === "intermediate"
+                          ? "Intermediar"
+                          : "Avansat"}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+
+              {/* Age */}
+              <View style={styles.profileField}>
+                <Text style={[styles.profileLabel, { color: theme.colors.textPrimary }]}>
+                  Vârsta
+                </Text>
+                <TextInput
+                  style={[
+                    styles.input,
+                    {
+                      backgroundColor: theme.colors.background,
+                      color: theme.colors.textPrimary,
+                      borderColor: theme.colors.border,
+                    },
+                  ]}
+                  placeholder="47"
+                  placeholderTextColor={theme.colors.textSecondary}
+                  value={age}
+                  onChangeText={(text) => {
+                    const num = parseInt(text, 10);
+                    if (text === "" || (!isNaN(num) && num >= 4 && num <= 120)) {
+                      setAge(text);
+                    }
+                  }}
+                  keyboardType="number-pad"
+                  editable={!profileLoading}
+                />
+              </View>
+
+              {/* Notification Timeframe */}
+              <View style={styles.profileField}>
+                <Text style={[styles.profileLabel, { color: theme.colors.textPrimary }]}>
+                  Interval preferat pentru notificări zilnice
+                </Text>
+                <View style={styles.radioGroup}>
+                  {(["7-10", "12-4", "4-8"] as const).map((timeframe) => (
+                    <Pressable
+                      key={timeframe}
+                      onPress={() => setNotificationTimeframe(timeframe)}
+                      style={[
+                        styles.radioOption,
+                        {
+                          backgroundColor:
+                            notificationTimeframe === timeframe
+                              ? theme.colors.iconActive
+                              : theme.colors.background,
+                          borderColor: theme.colors.border,
+                        },
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.radioText,
+                          {
+                            color:
+                              notificationTimeframe === timeframe
+                                ? theme.colors.background
+                                : theme.colors.textPrimary,
+                          },
+                        ]}
+                      >
+                        {timeframe}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+
+              {/* Save Profile Button */}
+              <Pressable
+                style={[
+                  styles.button,
+                  styles.primaryButton,
+                  { backgroundColor: theme.colors.iconActive },
+                  profileLoading && styles.buttonDisabled,
+                ]}
+                onPress={saveProfile}
+                disabled={profileLoading}
+              >
+                {profileLoading ? (
+                  <ActivityIndicator size="small" color={theme.colors.background} />
+                ) : (
+                  <Text style={[styles.primaryButtonText, { color: theme.colors.background }]}>
+                    Salvează profilul
+                  </Text>
+                )}
+              </Pressable>
+
+              {/* Change Password Section */}
+              {!showPasswordChange ? (
+                <Pressable
+                  style={[
+                    styles.button,
+                    styles.primaryButton,
+                    { backgroundColor: theme.colors.tabActiveBg },
+                  ]}
+                  onPress={() => setShowPasswordChange(true)}
+                >
+                  <Text style={[styles.primaryButtonText, { color: theme.colors.textPrimary }]}>
+                    Schimbă parola
+                  </Text>
+                </Pressable>
+              ) : (
+                <View style={styles.passwordChangeSection}>
+                  <TextInput
+                    style={[
+                      styles.input,
+                      {
+                        backgroundColor: theme.colors.background,
+                        color: theme.colors.textPrimary,
+                        borderColor: theme.colors.border,
+                      },
+                    ]}
+                    placeholder="Parolă nouă"
+                    placeholderTextColor={theme.colors.textSecondary}
+                    value={newPassword}
+                    onChangeText={setNewPassword}
+                    secureTextEntry
+                    autoCapitalize="none"
+                    editable={!profileLoading}
+                  />
+                  <TextInput
+                    style={[
+                      styles.input,
+                      {
+                        backgroundColor: theme.colors.background,
+                        color: theme.colors.textPrimary,
+                        borderColor: theme.colors.border,
+                      },
+                    ]}
+                    placeholder="Confirmă parola nouă"
+                    placeholderTextColor={theme.colors.textSecondary}
+                    value={confirmNewPassword}
+                    onChangeText={setConfirmNewPassword}
+                    secureTextEntry
+                    autoCapitalize="none"
+                    editable={!profileLoading}
+                  />
+                  <View style={styles.passwordButtons}>
+                    <Pressable
+                      style={[
+                        styles.button,
+                        styles.secondaryButton,
+                        { backgroundColor: theme.colors.tabActiveBg, borderColor: theme.colors.border, flex: 1 },
+                      ]}
+                      onPress={() => {
+                        setShowPasswordChange(false);
+                        setNewPassword("");
+                        setConfirmNewPassword("");
+                      }}
+                    >
+                      <Text style={[styles.secondaryButtonText, { color: theme.colors.textPrimary }]}>
+                        Anulează
+                      </Text>
+                    </Pressable>
+                    <Pressable
+                      style={[
+                        styles.button,
+                        styles.primaryButton,
+                        { backgroundColor: theme.colors.iconActive, flex: 1, marginLeft: 12 },
+                        profileLoading && styles.buttonDisabled,
+                      ]}
+                      onPress={handlePasswordChange}
+                      disabled={profileLoading}
+                    >
+                      {profileLoading ? (
+                        <ActivityIndicator size="small" color={theme.colors.background} />
+                      ) : (
+                        <Text style={[styles.primaryButtonText, { color: theme.colors.background }]}>
+                          Actualizează
+                        </Text>
+                      )}
+                    </Pressable>
+                  </View>
+                </View>
+              )}
+            </View>
+          )}
+        </View>
+
+        <View style={[styles.card, { backgroundColor: theme.colors.tabBarBg, borderColor: theme.colors.border }]}>
+          <LikedWords session={session} />
         </View>
       </ScrollView>
     );
@@ -518,12 +881,17 @@ const styles = StyleSheet.create({
     gap: 24,
   },
   header: {
-    gap: 12,
+    marginBottom: 8,
   },
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+  },
+  headerActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
   headerLeft: {
     flex: 1,
@@ -532,7 +900,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: "900",
-    textAlign: "center",
   },
   iconBtn: {
     width: 40,
@@ -625,13 +992,70 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 12,
   },
+  welcomeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+  },
   welcomeText: {
     fontSize: 20,
     fontWeight: "600",
-    marginBottom: 20,
+    flex: 1,
   },
-  logoutButton: {
+  editButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+  },
+  editButtonText: {
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  profileSection: {
+    marginTop: 20,
+    gap: 20,
+  },
+  profileField: {
+    gap: 8,
+  },
+  profileLabel: {
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  radioGroup: {
+    flexDirection: "row",
+    gap: 8,
+    flexWrap: "wrap",
+  },
+  radioOption: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+    minWidth: 100,
+  },
+  radioText: {
+    fontSize: 14,
+    fontWeight: "600",
+    textAlign: "center",
+  },
+  passwordChangeSection: {
+    gap: 12,
     marginTop: 8,
+  },
+  passwordButtons: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  logoutButtonHeader: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+  },
+  logoutButtonText: {
+    fontSize: 14,
+    fontWeight: "600",
   },
   comingSoonContainer: {
     flex: 1,

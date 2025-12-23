@@ -19,7 +19,9 @@ import fallbackVocabulary from "../data/fallbackVocabulary.ro.json";
 import { useTheme } from "../theme/theme";
 import { RefreshIcon } from "../components/icons/RefreshIcon";
 import { ThemeIcon } from "../components/icons/ThemeIcon";
+import { HeartIcon } from "../components/icons/HeartIcon";
 import { InlineRichText } from "../components/InlineRichText";
+import { useLikes } from "../hooks/useLikes";
 
 type LoadState =
   | {
@@ -257,9 +259,11 @@ function WordCard({ word }: { word: VocabularyWord }) {
   const [viewportH, setViewportH] = useState(0);
   const [contentH, setContentH] = useState(0);
   const [scrollY, setScrollY] = useState(0);
+  const { isLiked, toggleLike } = useLikes();
 
   const canScroll = contentH > viewportH + 2;
   const atBottom = scrollY + viewportH >= contentH - 8;
+  const liked = isLiked(word.id);
 
   const examples = useMemo(() => {
     const needles = getHighlightNeedles(word.title);
@@ -287,7 +291,17 @@ function WordCard({ word }: { word: VocabularyWord }) {
           stickyHeaderIndices={[0]}
         >
           <View style={styles.stickyHeader}>
-            <Text style={styles.wordTitle}>{word.title}</Text>
+            <View style={styles.stickyHeaderRow}>
+              <Text style={styles.wordTitle}>{word.title}</Text>
+              <Pressable
+                onPress={() => toggleLike(word.id)}
+                style={styles.heartButton}
+                accessibilityRole="button"
+                accessibilityLabel={liked ? "Unlike word" : "Like word"}
+              >
+                <HeartIcon size={28} color={liked ? "#FF6B9D" : "#EEF3FF"} filled={liked} />
+              </Pressable>
+            </View>
             <Text style={styles.grammarBlock}>{word.grammar_block}</Text>
           </View>
 
@@ -481,12 +495,23 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "rgba(255,255,255,0.10)",
   },
+  stickyHeaderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+  },
+  wordTitle: { fontSize: 54, fontWeight: "900", color: "#EEF3FF", flexShrink: 1 },
+  heartButton: {
+    padding: 4,
+    marginRight: -4,
+    flexShrink: 0,
+  },
   scrollBody: {
     paddingHorizontal: 14,
     paddingTop: 12,
     gap: 10,
   },
-  wordTitle: { fontSize: 54, fontWeight: "900", color: "#EEF3FF" },
   grammarBlock: {
     fontSize: 16,
     fontStyle: "italic",
