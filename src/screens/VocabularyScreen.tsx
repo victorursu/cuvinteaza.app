@@ -89,22 +89,23 @@ export function VocabularyScreen() {
   }, [state.data.length]);
 
   const header = useMemo(() => {
-    const total = state.data.length;
-    const position =
-      total > 0 ? `${currentIndex + 1} / ${total}` : "— / —";
     const sourceLabel =
       state.source === "local" ? "Local" : state.source === "remote" ? "Online" : "";
+
+    // Console.log the source instead of displaying it
+    if (sourceLabel) {
+      console.log(`[Cuvintezi.ro] Source: ${sourceLabel}`);
+    }
 
     return (
       <View style={styles.header}>
         <View style={styles.headerRow}>
           <View style={styles.headerLeft}>
             <Text style={[styles.title, { color: theme.colors.textPrimary }]}>
-              Cuvinteaza.ro
+              Cuvintezi.ro
             </Text>
-            <Text style={[styles.subtitle, { color: theme.colors.textSecondary }]} numberOfLines={1}>
-              {position}
-              {sourceLabel ? ` · ${sourceLabel}` : ""}
+            <Text style={[styles.subtitle, { color: theme.colors.textSecondary }]}>
+              Cuvinte recomandate pentru această săptămână
             </Text>
           </View>
           <View style={styles.headerActions}>

@@ -468,10 +468,10 @@ function QuestionCard({
           onScroll={(e) => setScrollY(e.nativeEvent.contentOffset.y)}
         >
           <View style={styles.stickyHeader}>
-            <Text style={[styles.questionTitle, { color: theme.colors.textPrimary }]}>
+            <Text style={styles.questionTitle}>
               {question.question}
             </Text>
-            <Text style={[styles.subtitle, { color: theme.colors.textSecondary }]}>
+            <Text style={styles.difficultyLabel}>
               {question.difficulty.toUpperCase()} · {progress.current}/{progress.total}
             </Text>
             <View style={styles.progressBarTrack}>
@@ -643,7 +643,15 @@ const styles = StyleSheet.create({
     borderBottomColor: "rgba(255,255,255,0.10)",
     gap: 10,
   },
-  questionTitle: { fontSize: 28, fontWeight: "900" },
+  questionTitle: { 
+    fontSize: 28, 
+    fontWeight: "900",
+    color: "#EEF3FF", // Light color for dark background
+  },
+  difficultyLabel: {
+    fontSize: 12,
+    color: "rgba(238, 243, 255, 0.85)", // Light color for dark background
+  },
   progressBarTrack: {
     height: 8,
     borderRadius: 999,

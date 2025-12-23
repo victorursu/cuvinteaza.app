@@ -11,16 +11,12 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "../theme/theme";
+import { ThemeIcon } from "../components/icons/ThemeIcon";
 import { supabase, isSupabaseConfigured } from "../lib/supabase";
 import type { Session } from "@supabase/supabase-js";
-import * as WebBrowser from "expo-web-browser";
-import * as AuthSession from "expo-auth-session";
-
-// Complete OAuth flow in browser
-WebBrowser.maybeCompleteAuthSession();
 
 export function AccountScreen() {
-  const { theme } = useTheme();
+  const { theme, toggle } = useTheme();
   const insets = useSafeAreaInsets();
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
@@ -28,7 +24,10 @@ export function AccountScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [fullName, setFullName] = useState("");
   const [authLoading, setAuthLoading] = useState(false);
+  const [emailVerificationSent, setEmailVerificationSent] = useState(false);
+  const [verificationEmail, setVerificationEmail] = useState("");
 
   useEffect(() => {
     if (!isSupabaseConfigured || !supabase) {
@@ -44,12 +43,15 @@ export function AccountScreen() {
 
     // Listen for auth changes
     const {
-      data: { subscription },
+      data: { subscription: authSubscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
+      setAuthLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      authSubscription.unsubscribe();
+    };
   }, []);
 
   const handleEmailAuth = async () => {
@@ -59,11 +61,15 @@ export function AccountScreen() {
     }
 
     if (!email || !password) {
-      Alert.alert("Eroare", "Te rugăm să completezi toate câmpurile.");
+      Alert.alert("Eroare", "Te rugăm să completezi toate câmpurile obligatorii.");
       return;
     }
 
     if (authMode === "register") {
+      if (!fullName.trim()) {
+        Alert.alert("Eroare", "Te rugăm să introduci numele complet.");
+        return;
+      }
       if (password !== confirmPassword) {
         Alert.alert("Eroare", "Parolele nu se potrivesc.");
         return;
@@ -80,23 +86,31 @@ export function AccountScreen() {
         const { error } = await supabase.auth.signUp({
           email,
           password,
+          options: {
+            data: {
+              full_name: fullName.trim(),
+            },
+          },
         });
         if (error) throw error;
-        Alert.alert(
-          "Succes",
-          "Cont creat! Verifică email-ul pentru a confirma contul."
-        );
+        // Show email verification state
+        setVerificationEmail(email);
+        setEmailVerificationSent(true);
+        // Clear form
+        setEmail("");
+        setPassword("");
+        setConfirmPassword("");
+        setFullName("");
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
         if (error) throw error;
+        // Clear form
+        setEmail("");
+        setPassword("");
       }
-      // Clear form
-      setEmail("");
-      setPassword("");
-      setConfirmPassword("");
     } catch (error: any) {
       Alert.alert("Eroare", error.message || "A apărut o eroare.");
     } finally {
@@ -104,7 +118,8 @@ export function AccountScreen() {
     }
   };
 
-  const handleOAuth = async (provider: "google" | "facebook") => {
+
+  const handleResendVerification = async () => {
     if (!isSupabaseConfigured || !supabase) {
       Alert.alert("Eroare", "Autentificarea nu este configurată.");
       return;
@@ -112,49 +127,14 @@ export function AccountScreen() {
 
     try {
       setAuthLoading(true);
-
-      const redirectTo = AuthSession.makeRedirectUri({
-        scheme: "cuvinteaza.app",
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email: verificationEmail,
       });
-
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo,
-          skipBrowserRedirect: true,
-        },
-      });
-
       if (error) throw error;
-      if (!data.url) throw new Error("No OAuth URL returned");
-
-      // Open browser for OAuth
-      const result = await WebBrowser.openAuthSessionAsync(
-        data.url,
-        redirectTo
-      );
-
-      if (result.type === "success") {
-        // Parse the URL to extract the code
-        const url = new URL(result.url);
-        const code = url.searchParams.get("code");
-        const errorCode = url.searchParams.get("error");
-
-        if (errorCode) {
-          throw new Error(`OAuth error: ${errorCode}`);
-        }
-
-        if (code) {
-          const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(
-            code
-          );
-          if (exchangeError) throw exchangeError;
-        }
-      } else if (result.type === "cancel") {
-        // User cancelled, no error needed
-      }
+      Alert.alert("Succes", "Email de verificare trimis din nou!");
     } catch (error: any) {
-      Alert.alert("Eroare", error.message || "A apărut o eroare la autentificare.");
+      Alert.alert("Eroare", error.message || "A apărut o eroare la retrimiterea email-ului.");
     } finally {
       setAuthLoading(false);
     }
@@ -208,6 +188,13 @@ export function AccountScreen() {
   }
 
   if (session) {
+    // Get user name from metadata or fallback to email
+    const userName =
+      session.user.user_metadata?.full_name ||
+      session.user.user_metadata?.name ||
+      session.user.email?.split("@")[0] ||
+      "User";
+
     return (
       <ScrollView
         style={[styles.container, { backgroundColor: theme.colors.background }]}
@@ -218,24 +205,19 @@ export function AccountScreen() {
       >
         <View style={styles.header}>
           <Text style={[styles.title, { color: theme.colors.textPrimary }]}>
-            Cont
+            Account
           </Text>
         </View>
 
         <View style={[styles.card, { backgroundColor: theme.colors.tabBarBg, borderColor: theme.colors.border }]}>
-          <View style={styles.userInfo}>
-            <Text style={[styles.userEmail, { color: theme.colors.textPrimary }]}>
-              {session.user.email}
-            </Text>
-            <Text style={[styles.userId, { color: theme.colors.textSecondary }]}>
-              ID: {session.user.id.slice(0, 8)}...
-            </Text>
-          </View>
+          <Text style={[styles.welcomeText, { color: theme.colors.textPrimary }]}>
+            Welcome {userName},
+          </Text>
 
           <Pressable
             style={[
               styles.button,
-              styles.signOutButton,
+              styles.logoutButton,
               { backgroundColor: theme.colors.tabActiveBg },
             ]}
             onPress={handleSignOut}
@@ -245,7 +227,7 @@ export function AccountScreen() {
               <ActivityIndicator size="small" color={theme.colors.textPrimary} />
             ) : (
               <Text style={[styles.buttonText, { color: theme.colors.textPrimary }]}>
-                Deconectare
+                Logout
               </Text>
             )}
           </Pressable>
@@ -263,26 +245,59 @@ export function AccountScreen() {
       ]}
     >
         <View style={styles.header}>
-          <Text style={[styles.title, { color: theme.colors.textPrimary }]}>
-            {authMode === "login" ? "Conectare" : "Înregistrare"}
-          </Text>
-        <Pressable
-          onPress={() => {
-            setAuthMode(authMode === "login" ? "register" : "login");
-            setEmail("");
-            setPassword("");
-            setConfirmPassword("");
-          }}
-        >
-          <Text style={[styles.switchMode, { color: theme.colors.iconActive }]}>
-            {authMode === "login"
-              ? "Nu ai cont? Înregistrează-te"
-              : "Ai deja cont? Conectează-te"}
-          </Text>
-        </Pressable>
-      </View>
+          <View style={styles.headerRow}>
+            <View style={styles.headerLeft}>
+              <Text style={[styles.title, { color: theme.colors.textPrimary }]}>
+                {authMode === "login" ? "Conectare" : "Înregistrare"}
+              </Text>
+              {authMode === "register" && (
+                <Pressable
+                  onPress={() => {
+                    setAuthMode("login");
+                    setEmail("");
+                    setPassword("");
+                    setConfirmPassword("");
+                    setFullName("");
+                  }}
+                >
+                  <Text style={[styles.switchMode, { color: theme.colors.iconActive }]}>
+                    Ai deja cont? Conectează-te
+                  </Text>
+                </Pressable>
+              )}
+            </View>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Theme"
+              style={[styles.iconBtn, { backgroundColor: theme.colors.headerIconBg }]}
+              onPress={toggle}
+            >
+              <ThemeIcon mode={theme.mode} color={theme.colors.iconActive} />
+            </Pressable>
+          </View>
+        </View>
 
       <View style={[styles.card, { backgroundColor: theme.colors.tabBarBg, borderColor: theme.colors.border }]}>
+        {authMode === "register" && (
+          <TextInput
+            style={[
+              styles.input,
+              {
+                backgroundColor: theme.colors.background,
+                color: theme.colors.textPrimary,
+                borderColor: theme.colors.border,
+              },
+            ]}
+            placeholder="Nume complet"
+            placeholderTextColor={theme.colors.textSecondary}
+            value={fullName}
+            onChangeText={setFullName}
+            autoCapitalize="words"
+            autoComplete="name"
+            editable={!authLoading}
+          />
+        )}
+
         <TextInput
           style={[
             styles.input,
@@ -353,46 +368,143 @@ export function AccountScreen() {
           disabled={authLoading}
         >
           {authLoading ? (
-            <ActivityIndicator size="small" color="#fff" />
+            <ActivityIndicator size="small" color={theme.colors.background} />
           ) : (
-            <Text style={styles.primaryButtonText}>
+            <Text style={[styles.primaryButtonText, { color: theme.colors.background }]}>
               {authMode === "login" ? "Conectează-te" : "Înregistrează-te"}
             </Text>
           )}
         </Pressable>
-
-        <View style={styles.divider}>
-          <View style={[styles.dividerLine, { backgroundColor: theme.colors.border }]} />
-          <Text style={[styles.dividerText, { color: theme.colors.textSecondary }]}>
-            sau
-          </Text>
-          <View style={[styles.dividerLine, { backgroundColor: theme.colors.border }]} />
-        </View>
-
-        <Pressable
-          style={[
-            styles.button,
-            styles.socialButton,
-            { backgroundColor: "#4285F4", borderColor: theme.colors.border },
-          ]}
-          onPress={() => handleOAuth("google")}
-          disabled={authLoading}
-        >
-          <Text style={styles.socialButtonText}>Continuă cu Google</Text>
-        </Pressable>
-
-        <Pressable
-          style={[
-            styles.button,
-            styles.socialButton,
-            { backgroundColor: "#1877F2", borderColor: theme.colors.border },
-          ]}
-          onPress={() => handleOAuth("facebook")}
-          disabled={authLoading}
-        >
-          <Text style={styles.socialButtonText}>Continuă cu Facebook</Text>
-        </Pressable>
       </View>
+
+      {/* Benefits section - only shown in login mode */}
+      {authMode === "login" && (
+        <View style={[styles.card, { backgroundColor: theme.colors.tabBarBg, borderColor: theme.colors.border }]}>
+          <Pressable
+            style={[
+              styles.button,
+              styles.primaryButton,
+              { backgroundColor: theme.colors.tabActiveBg, borderColor: theme.colors.border },
+            ]}
+            onPress={() => {
+              setAuthMode("register");
+              setEmail("");
+              setPassword("");
+              setConfirmPassword("");
+              setFullName("");
+            }}
+          >
+            <Text style={[styles.primaryButtonText, { color: theme.colors.textPrimary }]}>
+              Crează utilizator nou dacă vrei să
+            </Text>
+          </Pressable>
+
+          <View style={styles.benefitsSection}>
+            <View style={styles.benefitsList}>
+              <View style={styles.benefitItem}>
+                <View style={styles.benefitTextContainer}>
+                  <Text style={[styles.benefitText, { color: theme.colors.textSecondary }]}>
+                    <Text style={[styles.benefitTextBold, { color: theme.colors.textPrimary }]}>
+                      Te exprimi mai clar și cu mai multă încredere
+                    </Text>
+                    {"\n"}
+                    <Text style={styles.benefitDescription}>
+                      Un vocabular bogat te ajută să spui exact ce gândești, fără ezitări, fie în conversații zilnice, fie în contexte profesionale.
+                    </Text>
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.benefitItem}>
+                <View style={styles.benefitTextContainer}>
+                  <Text style={[styles.benefitText, { color: theme.colors.textSecondary }]}>
+                    <Text style={[styles.benefitTextBold, { color: theme.colors.textPrimary }]}>
+                      Înveți puțin în fiecare zi, fără efort
+                    </Text>
+                    {"\n"}
+                    <Text style={styles.benefitDescription}>
+                      Notificările zilnice transformă câteva secunde libere în progres constant — fără cursuri complicate sau timp pierdut.
+                    </Text>
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.benefitItem}>
+                <View style={styles.benefitTextContainer}>
+                  <Text style={[styles.benefitText, { color: theme.colors.textSecondary }]}>
+                    <Text style={[styles.benefitTextBold, { color: theme.colors.textPrimary }]}>
+                      Înțelegi limbajul real, nu doar pe cel din manuale
+                    </Text>
+                    {"\n"}
+                    <Text style={styles.benefitDescription}>
+                      Expresii, argou și sensuri moderne te ajută să comunici natural și să fii mereu conectat la realitate.
+                    </Text>
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.benefitItem}>
+                <View style={styles.benefitTextContainer}>
+                  <Text style={[styles.benefitText, { color: theme.colors.textSecondary }]}>
+                    <Text style={[styles.benefitTextBold, { color: theme.colors.textPrimary }]}>
+                      Îți antrenezi mintea și abilitățile de comunicare
+                    </Text>
+                    {"\n"}
+                    <Text style={styles.benefitDescription}>
+                      Un vocabular mai bogat îmbunătățește memoria, înțelegerea textelor și gândirea critică.
+                    </Text>
+                  </Text>
+                </View>
+              </View>
+            </View>
+          </View>
+        </View>
+      )}
+
+      {/* Email Verification State */}
+      {emailVerificationSent && (
+        <View style={[styles.card, { backgroundColor: theme.colors.tabBarBg, borderColor: theme.colors.border }]}>
+          <Text style={[styles.verificationTitle, { color: theme.colors.textPrimary }]}>
+            Email de verificare trimis
+          </Text>
+          <Text style={[styles.verificationText, { color: theme.colors.textSecondary }]}>
+            Am trimis un email de verificare la {verificationEmail}. Te rugăm să verifici inbox-ul și folderul de spam pentru a confirma contul.
+          </Text>
+          <View style={styles.verificationActions}>
+            <Pressable
+              style={[
+                styles.button,
+                styles.secondaryButton,
+                { backgroundColor: theme.colors.tabActiveBg, borderColor: theme.colors.border },
+                authLoading && styles.buttonDisabled,
+              ]}
+              onPress={handleResendVerification}
+              disabled={authLoading}
+            >
+              {authLoading ? (
+                <ActivityIndicator size="small" color={theme.colors.textPrimary} />
+              ) : (
+                <Text style={[styles.secondaryButtonText, { color: theme.colors.textPrimary }]}>
+                  Retrimite email
+                </Text>
+              )}
+            </Pressable>
+            <Pressable
+              style={[
+                styles.button,
+                styles.secondaryButton,
+                { backgroundColor: theme.colors.tabActiveBg, borderColor: theme.colors.border },
+              ]}
+              onPress={() => {
+                setEmailVerificationSent(false);
+                setAuthMode("login");
+                setEmail(verificationEmail);
+              }}
+            >
+              <Text style={[styles.secondaryButtonText, { color: theme.colors.textPrimary }]}>
+                Mergi la login
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+      )}
     </ScrollView>
   );
 }
@@ -408,13 +520,59 @@ const styles = StyleSheet.create({
   header: {
     gap: 12,
   },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  headerLeft: {
+    flex: 1,
+    alignItems: "center",
+  },
   title: {
     fontSize: 28,
     fontWeight: "900",
+    textAlign: "center",
+  },
+  iconBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
   },
   switchMode: {
     fontSize: 14,
     fontWeight: "600",
+    marginTop: 8,
+  },
+  benefitsSection: {
+    marginTop: 20,
+    gap: 12,
+  },
+  benefitsTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+  },
+  benefitsList: {
+    gap: 10,
+  },
+  benefitItem: {
+    alignItems: "flex-start",
+  },
+  benefitTextContainer: {
+    flex: 1,
+  },
+  benefitText: {
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  benefitTextBold: {
+    fontWeight: "700",
+  },
+  benefitDescription: {
+    fontSize: 11,
+    lineHeight: 16,
   },
   card: {
     padding: 20,
@@ -439,46 +597,40 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   primaryButtonText: {
-    color: "#fff",
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "700",
   },
   buttonDisabled: {
     opacity: 0.6,
   },
-  socialButton: {
+  secondaryButton: {
     borderWidth: 1,
+    flex: 1,
   },
-  socialButtonText: {
-    color: "#fff",
+  secondaryButtonText: {
     fontSize: 16,
     fontWeight: "600",
   },
-  divider: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    marginVertical: 8,
+  verificationTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    marginBottom: 12,
   },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-  },
-  dividerText: {
+  verificationText: {
     fontSize: 14,
-  },
-  userInfo: {
-    gap: 8,
+    lineHeight: 20,
     marginBottom: 20,
   },
-  userEmail: {
-    fontSize: 18,
+  verificationActions: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  welcomeText: {
+    fontSize: 20,
     fontWeight: "600",
+    marginBottom: 20,
   },
-  userId: {
-    fontSize: 14,
-  },
-  signOutButton: {
+  logoutButton: {
     marginTop: 8,
   },
   comingSoonContainer: {

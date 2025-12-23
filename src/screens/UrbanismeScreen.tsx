@@ -6,6 +6,7 @@ export function UrbanismeScreen() {
   return (
     <DictionaryScreen
       title="Urbanisme"
+      subtitle="limbaj urban"
       url={URBANISME_URL}
       fallback={fallbackUrbanisme as unknown}
     />

@@ -6,6 +6,7 @@ export function RegionalismeScreen() {
   return (
     <DictionaryScreen
       title="Regionalisme"
+      subtitle="expresii regionale din toată țara"
       url={REGIONALISME_URL}
       fallback={fallbackRegionalisme as unknown}
     />
