@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Cuvintezi.ro",
-    "slug": "cuvinteaza.app",
+    "slug": "cuvintezi",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -17,6 +17,7 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "ro.cuvintezi.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -29,6 +30,18 @@
     },
     "plugins": [
       "expo-web-browser"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "aa40ced7-dddf-43c9-99d2-3fdf3a48820c"
+      }
+    },
+    "owner": "ursuvictor",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/aa40ced7-dddf-43c9-99d2-3fdf3a48820c"
+    }
   }
 }
