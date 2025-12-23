@@ -33,6 +33,7 @@ export function LikedWords({ session }: { session: Session }) {
   const [loading, setLoading] = useState(true);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
+  const [isListExpanded, setIsListExpanded] = useState(false);
 
   const toggleExpand = useCallback((wordId: string) => {
     setExpandedIds((prev) => {
@@ -215,6 +216,10 @@ export function LikedWords({ session }: { session: Session }) {
     }
   }, [currentPage]);
 
+  const toggleListExpanded = useCallback(() => {
+    setIsListExpanded((prev) => !prev);
+  }, []);
+
   // Swipe gesture handler
   const panResponder = useMemo(
     () =>
@@ -255,7 +260,10 @@ export function LikedWords({ session }: { session: Session }) {
   if (likedWords.length === 0) {
     return (
       <View style={styles.container} {...panResponder.panHandlers}>
-        <View style={styles.titleRow}>
+        <Pressable
+          onPress={toggleListExpanded}
+          style={styles.titleRow}
+        >
           <Text style={[styles.title, { color: theme.colors.textPrimary }]}>
             Cuvintele tale speciale
           </Text>
@@ -265,17 +273,22 @@ export function LikedWords({ session }: { session: Session }) {
               0
             </Text>
           </View>
-        </View>
-        <Text style={[styles.emptyText, { color: theme.colors.textSecondary }]}>
-          Nu ai încă cuvinte favorite. Apasă pe inimă pentru a le adăuga!
-        </Text>
+        </Pressable>
+        {isListExpanded && (
+          <Text style={[styles.emptyText, { color: theme.colors.textSecondary }]}>
+            Nu ai încă cuvinte favorite. Apasă pe inimă pentru a le adăuga!
+          </Text>
+        )}
       </View>
     );
   }
 
   return (
     <View style={styles.container} {...panResponder.panHandlers}>
-      <View style={styles.titleRow}>
+      <Pressable
+        onPress={toggleListExpanded}
+        style={styles.titleRow}
+      >
         <Text style={[styles.title, { color: theme.colors.textPrimary }]}>
           Cuvintele tale speciale
         </Text>
@@ -285,8 +298,10 @@ export function LikedWords({ session }: { session: Session }) {
             {likedWords.length}
           </Text>
         </View>
-      </View>
-      <View style={styles.wordsList}>
+      </Pressable>
+      {isListExpanded && (
+        <>
+          <View style={styles.wordsList}>
         {paginatedWords.map((word) => {
           const isExpanded = expandedIds.has(word.id);
           return (
@@ -350,44 +365,46 @@ export function LikedWords({ session }: { session: Session }) {
         })}
       </View>
 
-      {totalPages > 1 && (
-        <View style={styles.pagination}>
-          <Pressable
-            onPress={goToPrevPage}
-            disabled={currentPage === 1}
-            style={[
-              styles.paginationButton,
-              {
-                backgroundColor: theme.colors.tabBarBg,
-                borderColor: theme.colors.border,
-                opacity: currentPage === 1 ? 0.5 : 1,
-              },
-            ]}
-          >
-            <Text style={[styles.paginationButtonText, { color: theme.colors.textPrimary }]}>
-              Prev
-            </Text>
-          </Pressable>
-          <Text style={[styles.paginationInfo, { color: theme.colors.textSecondary }]}>
-            [{currentPage}/{totalPages}]
-          </Text>
-          <Pressable
-            onPress={goToNextPage}
-            disabled={currentPage === totalPages}
-            style={[
-              styles.paginationButton,
-              {
-                backgroundColor: theme.colors.tabBarBg,
-                borderColor: theme.colors.border,
-                opacity: currentPage === totalPages ? 0.5 : 1,
-              },
-            ]}
-          >
-            <Text style={[styles.paginationButtonText, { color: theme.colors.textPrimary }]}>
-              Next
-            </Text>
-          </Pressable>
-        </View>
+          {totalPages > 1 && (
+            <View style={styles.pagination}>
+              <Pressable
+                onPress={goToPrevPage}
+                disabled={currentPage === 1}
+                style={[
+                  styles.paginationButton,
+                  {
+                    backgroundColor: theme.colors.tabBarBg,
+                    borderColor: theme.colors.border,
+                    opacity: currentPage === 1 ? 0.5 : 1,
+                  },
+                ]}
+              >
+                <Text style={[styles.paginationButtonText, { color: theme.colors.textPrimary }]}>
+                  Prev
+                </Text>
+              </Pressable>
+              <Text style={[styles.paginationInfo, { color: theme.colors.textSecondary }]}>
+                [{currentPage}/{totalPages}]
+              </Text>
+              <Pressable
+                onPress={goToNextPage}
+                disabled={currentPage === totalPages}
+                style={[
+                  styles.paginationButton,
+                  {
+                    backgroundColor: theme.colors.tabBarBg,
+                    borderColor: theme.colors.border,
+                    opacity: currentPage === totalPages ? 0.5 : 1,
+                  },
+                ]}
+              >
+                <Text style={[styles.paginationButtonText, { color: theme.colors.textPrimary }]}>
+                  Next
+                </Text>
+              </Pressable>
+            </View>
+          )}
+        </>
       )}
     </View>
   );
@@ -415,6 +432,10 @@ const styles = StyleSheet.create({
   },
   heartCount: {
     fontSize: 16,
+    fontWeight: "600",
+  },
+  expandIcon: {
+    fontSize: 20,
     fontWeight: "600",
   },
   emptyText: {

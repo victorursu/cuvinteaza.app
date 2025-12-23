@@ -15,6 +15,7 @@ import { ThemeIcon } from "../components/icons/ThemeIcon";
 import { supabase, isSupabaseConfigured } from "../lib/supabase";
 import type { Session } from "@supabase/supabase-js";
 import { LikedWords } from "../components/LikedWords";
+import { LastTestResults } from "../components/LastTestResults";
 
 export function AccountScreen() {
   const { theme, toggle } = useTheme();
@@ -591,6 +592,8 @@ export function AccountScreen() {
             </View>
           )}
         </View>
+
+        <LastTestResults session={session} />
 
         <View style={[styles.card, { backgroundColor: theme.colors.tabBarBg, borderColor: theme.colors.border }]}>
           <LikedWords session={session} />

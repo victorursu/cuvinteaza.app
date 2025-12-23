@@ -18,6 +18,7 @@ import type { TestDifficulty, TestQuestion } from "../types";
 import { useTheme } from "../theme/theme";
 import { ThemeIcon } from "../components/icons/ThemeIcon";
 import Svg, { Circle, Defs, LinearGradient, Stop } from "react-native-svg";
+import { supabase, isSupabaseConfigured } from "../lib/supabase";
 
 type LoadState =
   | { status: "idle" | "loading"; data: TestQuestion[]; source?: "remote" | "local"; error?: undefined }
@@ -180,6 +181,81 @@ export function TestScreen() {
     setRevealEndsAt(null);
     setFinished(true);
   }, []);
+
+  // Save test results to Supabase when test is finished
+  useEffect(() => {
+    if (!finished || !isSupabaseConfigured || !supabase) return;
+
+    const saveTestResults = async () => {
+      try {
+        // Get current session
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.user) {
+          // User not logged in, skip saving
+          return;
+        }
+
+        // Get user profile level
+        let userProfileLevel: "beginner" | "intermediate" | "advanced" | null = null;
+        try {
+          const { data: profile } = await supabase
+            .from("cuvinteziProfile")
+            .select("vocabulary_level")
+            .eq("user_id", session.user.id)
+            .single();
+
+          if (profile?.vocabulary_level) {
+            userProfileLevel = profile.vocabulary_level as "beginner" | "intermediate" | "advanced";
+          }
+        } catch (error) {
+          // Profile not found or error, will default to beginner
+          console.log("Profile not found, defaulting to beginner");
+        }
+
+        // Map calculated level to database format
+        const levelMap: Record<string, "beginner" | "intermediate" | "advanced"> = {
+          Beginner: "beginner",
+          Intermediate: "intermediate",
+          Expert: "advanced",
+        };
+        const finalCalculatedLevel = levelMap[level] || "beginner";
+
+        // Calculate percentages
+        const easyPercentage = stats.accEasy * 100;
+        const mediumPercentage = stats.accMedium * 100;
+        const hardPercentage = stats.accHard * 100;
+        const finalPercentage = stats.maxPoints > 0 ? (stats.points / stats.maxPoints) * 100 : 0;
+
+        // Prepare data for insertion
+        const testResult = {
+          user_id: session.user.id,
+          user_profile_level: userProfileLevel || "beginner",
+          final_calculated_level: finalCalculatedLevel,
+          points: stats.points,
+          max_points: stats.maxPoints,
+          correct_answers: correctCount,
+          max_correct_answers: total,
+          easy_percentage: Math.round(easyPercentage * 100) / 100, // Round to 2 decimals
+          medium_percentage: Math.round(mediumPercentage * 100) / 100,
+          hard_percentage: Math.round(hardPercentage * 100) / 100,
+          final_percentage: Math.round(finalPercentage * 100) / 100,
+        };
+
+        // Insert into Supabase
+        const { error } = await supabase.from("cuvinteziTeste").insert(testResult);
+
+        if (error) {
+          console.error("Failed to save test results:", error);
+        } else {
+          console.log("Test results saved successfully");
+        }
+      } catch (error) {
+        console.error("Error saving test results:", error);
+      }
+    };
+
+    void saveTestResults();
+  }, [finished, stats, level, correctCount, total]);
 
   const header = useMemo(() => {
     const position = total > 0 ? `${Math.min(currentIndex + 1, total)} / ${total}` : "— / —";
