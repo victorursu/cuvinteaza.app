@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "172302886040",
+    "project_id": "cuvintesti-ro",
+    "storage_bucket": "cuvintesti-ro.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:172302886040:android:dc0fee3a33d5d0954c1ced",
+        "android_client_info": {
+          "package_name": "ro.cuvintezi.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC2yf4U4scv8Cb4x-J3OcFjcTqUe2GXqAw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
