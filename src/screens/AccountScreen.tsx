@@ -41,7 +41,7 @@ export function AccountScreen({
   const [resetEmailSent, setResetEmailSent] = useState(false);
   const [vocabularyLevel, setVocabularyLevel] = useState<"beginner" | "intermediate" | "advanced" | null>(null);
   const [age, setAge] = useState<string>("47");
-  const [notificationTimeframe, setNotificationTimeframe] = useState<"7-10" | "12-4" | "4-8" | null>(null);
+  const [notificationTimeframe, setNotificationTimeframe] = useState<"7-10" | "12-16" | "16-20" | null>(null);
   const [showPasswordChange, setShowPasswordChange] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
@@ -486,7 +486,7 @@ export function AccountScreen({
                   Interval preferat pentru notificări zilnice
                 </Text>
                 <View style={styles.radioGroup}>
-                  {(["7-10", "12-4", "4-8"] as const).map((timeframe) => (
+                  {(["7-10", "12-16", "16-20"] as const).map((timeframe) => (
                     <Pressable
                       key={timeframe}
                       onPress={() => setNotificationTimeframe(timeframe)}

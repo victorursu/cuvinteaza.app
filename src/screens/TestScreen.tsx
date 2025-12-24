@@ -328,7 +328,7 @@ export function TestScreen() {
         <View style={styles.resultBox}>
           <DonutHero
             percent={pct}
-            level={level}
+            level={getLevelDisplayName(level)}
             colors={levelColors}
             textColor={theme.colors.textPrimary}
           />
@@ -358,7 +358,7 @@ export function TestScreen() {
             </Text>
             <View style={styles.breakdownRow}>
               <MiniDonut
-                label="Easy"
+                label="Ușor"
                 percent={Math.round(stats.accEasy * 100)}
                 color={levelColors.mini1}
                 track={levelColors.track}
@@ -366,7 +366,7 @@ export function TestScreen() {
                 subColor={theme.colors.textSecondary}
               />
               <MiniDonut
-                label="Medium"
+                label="Mediu"
                 percent={Math.round(stats.accMedium * 100)}
                 color={levelColors.mini2}
                 track={levelColors.track}
@@ -374,7 +374,7 @@ export function TestScreen() {
                 subColor={theme.colors.textSecondary}
               />
               <MiniDonut
-                label="Hard"
+                label="Greu"
                 percent={Math.round(stats.accHard * 100)}
                 color={levelColors.mini3}
                 track={levelColors.track}
@@ -405,7 +405,7 @@ export function TestScreen() {
               Test invalid
             </Text>
             <Text style={[styles.emptyText, { color: theme.colors.textSecondary }]}>
-              Ai nevoie de {TEST_COUNT} întrebări împărțite egal pe dificultăți (easy/medium/hard).
+              Ai nevoie de {TEST_COUNT} întrebări împărțite egal pe dificultăți (ușor/mediu/greu).
             </Text>
             <Pressable style={styles.retryBtn} onPress={load}>
               <Text style={styles.retryText}>Încarcă</Text>
@@ -548,7 +548,7 @@ function QuestionCard({
               {question.question}
             </Text>
             <Text style={styles.difficultyLabel}>
-              {question.difficulty.toUpperCase()} · {progress.current}/{progress.total}
+              {getDifficultyDisplayName(question.difficulty)} · {progress.current}/{progress.total}
             </Text>
             <View style={styles.progressBarTrack}>
               <View
@@ -1118,6 +1118,24 @@ function classify(stats: {
   if (!passMed50) return "Beginner";
   if (!passHard40) return "Intermediate";
   return "Intermediate";
+}
+
+function getLevelDisplayName(level: string): string {
+  const levelMap: Record<string, string> = {
+    Beginner: "Începător",
+    Intermediate: "Intermediar",
+    Expert: "Avansat",
+  };
+  return levelMap[level] || level;
+}
+
+function getDifficultyDisplayName(difficulty: TestDifficulty): string {
+  const difficultyMap: Record<TestDifficulty, string> = {
+    easy: "Ușor",
+    medium: "Mediu",
+    hard: "Greu",
+  };
+  return difficultyMap[difficulty] || difficulty;
 }
 
 

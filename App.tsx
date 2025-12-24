@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import { useMemo, useRef, useState } from "react";
-import { Animated, StyleSheet, View } from "react-native";
+import { Animated, Platform, StyleSheet, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { BottomTabs, type TabKey } from "./src/components/BottomTabs";
 import { PlaceholderScreen } from "./src/screens/PlaceholderScreen";
@@ -14,6 +14,10 @@ import { WordDetailScreen } from "./src/screens/WordDetailScreen";
 import * as SplashScreen from "expo-splash-screen";
 import { useCallback, useEffect } from "react";
 import { BootSplash } from "./src/screens/BootSplash";
+import * as Notifications from "expo-notifications";
+import * as Linking from "expo-linking";
+import { supabase, isSupabaseConfigured } from "./src/lib/supabase";
+import * as Device from "expo-device";
 
 export default function App() {
   return (
@@ -23,12 +27,24 @@ export default function App() {
   );
 }
 
+// Configure notification behavior
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
+
 function AppInner() {
   const [tab, setTab] = useState<TabKey>("cuvinte");
   const [viewingWordId, setViewingWordId] = useState<string | null>(null);
   const { theme } = useTheme();
   const [appReady, setAppReady] = useState(false);
   const bootProgress = useRef(new Animated.Value(0)).current;
+  const notificationListener = useRef<Notifications.Subscription>();
+  const responseListener = useRef<Notifications.Subscription>();
+  const [currentSession, setCurrentSession] = useState<any>(null);
 
   useEffect(() => {
     // Prevent native splash from auto-hiding; we'll hide it ourselves once React UI is ready.
@@ -74,6 +90,272 @@ function AppInner() {
       await SplashScreen.hideAsync();
     }
   }, [appReady]);
+
+  // Get current session for associating tokens with users
+  useEffect(() => {
+    if (!isSupabaseConfigured || !supabase) return;
+
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setCurrentSession(session);
+    };
+
+    void getSession();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setCurrentSession(session);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  // Save push token to Supabase
+  const savePushToken = useCallback(async (token: string) => {
+    if (!isSupabaseConfigured || !supabase) {
+      console.log("⚠️ Supabase not configured, skipping token save");
+      return;
+    }
+
+    try {
+      console.log("💾 Attempting to save push token to Supabase...");
+      console.log("💾 Token:", token);
+      
+      // Get device info
+      const deviceInfo = Platform.OS === "ios" 
+        ? `iOS ${Device.osVersion || "unknown"}` 
+        : `Android ${Device.osVersion || "unknown"}`;
+      console.log("💾 Device info:", deviceInfo);
+
+      // Get current session
+      const { data: { session } } = await supabase.auth.getSession();
+      const userId = session?.user?.id || null;
+      console.log("💾 User ID:", userId || "null (not logged in)");
+
+      // Check if token already exists
+      const { data: existingToken, error: checkError } = await supabase
+        .from("cuvinteziPushTokens")
+        .select("id, user_id")
+        .eq("token", token)
+        .maybeSingle();
+
+      // PGRST116 is "not found" - that's okay, we'll insert a new token
+      if (checkError && checkError.code !== "PGRST116") {
+        throw checkError;
+      }
+
+      if (existingToken) {
+        // Update existing token (associate with current user if logged in)
+        const { error } = await supabase
+          .from("cuvinteziPushTokens")
+          .update({
+            user_id: userId,
+            device_info: deviceInfo,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("token", token);
+
+        if (error) throw error;
+        console.log("✅ Updated existing push token in Supabase");
+      } else {
+        // Insert new token
+        const { error } = await supabase
+          .from("cuvinteziPushTokens")
+          .insert({
+            user_id: userId,
+            token: token,
+            device_info: deviceInfo,
+          });
+
+        if (error) {
+          console.error("❌ Error inserting push token:", error);
+          console.error("❌ Error details:", JSON.stringify(error, null, 2));
+          throw error;
+        }
+        console.log("✅ Saved new push token to Supabase");
+      }
+    } catch (error) {
+      console.error("❌ Error saving push token to Supabase:", error);
+      console.error("❌ Full error details:", JSON.stringify(error, null, 2));
+    }
+  }, []);
+
+  // Update token association when user logs in/out
+  useEffect(() => {
+    if (!isSupabaseConfigured || !supabase || Platform.OS === "web") return;
+
+    const updateTokenAssociation = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const userId = session?.user?.id || null;
+
+        // Get device info
+        const deviceInfo = Platform.OS === "ios" 
+          ? `iOS ${Device.osVersion || "unknown"}` 
+          : `Android ${Device.osVersion || "unknown"}`;
+
+        // Try to get the token again
+        try {
+          const { status } = await Notifications.getPermissionsAsync();
+          if (status === "granted") {
+            const tokenData = await Notifications.getExpoPushTokenAsync({
+              projectId: "aa40ced7-dddf-43c9-99d2-3fdf3a48820c",
+            });
+            
+            // Update token with current user
+            const { data: existingToken } = await supabase
+              .from("cuvinteziPushTokens")
+              .select("id")
+              .eq("token", tokenData.data)
+              .single();
+
+            if (existingToken) {
+              await supabase
+                .from("cuvinteziPushTokens")
+                .update({
+                  user_id: userId,
+                  device_info: deviceInfo,
+                })
+                .eq("token", tokenData.data);
+              console.log("✅ Updated token association with user");
+            } else {
+              // Token doesn't exist yet, save it
+              await savePushToken(tokenData.data);
+            }
+          }
+        } catch (error) {
+          // Token might not be available yet, that's okay
+          console.log("ℹ️ Token not available for association update");
+        }
+      } catch (error) {
+        console.error("❌ Error updating token association:", error);
+      }
+    };
+
+    void updateTokenAssociation();
+  }, [currentSession, savePushToken]);
+
+  // Register for push notifications (native platforms only)
+  useEffect(() => {
+    console.log("🔔 Push notification registration - Platform:", Platform.OS);
+    
+    // Skip push notification registration on web
+    if (Platform.OS === "web") {
+      console.log("⚠️ Push notifications are not supported on web. Use native platforms (iOS/Android) for push notifications.");
+      return;
+    }
+
+    const registerForPushNotifications = async () => {
+      try {
+        console.log("📱 Starting push notification registration...");
+        const { status: existingStatus } = await Notifications.getPermissionsAsync();
+        console.log("📱 Current permission status:", existingStatus);
+        let finalStatus = existingStatus;
+        
+        if (existingStatus !== "granted") {
+          console.log("📱 Requesting notification permissions...");
+          const { status } = await Notifications.requestPermissionsAsync();
+          finalStatus = status;
+          console.log("📱 Permission request result:", status);
+        }
+        
+        if (finalStatus !== "granted") {
+          console.log("❌ Failed to get push token - permissions not granted!");
+          return;
+        }
+        
+        console.log("📱 Getting Expo Push Token...");
+        const token = await Notifications.getExpoPushTokenAsync({
+          projectId: "aa40ced7-dddf-43c9-99d2-3fdf3a48820c",
+        });
+        console.log("✅ Expo Push Token:", token.data);
+        console.log("📋 Copy this token to send notifications:");
+        console.log("   ", token.data);
+        
+        // Save token to Supabase
+        await savePushToken(token.data);
+      } catch (error) {
+        console.error("❌ Error registering for push notifications:", error);
+      }
+    };
+
+    void registerForPushNotifications();
+  }, [savePushToken]);
+
+  // Handle notification received while app is foregrounded
+  useEffect(() => {
+    notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
+      console.log("Notification received:", notification);
+    });
+
+    return () => {
+      if (notificationListener.current) {
+        Notifications.removeNotificationSubscription(notificationListener.current);
+      }
+    };
+  }, []);
+
+  // Handle notification tap
+  useEffect(() => {
+    responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
+      const data = response.notification.request.content.data;
+      console.log("Notification tapped:", data);
+      
+      // Handle word notification
+      if (data?.type === "word" && data?.wordId) {
+        setViewingWordId(data.wordId);
+        setTab("cuvinte"); // Switch to cuvinte tab if needed
+      }
+    });
+
+    return () => {
+      if (responseListener.current) {
+        Notifications.removeNotificationSubscription(responseListener.current);
+      }
+    };
+  }, []);
+
+  // Handle deep links
+  useEffect(() => {
+    const handleDeepLink = (event: { url: string }) => {
+      const { path, queryParams, hostname } = Linking.parse(event.url);
+      console.log("Deep link received:", path, queryParams, hostname);
+      
+      // Handle word deep link: cuvinteaza.app://word/word-id
+      // Path can be "word/word-id" or just "word" with id in queryParams
+      if (path) {
+        const pathParts = path.split("/");
+        if (pathParts[0] === "word") {
+          const wordId = pathParts[1] || queryParams?.id;
+          if (wordId) {
+            setViewingWordId(wordId as string);
+            setTab("cuvinte");
+          }
+        }
+      } else if (hostname === "word" && queryParams?.id) {
+        // Alternative format: cuvinteaza.app://word?id=word-id
+        setViewingWordId(queryParams.id as string);
+        setTab("cuvinte");
+      }
+    };
+
+    // Check if app was opened via deep link
+    Linking.getInitialURL().then((url) => {
+      if (url) {
+        handleDeepLink({ url });
+      }
+    });
+
+    // Listen for deep links while app is running
+    const subscription = Linking.addEventListener("url", handleDeepLink);
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
 
   const screen = useMemo(() => {
     if (viewingWordId) {

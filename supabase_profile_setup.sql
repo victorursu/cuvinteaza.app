@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS public."cuvinteziProfile" (
   user_id UUID NOT NULL UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
   vocabulary_level TEXT CHECK (vocabulary_level IN ('beginner', 'intermediate', 'advanced')),
   age INTEGER CHECK (age >= 4 AND age <= 120),
-  notification_timeframe TEXT CHECK (notification_timeframe IN ('7-10', '12-4', '4-8')),
+  notification_timeframe TEXT CHECK (notification_timeframe IN ('7-10', '12-16', '16-20')),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
