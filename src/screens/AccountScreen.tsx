@@ -247,15 +247,26 @@ export function AccountScreen({
 
               // Save notifications_enabled to profile
               if (userId) {
+                // Get current profile to preserve existing values
+                const { data: currentProfile } = await supabase
+                  .from("cuvinteziProfile")
+                  .select("notification_timeframe, vocabulary_level, age")
+                  .eq("user_id", userId)
+                  .single();
+
                 const { error: profileError } = await supabase
                   .from("cuvinteziProfile")
                   .upsert({
                     user_id: userId,
                     notifications_enabled: true,
+                    notification_timeframe: currentProfile?.notification_timeframe || notificationTimeframe || null,
+                    vocabulary_level: currentProfile?.vocabulary_level || vocabularyLevel || null,
+                    age: currentProfile?.age || (age ? parseInt(age, 10) : null),
                   }, { onConflict: "user_id" });
 
                 if (profileError) {
                   console.error("Failed to save notification preference:", profileError);
+                  Alert.alert("Eroare", "Nu s-a putut salva preferința de notificare.");
                 }
               }
             }
@@ -324,15 +335,26 @@ export function AccountScreen({
         const userId = session?.user?.id || null;
 
         if (userId) {
+          // Get current profile to preserve existing values
+          const { data: currentProfile } = await supabase
+            .from("cuvinteziProfile")
+            .select("notification_timeframe, vocabulary_level, age")
+            .eq("user_id", userId)
+            .single();
+
           const { error: profileError } = await supabase
             .from("cuvinteziProfile")
             .upsert({
               user_id: userId,
               notifications_enabled: false,
+              notification_timeframe: currentProfile?.notification_timeframe || notificationTimeframe || null,
+              vocabulary_level: currentProfile?.vocabulary_level || vocabularyLevel || null,
+              age: currentProfile?.age || (age ? parseInt(age, 10) : null),
             }, { onConflict: "user_id" });
 
           if (profileError) {
             console.error("Failed to save notification preference:", profileError);
+            Alert.alert("Eroare", "Nu s-a putut salva preferința de notificare.");
           }
         }
       }

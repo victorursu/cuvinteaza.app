@@ -140,47 +140,72 @@ function AppInner() {
       const userId = session?.user?.id || null;
       console.log("💾 User ID:", userId || "null (not logged in)");
 
-      // Use upsert to handle both insert and update cases
-      // This avoids duplicate key errors and RLS policy issues
-      const { error } = await supabase
+      // Check if token already exists first
+      const { data: existingToken, error: checkError } = await supabase
         .from("cuvinteziPushTokens")
-        .upsert(
-          {
+        .select("id, user_id")
+        .eq("token", token)
+        .maybeSingle();
+
+      if (checkError && checkError.code !== "PGRST116") {
+        // PGRST116 is "not found" - that's okay
+        console.error("❌ Error checking for existing token:", checkError);
+        throw checkError;
+      }
+
+      if (existingToken) {
+        // Token exists - update it
+        const { error: updateError } = await supabase
+          .from("cuvinteziPushTokens")
+          .update({
+            user_id: userId,
+            device_info: deviceInfo,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("token", token);
+
+        if (updateError) {
+          console.error("❌ Error updating push token:", updateError);
+          throw updateError;
+        }
+        console.log("✅ Updated existing push token in Supabase");
+      } else {
+        // Token doesn't exist - try to insert it
+        const { error: insertError } = await supabase
+          .from("cuvinteziPushTokens")
+          .insert({
             token: token,
             user_id: userId,
             device_info: deviceInfo,
             updated_at: new Date().toISOString(),
-          },
-          {
-            onConflict: "token",
-            ignoreDuplicates: false,
-          }
-        );
+          });
 
-      if (error) {
-        // If it's a duplicate key error, try to update instead
-        if (error.code === "23505" || error.message?.includes("duplicate key")) {
-          console.log("⚠️ Token already exists, updating instead...");
-          const { error: updateError } = await supabase
-            .from("cuvinteziPushTokens")
-            .update({
-              user_id: userId,
-              device_info: deviceInfo,
-              updated_at: new Date().toISOString(),
-            })
-            .eq("token", token);
+        if (insertError) {
+          // If it's a duplicate key error, the token exists but we couldn't see it due to RLS
+          // Try to update it instead
+          if (insertError.code === "23505" || insertError.message?.includes("duplicate key")) {
+            console.log("⚠️ Token already exists (duplicate key), updating instead...");
+            const { error: updateError } = await supabase
+              .from("cuvinteziPushTokens")
+              .update({
+                user_id: userId,
+                device_info: deviceInfo,
+                updated_at: new Date().toISOString(),
+              })
+              .eq("token", token);
 
-          if (updateError) {
-            console.error("❌ Error updating push token:", updateError);
-            throw updateError;
+            if (updateError) {
+              console.error("❌ Error updating push token after duplicate key error:", updateError);
+              throw updateError;
+            }
+            console.log("✅ Updated existing push token in Supabase (after duplicate key error)");
+          } else {
+            console.error("❌ Error inserting push token:", insertError);
+            throw insertError;
           }
-          console.log("✅ Updated existing push token in Supabase");
         } else {
-          console.error("❌ Error upserting push token:", error);
-          throw error;
+          console.log("✅ Saved new push token to Supabase");
         }
-      } else {
-        console.log("✅ Saved/updated push token in Supabase");
       }
     } catch (error) {
       console.error("❌ Error saving push token to Supabase:", error);
