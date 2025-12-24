@@ -16,3 +16,4 @@ CREATE POLICY "Users can insert their own push tokens" ON "cuvinteziPushTokens"
 CREATE POLICY "Users can update their own push tokens" ON "cuvinteziPushTokens"
   FOR UPDATE USING (auth.uid() = user_id OR user_id IS NULL);
 
+

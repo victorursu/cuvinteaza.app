@@ -2,9 +2,11 @@ import { useState, useEffect, useCallback } from "react";
 import {
   ActivityIndicator,
   Alert,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
+  Switch,
   Text,
   TextInput,
   View,
@@ -16,6 +18,9 @@ import { supabase, isSupabaseConfigured } from "../lib/supabase";
 import type { Session } from "@supabase/supabase-js";
 import { LikedWords } from "../components/LikedWords";
 import { LastTestResults } from "../components/LastTestResults";
+import * as Notifications from "expo-notifications";
+import * as Device from "expo-device";
+import Constants from "expo-constants";
 
 export function AccountScreen({
   onNavigateToWord,
@@ -46,6 +51,9 @@ export function AccountScreen({
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [profileLoading, setProfileLoading] = useState(false);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [pushToken, setPushToken] = useState<string | null>(null);
+  const [checkingToken, setCheckingToken] = useState(false);
 
   useEffect(() => {
     if (!isSupabaseConfigured || !supabase) {
@@ -102,9 +110,232 @@ export function AccountScreen({
         setVocabularyLevel(data.vocabulary_level || null);
         setAge(data.age ? String(data.age) : "47");
         setNotificationTimeframe(data.notification_timeframe || null);
+        setNotificationsEnabled(data.notifications_enabled || false);
       }
     } catch (error) {
       console.error("Failed to load profile:", error);
+    }
+  }, []);
+
+  // Check notification permissions and get token on mount
+  useEffect(() => {
+    if (Platform.OS === "web") {
+      setNotificationsEnabled(false);
+      setPushToken(null);
+      return;
+    }
+
+    const checkNotificationStatus = async () => {
+      try {
+        const { status } = await Notifications.getPermissionsAsync();
+        const isEnabled = status === "granted";
+        setNotificationsEnabled(isEnabled);
+
+        if (isEnabled) {
+          try {
+            const token = await Notifications.getExpoPushTokenAsync({
+              projectId: "aa40ced7-dddf-43c9-99d2-3fdf3a48820c",
+            });
+            setPushToken(token.data);
+          } catch (error) {
+            console.error("Failed to get push token:", error);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to check notification permissions:", error);
+      }
+    };
+
+    void checkNotificationStatus();
+  }, []);
+
+  // Handle notification toggle
+  const handleNotificationToggle = useCallback(async (value: boolean) => {
+    if (Platform.OS === "web") {
+      Alert.alert("Notificări", "Notificările push nu sunt disponibile în browser.");
+      return;
+    }
+
+    // Check if running in Expo Go (which doesn't support push notifications on Android)
+    try {
+      if (Constants?.executionEnvironment === Constants?.ExecutionEnvironment?.StoreClient && Platform.OS === "android") {
+        Alert.alert(
+          "Notificări indisponibile",
+          "Notificările push nu sunt disponibile în Expo Go pentru Android.\n\n" +
+          "Pentru a testa notificările push, folosește:\n" +
+          "• Un development build (eas build --profile development)\n" +
+          "• Sau un build de producție (eas build --platform android)\n\n" +
+          "Citește mai multe: https://docs.expo.dev/develop/development-builds/introduction/"
+        );
+        setNotificationsEnabled(false);
+        return;
+      }
+    } catch (error) {
+      // Constants might not be available in some builds, continue anyway
+      console.log("⚠️ Could not check execution environment, continuing with notification toggle");
+    }
+
+    if (value) {
+      // Toggling ON - request permissions
+      setCheckingToken(true);
+      try {
+        const { status: existingStatus } = await Notifications.getPermissionsAsync();
+        let finalStatus = existingStatus;
+
+        if (existingStatus !== "granted") {
+          const { status } = await Notifications.requestPermissionsAsync();
+          finalStatus = status;
+        }
+
+        if (finalStatus === "granted") {
+          setNotificationsEnabled(true);
+          try {
+            console.log("📱 Requesting Expo Push Token with projectId: aa40ced7-dddf-43c9-99d2-3fdf3a48820c");
+            console.log("📱 Platform:", Platform.OS, "Version:", Platform.Version);
+            
+            const token = await Notifications.getExpoPushTokenAsync({
+              projectId: "aa40ced7-dddf-43c9-99d2-3fdf3a48820c",
+            });
+            
+            console.log("✅ Successfully got push token:", token.data);
+            setPushToken(token.data);
+
+            // Save token to Supabase
+            if (isSupabaseConfigured && supabase) {
+              const { data: { session } } = await supabase.auth.getSession();
+              const userId = session?.user?.id || null;
+              const deviceInfo = Platform.OS === "ios" 
+                ? `iOS ${Device.osVersion || "unknown"}` 
+                : `Android ${Device.osVersion || "unknown"}`;
+
+              // Use upsert to handle duplicate tokens gracefully
+              const { error: tokenError } = await supabase
+                .from("cuvinteziPushTokens")
+                .upsert(
+                  {
+                    token: token.data,
+                    user_id: userId,
+                    device_info: deviceInfo,
+                    updated_at: new Date().toISOString(),
+                  },
+                  {
+                    onConflict: "token",
+                    ignoreDuplicates: false,
+                  }
+                );
+
+              if (tokenError) {
+                // If it's a duplicate key error, try to update instead
+                if (tokenError.code === "23505" || tokenError.message?.includes("duplicate key")) {
+                  console.log("⚠️ Token already exists, updating instead...");
+                  const { error: updateError } = await supabase
+                    .from("cuvinteziPushTokens")
+                    .update({
+                      user_id: userId,
+                      device_info: deviceInfo,
+                      updated_at: new Date().toISOString(),
+                    })
+                    .eq("token", token.data);
+
+                  if (updateError) {
+                    console.error("Failed to update push token:", updateError);
+                  }
+                } else {
+                  console.error("Failed to save push token:", tokenError);
+                }
+              }
+
+              // Save notifications_enabled to profile
+              if (userId) {
+                const { error: profileError } = await supabase
+                  .from("cuvinteziProfile")
+                  .upsert({
+                    user_id: userId,
+                    notifications_enabled: true,
+                  }, { onConflict: "user_id" });
+
+                if (profileError) {
+                  console.error("Failed to save notification preference:", profileError);
+                }
+              }
+            }
+          } catch (error: any) {
+            console.error("❌ Failed to get push token:", error);
+            console.error("❌ Error type:", typeof error);
+            console.error("❌ Error message:", error?.message);
+            console.error("❌ Error code:", error?.code);
+            console.error("❌ Full error:", JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
+            
+            let errorMessage = "Eroare necunoscută";
+            if (error?.message) {
+              errorMessage = error.message;
+            } else if (typeof error === "string") {
+              errorMessage = error;
+            } else if (error?.toString) {
+              errorMessage = error.toString();
+            }
+
+            // Check for specific error types
+            let userFriendlyMessage = "Nu s-a putut obține token-ul de notificare.\n\n";
+            
+            if (errorMessage.includes("SERVICE_NOT_AVAILABLE") || errorMessage.includes("Google Play Services")) {
+              userFriendlyMessage += "Google Play Services nu este disponibil sau nu este actualizat.\n\n";
+              userFriendlyMessage += "Soluție:\n";
+              userFriendlyMessage += "1. Actualizează Google Play Services din Google Play Store\n";
+              userFriendlyMessage += "2. Asigură-te că dispozitivul are conexiune la internet\n";
+              userFriendlyMessage += "3. Repornește aplicația";
+            } else if (errorMessage.includes("network") || errorMessage.includes("Network")) {
+              userFriendlyMessage += "Probleme de conectivitate la rețea.\n\n";
+              userFriendlyMessage += "Verifică conexiunea la internet și încearcă din nou.";
+            } else {
+              userFriendlyMessage += `Detalii: ${errorMessage}\n\n`;
+              userFriendlyMessage += "Asigură-te că:\n";
+              userFriendlyMessage += "1. Aplicația este construită cu EAS Build\n";
+              userFriendlyMessage += "2. Google Play Services este instalat și actualizat\n";
+              userFriendlyMessage += "3. Dispozitivul are conexiune la internet";
+            }
+
+            Alert.alert("Eroare", userFriendlyMessage);
+            
+            // Don't set notifications enabled if we couldn't get the token
+            setNotificationsEnabled(false);
+          }
+        } else {
+          setNotificationsEnabled(false);
+          Alert.alert(
+            "Permisiuni necesare",
+            "Pentru a primi notificări, trebuie să acordați permisiunea în setările aplicației."
+          );
+        }
+      } catch (error) {
+        console.error("Failed to request notification permissions:", error);
+        Alert.alert("Eroare", "Nu s-au putut solicita permisiunile pentru notificări.");
+      } finally {
+        setCheckingToken(false);
+      }
+    } else {
+      // Toggling OFF
+      setNotificationsEnabled(false);
+      setPushToken(null);
+
+      // Save notifications_enabled to profile
+      if (isSupabaseConfigured && supabase) {
+        const { data: { session } } = await supabase.auth.getSession();
+        const userId = session?.user?.id || null;
+
+        if (userId) {
+          const { error: profileError } = await supabase
+            .from("cuvinteziProfile")
+            .upsert({
+              user_id: userId,
+              notifications_enabled: false,
+            }, { onConflict: "user_id" });
+
+          if (profileError) {
+            console.error("Failed to save notification preference:", profileError);
+          }
+        }
+      }
     }
   }, []);
 
@@ -121,6 +352,7 @@ export function AccountScreen({
         vocabulary_level: vocabularyLevel,
         age: age ? parseInt(age, 10) : null,
         notification_timeframe: notificationTimeframe,
+        notifications_enabled: notificationsEnabled,
       };
 
       const { error } = await supabase
@@ -136,7 +368,7 @@ export function AccountScreen({
     } finally {
       setProfileLoading(false);
     }
-  }, [session, vocabularyLevel, age, notificationTimeframe]);
+  }, [session, vocabularyLevel, age, notificationTimeframe, notificationsEnabled]);
 
   const handlePasswordChange = useCallback(async () => {
     if (!isSupabaseConfigured || !supabase || !session?.user) {
@@ -479,6 +711,49 @@ export function AccountScreen({
                   editable={!profileLoading}
                 />
               </View>
+
+              {/* Allow Notifications Toggle */}
+              <View style={styles.profileField}>
+                <View style={styles.toggleRow}>
+                  <Text style={[styles.profileLabel, { color: theme.colors.textPrimary }]}>
+                    Permite notificări
+                  </Text>
+                  {checkingToken ? (
+                    <ActivityIndicator size="small" color={theme.colors.iconActive} />
+                  ) : (
+                    <Switch
+                      value={notificationsEnabled}
+                      onValueChange={handleNotificationToggle}
+                      trackColor={{ false: theme.colors.border, true: theme.colors.iconActive }}
+                      thumbColor={theme.colors.background}
+                    />
+                  )}
+                </View>
+              </View>
+
+              {/* Push Token Display */}
+              {pushToken && (
+                <View style={styles.profileField}>
+                  <Text style={[styles.profileLabel, { color: theme.colors.textPrimary }]}>
+                    Token notificare push
+                  </Text>
+                  <TextInput
+                    style={[
+                      styles.input,
+                      styles.tokenInput,
+                      {
+                        backgroundColor: theme.colors.background,
+                        color: theme.colors.textSecondary,
+                        borderColor: theme.colors.border,
+                      },
+                    ]}
+                    value={pushToken}
+                    editable={false}
+                    multiline
+                    selectTextOnFocus
+                  />
+                </View>
+              )}
 
               {/* Notification Timeframe */}
               <View style={styles.profileField}>
@@ -1188,6 +1463,18 @@ const styles = StyleSheet.create({
   profileLabel: {
     fontSize: 16,
     fontWeight: "600",
+  },
+  toggleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  tokenInput: {
+    fontFamily: Platform.OS === "ios" ? "Menlo" : "monospace",
+    fontSize: 12,
+    minHeight: 60,
+    paddingTop: 8,
+    paddingBottom: 8,
   },
   radioGroup: {
     flexDirection: "row",

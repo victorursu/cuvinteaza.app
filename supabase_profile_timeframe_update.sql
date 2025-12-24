@@ -19,3 +19,4 @@ ALTER TABLE public."cuvinteziProfile"
 ADD CONSTRAINT cuvinteziProfile_notification_timeframe_check
 CHECK (notification_timeframe IN ('7-10', '12-16', '16-20'));
 
+

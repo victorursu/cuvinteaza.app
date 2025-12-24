@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS public."cuvinteziProfile" (
   vocabulary_level TEXT CHECK (vocabulary_level IN ('beginner', 'intermediate', 'advanced')),
   age INTEGER CHECK (age >= 4 AND age <= 120),
   notification_timeframe TEXT CHECK (notification_timeframe IN ('7-10', '12-16', '16-20')),
+  notifications_enabled BOOLEAN DEFAULT false,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );

@@ -49,3 +49,4 @@ After setting the environment variables, run `eas build --platform android --pro
 - You can also set variables per build profile (development, preview, production) if needed
 - The `.env` file is for local development only and is not used during EAS builds
 
+

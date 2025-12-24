@@ -18,6 +18,7 @@ import * as Notifications from "expo-notifications";
 import * as Linking from "expo-linking";
 import { supabase, isSupabaseConfigured } from "./src/lib/supabase";
 import * as Device from "expo-device";
+import Constants from "expo-constants";
 
 export default function App() {
   return (
@@ -28,13 +29,17 @@ export default function App() {
 }
 
 // Configure notification behavior
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
-});
+try {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+    }),
+  });
+} catch (error) {
+  console.warn("Could not set notification handler:", error);
+}
 
 function AppInner() {
   const [tab, setTab] = useState<TabKey>("cuvinte");
@@ -135,47 +140,47 @@ function AppInner() {
       const userId = session?.user?.id || null;
       console.log("💾 User ID:", userId || "null (not logged in)");
 
-      // Check if token already exists
-      const { data: existingToken, error: checkError } = await supabase
+      // Use upsert to handle both insert and update cases
+      // This avoids duplicate key errors and RLS policy issues
+      const { error } = await supabase
         .from("cuvinteziPushTokens")
-        .select("id, user_id")
-        .eq("token", token)
-        .maybeSingle();
-
-      // PGRST116 is "not found" - that's okay, we'll insert a new token
-      if (checkError && checkError.code !== "PGRST116") {
-        throw checkError;
-      }
-
-      if (existingToken) {
-        // Update existing token (associate with current user if logged in)
-        const { error } = await supabase
-          .from("cuvinteziPushTokens")
-          .update({
+        .upsert(
+          {
+            token: token,
             user_id: userId,
             device_info: deviceInfo,
             updated_at: new Date().toISOString(),
-          })
-          .eq("token", token);
+          },
+          {
+            onConflict: "token",
+            ignoreDuplicates: false,
+          }
+        );
 
-        if (error) throw error;
-        console.log("✅ Updated existing push token in Supabase");
-      } else {
-        // Insert new token
-        const { error } = await supabase
-          .from("cuvinteziPushTokens")
-          .insert({
-            user_id: userId,
-            token: token,
-            device_info: deviceInfo,
-          });
+      if (error) {
+        // If it's a duplicate key error, try to update instead
+        if (error.code === "23505" || error.message?.includes("duplicate key")) {
+          console.log("⚠️ Token already exists, updating instead...");
+          const { error: updateError } = await supabase
+            .from("cuvinteziPushTokens")
+            .update({
+              user_id: userId,
+              device_info: deviceInfo,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("token", token);
 
-        if (error) {
-          console.error("❌ Error inserting push token:", error);
-          console.error("❌ Error details:", JSON.stringify(error, null, 2));
+          if (updateError) {
+            console.error("❌ Error updating push token:", updateError);
+            throw updateError;
+          }
+          console.log("✅ Updated existing push token in Supabase");
+        } else {
+          console.error("❌ Error upserting push token:", error);
           throw error;
         }
-        console.log("✅ Saved new push token to Supabase");
+      } else {
+        console.log("✅ Saved/updated push token in Supabase");
       }
     } catch (error) {
       console.error("❌ Error saving push token to Supabase:", error);
@@ -246,6 +251,17 @@ function AppInner() {
     if (Platform.OS === "web") {
       console.log("⚠️ Push notifications are not supported on web. Use native platforms (iOS/Android) for push notifications.");
       return;
+    }
+
+    // Skip push notification registration in Expo Go on Android (not supported in SDK 53+)
+    try {
+      if (Constants?.executionEnvironment === Constants?.ExecutionEnvironment?.StoreClient && Platform.OS === "android") {
+        console.log("⚠️ Push notifications are not supported in Expo Go on Android (SDK 53+). Use a development build instead.");
+        return;
+      }
+    } catch (error) {
+      // Constants might not be available in some builds, continue anyway
+      console.log("⚠️ Could not check execution environment, continuing with push notification registration");
     }
 
     const registerForPushNotifications = async () => {

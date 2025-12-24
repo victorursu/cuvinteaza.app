@@ -34,3 +34,4 @@ WITH CHECK (auth.uid() = user_id);
 CREATE INDEX IF NOT EXISTS "cuvinteziTeste_user_id_idx" ON public."cuvinteziTeste"(user_id);
 CREATE INDEX IF NOT EXISTS "cuvinteziTeste_created_at_idx" ON public."cuvinteziTeste"(created_at);
 
+

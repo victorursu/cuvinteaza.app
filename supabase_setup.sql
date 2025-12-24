@@ -32,3 +32,4 @@ USING (auth.uid() = user_id);
 CREATE INDEX IF NOT EXISTS "cuvinteziLikes_user_id_idx" ON public."cuvinteziLikes"(user_id);
 CREATE INDEX IF NOT EXISTS "cuvinteziLikes_word_id_idx" ON public."cuvinteziLikes"(word_id);
 
+
