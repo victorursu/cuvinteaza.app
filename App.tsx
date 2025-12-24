@@ -10,6 +10,7 @@ import { ThemeProvider, useTheme } from "./src/theme/theme";
 import { TestScreen } from "./src/screens/TestScreen";
 import { RegionalismeScreen } from "./src/screens/RegionalismeScreen";
 import { UrbanismeScreen } from "./src/screens/UrbanismeScreen";
+import { WordDetailScreen } from "./src/screens/WordDetailScreen";
 import * as SplashScreen from "expo-splash-screen";
 import { useCallback, useEffect } from "react";
 import { BootSplash } from "./src/screens/BootSplash";
@@ -24,6 +25,7 @@ export default function App() {
 
 function AppInner() {
   const [tab, setTab] = useState<TabKey>("cuvinte");
+  const [viewingWordId, setViewingWordId] = useState<string | null>(null);
   const { theme } = useTheme();
   const [appReady, setAppReady] = useState(false);
   const bootProgress = useRef(new Animated.Value(0)).current;
@@ -74,9 +76,18 @@ function AppInner() {
   }, [appReady]);
 
   const screen = useMemo(() => {
+    if (viewingWordId) {
+      return (
+        <WordDetailScreen
+          wordId={viewingWordId}
+          onBack={() => setViewingWordId(null)}
+        />
+      );
+    }
+
     switch (tab) {
       case "account":
-        return <AccountScreen />;
+        return <AccountScreen onNavigateToWord={setViewingWordId} />;
       case "testare":
         return <TestScreen />;
       case "regionalisme":
@@ -89,7 +100,7 @@ function AppInner() {
       default:
         return <VocabularyScreen />;
     }
-  }, [tab]);
+  }, [tab, viewingWordId]);
 
   return (
     <SafeAreaProvider>
@@ -102,7 +113,13 @@ function AppInner() {
         {appReady ? (
           <>
             <View style={styles.content}>{screen}</View>
-            <BottomTabs active={tab} onChange={setTab} />
+            <BottomTabs
+              active={tab}
+              onChange={(newTab) => {
+                setViewingWordId(null);
+                setTab(newTab);
+              }}
+            />
           </>
         ) : (
           <BootSplash progress={bootProgress} />

@@ -638,7 +638,7 @@ function QuestionCard({
 const styles = StyleSheet.create({
   container: { flex: 1 },
   body: { flex: 1, paddingBottom: 6, gap: 12 },
-  headerPad: { paddingHorizontal: 16 },
+  headerPad: { paddingHorizontal: 16, paddingTop: 12, paddingLeft: 24 },
   carousel: { flex: 1 },
   center: { flex: 1, alignItems: "center", justifyContent: "center", gap: 10 },
   loadingText: {},

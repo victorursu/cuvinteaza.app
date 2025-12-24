@@ -27,7 +27,13 @@ type LikedWordWithDate = VocabularyWord & { created_at: string };
 
 const ITEMS_PER_PAGE = 5;
 
-export function LikedWords({ session }: { session: Session }) {
+export function LikedWords({
+  session,
+  onNavigateToWord,
+}: {
+  session: Session;
+  onNavigateToWord?: (wordId: string) => void;
+}) {
   const { theme } = useTheme();
   const [likedWords, setLikedWords] = useState<LikedWordWithDate[]>([]);
   const [loading, setLoading] = useState(true);
@@ -358,6 +364,16 @@ export function LikedWords({ session }: { session: Session }) {
                   >
                     {word.definition}
                   </Text>
+                  {onNavigateToWord && (
+                    <Pressable
+                      onPress={() => onNavigateToWord(word.id)}
+                      style={[styles.viewWordLink, { borderColor: theme.colors.border }]}
+                    >
+                      <Text style={[styles.viewWordLinkText, { color: theme.colors.iconActive }]}>
+                        Vezi cuvântul complet →
+                      </Text>
+                    </Pressable>
+                  )}
                 </View>
               )}
             </View>
@@ -493,6 +509,19 @@ const styles = StyleSheet.create({
   definition: {
     fontSize: 16,
     lineHeight: 24,
+    marginBottom: 12,
+  },
+  viewWordLink: {
+    marginTop: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+    alignSelf: "flex-start",
+  },
+  viewWordLinkText: {
+    fontSize: 14,
+    fontWeight: "600",
   },
   pagination: {
     flexDirection: "row",

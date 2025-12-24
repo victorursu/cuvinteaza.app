@@ -17,7 +17,11 @@ import type { Session } from "@supabase/supabase-js";
 import { LikedWords } from "../components/LikedWords";
 import { LastTestResults } from "../components/LastTestResults";
 
-export function AccountScreen() {
+export function AccountScreen({
+  onNavigateToWord,
+}: {
+  onNavigateToWord?: (wordId: string) => void;
+}) {
   const { theme, toggle } = useTheme();
   const insets = useSafeAreaInsets();
   const [session, setSession] = useState<Session | null>(null);
@@ -31,6 +35,10 @@ export function AccountScreen() {
   const [emailVerificationSent, setEmailVerificationSent] = useState(false);
   const [verificationEmail, setVerificationEmail] = useState("");
   const [isProfileExpanded, setIsProfileExpanded] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetEmailSent, setResetEmailSent] = useState(false);
   const [vocabularyLevel, setVocabularyLevel] = useState<"beginner" | "intermediate" | "advanced" | null>(null);
   const [age, setAge] = useState<string>("47");
   const [notificationTimeframe, setNotificationTimeframe] = useState<"7-10" | "12-4" | "4-8" | null>(null);
@@ -177,8 +185,10 @@ export function AccountScreen() {
       return;
     }
 
+    setLoginError(null);
+
     if (!email || !password) {
-      Alert.alert("Eroare", "Te rugăm să completezi toate câmpurile obligatorii.");
+      setLoginError("Te rugăm să completezi toate câmpurile obligatorii.");
       return;
     }
 
@@ -223,18 +233,46 @@ export function AccountScreen() {
           email,
           password,
         });
-        if (error) throw error;
-        // Clear form
+        if (error) {
+          setLoginError(error.message || "Email sau parolă incorectă.");
+          return;
+        }
+        // Clear form and error on success
         setEmail("");
         setPassword("");
+        setLoginError(null);
       }
     } catch (error: any) {
-      Alert.alert("Eroare", error.message || "A apărut o eroare.");
+      setLoginError(error.message || "A apărut o eroare.");
     } finally {
       setAuthLoading(false);
     }
   };
 
+  const handlePasswordReset = async () => {
+    if (!isSupabaseConfigured || !supabase) {
+      Alert.alert("Eroare", "Autentificarea nu este configurată.");
+      return;
+    }
+
+    if (!resetEmail) {
+      Alert.alert("Eroare", "Te rugăm să introduci adresa de email.");
+      return;
+    }
+
+    setAuthLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+        redirectTo: "cuvinteaza.app://reset-password",
+      });
+      if (error) throw error;
+      setResetEmailSent(true);
+    } catch (error: any) {
+      Alert.alert("Eroare", error.message || "A apărut o eroare la trimiterea email-ului de resetare.");
+    } finally {
+      setAuthLoading(false);
+    }
+  };
 
   const handleResendVerification = async () => {
     if (!isSupabaseConfigured || !supabase) {
@@ -595,9 +633,9 @@ export function AccountScreen() {
 
         <LastTestResults session={session} />
 
-        <View style={[styles.card, { backgroundColor: theme.colors.tabBarBg, borderColor: theme.colors.border }]}>
-          <LikedWords session={session} />
-        </View>
+            <View style={[styles.card, { backgroundColor: theme.colors.tabBarBg, borderColor: theme.colors.border }]}>
+              <LikedWords session={session} onNavigateToWord={onNavigateToWord} />
+            </View>
       </ScrollView>
     );
   }
@@ -624,6 +662,8 @@ export function AccountScreen() {
                     setPassword("");
                     setConfirmPassword("");
                     setFullName("");
+                    setLoginError(null);
+                    setShowForgotPassword(false);
                   }}
                 >
                   <Text style={[styles.switchMode, { color: theme.colors.iconActive }]}>
@@ -644,103 +684,224 @@ export function AccountScreen() {
         </View>
 
       <View style={[styles.card, { backgroundColor: theme.colors.tabBarBg, borderColor: theme.colors.border }]}>
-        {authMode === "register" && (
-          <TextInput
-            style={[
-              styles.input,
-              {
-                backgroundColor: theme.colors.background,
-                color: theme.colors.textPrimary,
-                borderColor: theme.colors.border,
-              },
-            ]}
-            placeholder="Nume complet"
-            placeholderTextColor={theme.colors.textSecondary}
-            value={fullName}
-            onChangeText={setFullName}
-            autoCapitalize="words"
-            autoComplete="name"
-            editable={!authLoading}
-          />
+        {showForgotPassword ? (
+          <>
+            {resetEmailSent ? (
+              <>
+                <Text style={[styles.resetEmailSentTitle, { color: theme.colors.textPrimary }]}>
+                  Email trimis!
+                </Text>
+                <Text style={[styles.resetEmailSentText, { color: theme.colors.textSecondary }]}>
+                  Am trimis un email de resetare a parolei la {resetEmail}. Verifică inbox-ul și folderul de spam.
+                </Text>
+                <Pressable
+                  style={[
+                    styles.button,
+                    styles.primaryButton,
+                    { backgroundColor: theme.colors.iconActive },
+                  ]}
+                  onPress={() => {
+                    setShowForgotPassword(false);
+                    setResetEmail("");
+                    setResetEmailSent(false);
+                  }}
+                >
+                  <Text style={[styles.primaryButtonText, { color: theme.colors.background }]}>
+                    Înapoi la login
+                  </Text>
+                </Pressable>
+              </>
+            ) : (
+              <>
+                <Text style={[styles.forgotPasswordTitle, { color: theme.colors.textPrimary }]}>
+                  Resetează parola
+                </Text>
+                <Text style={[styles.forgotPasswordText, { color: theme.colors.textSecondary }]}>
+                  Introdu adresa ta de email și îți vom trimite un link pentru resetarea parolei.
+                </Text>
+                <TextInput
+                  style={[
+                    styles.input,
+                    {
+                      backgroundColor: theme.colors.background,
+                      color: theme.colors.textPrimary,
+                      borderColor: theme.colors.border,
+                    },
+                  ]}
+                  placeholder="Email"
+                  placeholderTextColor={theme.colors.textSecondary}
+                  value={resetEmail}
+                  onChangeText={setResetEmail}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                  autoComplete="email"
+                  editable={!authLoading}
+                />
+                <View style={styles.forgotPasswordActions}>
+                  <Pressable
+                    style={[
+                      styles.button,
+                      styles.secondaryButton,
+                      { backgroundColor: theme.colors.tabActiveBg, borderColor: theme.colors.border, flex: 1 },
+                    ]}
+                    onPress={() => {
+                      setShowForgotPassword(false);
+                      setResetEmail("");
+                    }}
+                  >
+                    <Text style={[styles.secondaryButtonText, { color: theme.colors.textPrimary }]}>
+                      Anulează
+                    </Text>
+                  </Pressable>
+                  <Pressable
+                    style={[
+                      styles.button,
+                      styles.primaryButton,
+                      { backgroundColor: theme.colors.iconActive, flex: 1, marginLeft: 12 },
+                      authLoading && styles.buttonDisabled,
+                    ]}
+                    onPress={handlePasswordReset}
+                    disabled={authLoading}
+                  >
+                    {authLoading ? (
+                      <ActivityIndicator size="small" color={theme.colors.background} />
+                    ) : (
+                      <Text style={[styles.primaryButtonText, { color: theme.colors.background }]}>
+                        Trimite
+                      </Text>
+                    )}
+                  </Pressable>
+                </View>
+              </>
+            )}
+          </>
+        ) : (
+          <>
+            {authMode === "register" && (
+              <TextInput
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: theme.colors.background,
+                    color: theme.colors.textPrimary,
+                    borderColor: theme.colors.border,
+                  },
+                ]}
+                placeholder="Nume complet"
+                placeholderTextColor={theme.colors.textSecondary}
+                value={fullName}
+                onChangeText={setFullName}
+                autoCapitalize="words"
+                autoComplete="name"
+                editable={!authLoading}
+              />
+            )}
+
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  backgroundColor: theme.colors.background,
+                  color: theme.colors.textPrimary,
+                  borderColor: theme.colors.border,
+                },
+              ]}
+              placeholder="Email"
+              placeholderTextColor={theme.colors.textSecondary}
+              value={email}
+              onChangeText={(text) => {
+                setEmail(text);
+                setLoginError(null);
+              }}
+              autoCapitalize="none"
+              keyboardType="email-address"
+              autoComplete="email"
+              editable={!authLoading}
+            />
+
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  backgroundColor: theme.colors.background,
+                  color: theme.colors.textPrimary,
+                  borderColor: theme.colors.border,
+                },
+              ]}
+              placeholder="Parolă"
+              placeholderTextColor={theme.colors.textSecondary}
+              value={password}
+              onChangeText={(text) => {
+                setPassword(text);
+                setLoginError(null);
+              }}
+              secureTextEntry
+              autoCapitalize="none"
+              autoComplete={authMode === "login" ? "password" : "password-new"}
+              editable={!authLoading}
+            />
+
+            {authMode === "register" && (
+              <TextInput
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: theme.colors.background,
+                    color: theme.colors.textPrimary,
+                    borderColor: theme.colors.border,
+                  },
+                ]}
+                placeholder="Confirmă parola"
+                placeholderTextColor={theme.colors.textSecondary}
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                secureTextEntry
+                autoCapitalize="none"
+                autoComplete="password-new"
+                editable={!authLoading}
+              />
+            )}
+
+            {authMode === "login" && loginError && (
+              <View style={styles.errorBox}>
+                <Text style={[styles.errorText, { color: "#FFB4B4" }]}>{loginError}</Text>
+              </View>
+            )}
+
+            {authMode === "login" && (
+              <Pressable
+                onPress={() => {
+                  setShowForgotPassword(true);
+                  setLoginError(null);
+                }}
+                style={styles.forgotPasswordLink}
+              >
+                <Text style={[styles.forgotPasswordLinkText, { color: theme.colors.iconActive }]}>
+                  Ai uitat parola?
+                </Text>
+              </Pressable>
+            )}
+
+            <Pressable
+              style={[
+                styles.button,
+                styles.primaryButton,
+                { backgroundColor: theme.colors.iconActive },
+                authLoading && styles.buttonDisabled,
+              ]}
+              onPress={handleEmailAuth}
+              disabled={authLoading}
+            >
+              {authLoading ? (
+                <ActivityIndicator size="small" color={theme.colors.background} />
+              ) : (
+                <Text style={[styles.primaryButtonText, { color: theme.colors.background }]}>
+                  {authMode === "login" ? "Conectează-te" : "Înregistrează-te"}
+                </Text>
+              )}
+            </Pressable>
+          </>
         )}
-
-        <TextInput
-          style={[
-            styles.input,
-            {
-              backgroundColor: theme.colors.background,
-              color: theme.colors.textPrimary,
-              borderColor: theme.colors.border,
-            },
-          ]}
-          placeholder="Email"
-          placeholderTextColor={theme.colors.textSecondary}
-          value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-          keyboardType="email-address"
-          autoComplete="email"
-          editable={!authLoading}
-        />
-
-        <TextInput
-          style={[
-            styles.input,
-            {
-              backgroundColor: theme.colors.background,
-              color: theme.colors.textPrimary,
-              borderColor: theme.colors.border,
-            },
-          ]}
-          placeholder="Parolă"
-          placeholderTextColor={theme.colors.textSecondary}
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          autoCapitalize="none"
-          autoComplete={authMode === "login" ? "password" : "password-new"}
-          editable={!authLoading}
-        />
-
-        {authMode === "register" && (
-          <TextInput
-            style={[
-              styles.input,
-              {
-                backgroundColor: theme.colors.background,
-                color: theme.colors.textPrimary,
-                borderColor: theme.colors.border,
-              },
-            ]}
-            placeholder="Confirmă parola"
-            placeholderTextColor={theme.colors.textSecondary}
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-            secureTextEntry
-            autoCapitalize="none"
-            autoComplete="password-new"
-            editable={!authLoading}
-          />
-        )}
-
-        <Pressable
-          style={[
-            styles.button,
-            styles.primaryButton,
-            { backgroundColor: theme.colors.iconActive },
-            authLoading && styles.buttonDisabled,
-          ]}
-          onPress={handleEmailAuth}
-          disabled={authLoading}
-        >
-          {authLoading ? (
-            <ActivityIndicator size="small" color={theme.colors.background} />
-          ) : (
-            <Text style={[styles.primaryButtonText, { color: theme.colors.background }]}>
-              {authMode === "login" ? "Conectează-te" : "Înregistrează-te"}
-            </Text>
-          )}
-        </Pressable>
       </View>
 
       {/* Benefits section - only shown in login mode */}
@@ -758,6 +919,8 @@ export function AccountScreen() {
               setPassword("");
               setConfirmPassword("");
               setFullName("");
+              setLoginError(null);
+              setShowForgotPassword(false);
             }}
           >
             <Text style={[styles.primaryButtonText, { color: theme.colors.textPrimary }]}>
@@ -1069,6 +1232,55 @@ const styles = StyleSheet.create({
   },
   comingSoonText: {
     fontSize: 14,
+  },
+  errorBox: {
+    marginTop: 8,
+    padding: 12,
+    borderRadius: 12,
+    backgroundColor: "rgba(255, 97, 97, 0.12)",
+    borderWidth: 1,
+    borderColor: "rgba(255, 97, 97, 0.35)",
+    gap: 6,
+  },
+  errorText: {
+    color: "#FFD1D1",
+    fontSize: 12,
+    lineHeight: 16,
+  },
+  forgotPasswordLink: {
+    alignSelf: "flex-start",
+    marginTop: 4,
+    marginBottom: 4,
+  },
+  forgotPasswordLinkText: {
+    fontSize: 14,
+    fontWeight: "600",
+    textDecorationLine: "underline",
+  },
+  forgotPasswordTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    marginBottom: 8,
+  },
+  forgotPasswordText: {
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 16,
+  },
+  forgotPasswordActions: {
+    flexDirection: "row",
+    gap: 12,
+    marginTop: 8,
+  },
+  resetEmailSentTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    marginBottom: 12,
+  },
+  resetEmailSentText: {
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 20,
   },
 });
 
