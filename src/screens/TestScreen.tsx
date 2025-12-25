@@ -136,7 +136,6 @@ export function TestScreen() {
 
   const answeredCount = useMemo(() => Object.keys(answers).length, [answers]);
   const total = questions.length;
-  const pct = total > 0 ? Math.round((correctCount / total) * 100) : 0;
 
   const stats = useMemo(() => {
     const byDiff: Record<TestDifficulty, { total: number; correct: number }> = {
@@ -167,6 +166,9 @@ export function TestScreen() {
       accHard: acc("hard"),
     };
   }, [answers, questions]);
+
+  // Use weighted percentage to match what's saved to database
+  const pct = stats.maxPoints > 0 ? Math.round((stats.points / stats.maxPoints) * 100) : 0;
 
   const level = useMemo(() => classify(stats), [stats]);
 
