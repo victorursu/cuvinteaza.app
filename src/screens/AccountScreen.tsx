@@ -615,7 +615,7 @@ export function AccountScreen({
         <View style={styles.header}>
           <View style={styles.headerRow}>
             <Text style={[styles.title, { color: theme.colors.textPrimary }]}>
-              Account
+              Biblioteca mea
             </Text>
             <View style={styles.headerActions}>
               <Pressable
@@ -648,9 +648,14 @@ export function AccountScreen({
 
         <View style={[styles.card, { backgroundColor: theme.colors.tabBarBg, borderColor: theme.colors.border }]}>
           <View style={styles.welcomeRow}>
-            <Text style={[styles.welcomeText, { color: theme.colors.textPrimary }]}>
-              Bine ai venit {userName}!
-            </Text>
+            <View style={styles.welcomeContainer}>
+              <Text style={[styles.welcomeText, { color: theme.colors.textPrimary }]}>
+                Bine ai venit, {userName}.
+              </Text>
+              <Text style={[styles.vipText, { color: theme.colors.textSecondary }]}>
+                Aici cititorii sunt VIP.
+              </Text>
+            </View>
             <Pressable
               onPress={() => setIsProfileExpanded(!isProfileExpanded)}
               style={[styles.editButton, { backgroundColor: theme.colors.tabActiveBg }]}
@@ -1350,6 +1355,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    paddingLeft: 20,
   },
   headerActions: {
     flexDirection: "row",
@@ -1461,10 +1467,18 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     gap: 12,
   },
+  welcomeContainer: {
+    flex: 1,
+    gap: 4,
+  },
   welcomeText: {
     fontSize: 20,
     fontWeight: "600",
-    flex: 1,
+  },
+  vipText: {
+    fontSize: 14,
+    fontWeight: "500",
+    fontStyle: "italic",
   },
   editButton: {
     paddingVertical: 8,

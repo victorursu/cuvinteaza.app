@@ -5,7 +5,7 @@ import { AccountIcon } from "./icons/AccountIcon";
 import { useTheme } from "../theme/theme";
 import { BookIcon } from "./icons/BookIcon";
 import { BuildingsIcon } from "./icons/BuildingsIcon";
-import { GearIcon } from "./icons/GearIcon";
+import { StatisticsIcon } from "./icons/StatisticsIcon";
 import { MapPinIcon } from "./icons/MapPinIcon";
 import { QuizIcon } from "./icons/QuizIcon";
 import { ArrowLeftIcon } from "./icons/ArrowLeftIcon";
@@ -26,7 +26,7 @@ const LABELS: Record<TabKey, string> = {
   cuvinte: "Cuvinte",
   regionalisme: "Regionalisme",
   urbanisme: "Urbanisme",
-  setari: "Setari",
+  setari: "Statistici",
 };
 
 export function BottomTabs({
@@ -104,7 +104,7 @@ export function BottomTabs({
             label={LABELS.setari}
             active={active === "setari"}
             onPress={() => onChange("setari")}
-            icon={({ color }) => <GearIcon color={color} />}
+            icon={({ color }) => <StatisticsIcon color={color} />}
           />
         </ScrollView>
         {canScrollLeft && (

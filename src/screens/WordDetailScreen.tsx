@@ -10,9 +10,12 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fetchVocabulary, parseVocabulary } from "../api/vocabulary";
-import { VOCABULARY_URL } from "../config";
+import { fetchWordByIdFromSupabase } from "../api/supabase-words";
+import { isSupabaseConfigured } from "../lib/supabase";
 import type { VocabularyWord } from "../types";
 import fallbackVocabulary from "../data/fallbackVocabulary.ro.json";
+import fallbackUrbanisme from "../data/fallbackUrbanisme.ro.json";
+import fallbackRegionalisme from "../data/fallbackRegionalisme.ro.json";
 import { useTheme } from "../theme/theme";
 import { HeartIcon } from "../components/icons/HeartIcon";
 import { InlineRichText } from "../components/InlineRichText";
@@ -108,30 +111,59 @@ export function WordDetailScreen({
 
   const load = useCallback(async () => {
     setState((s) => ({ ...s, status: "loading", error: undefined }));
-    try {
-      const words = await fetchVocabulary(VOCABULARY_URL);
-      setState({ status: "ready", data: words, error: undefined });
-    } catch (e) {
-      // Fallback to bundled JSON if remote isn't reachable / invalid.
+    
+    // First, try to fetch from Supabase by ID
+    if (isSupabaseConfigured) {
       try {
-        const localWords = parseVocabulary(fallbackVocabulary as unknown);
-        setState({
-          status: "ready",
-          data: localWords,
-          error: undefined,
-        });
-      } catch (fallbackErr) {
-        const message = e instanceof Error ? e.message : "Unknown error";
-        const fallbackMessage =
-          fallbackErr instanceof Error ? fallbackErr.message : "Unknown error";
-        setState((s) => ({
-          status: "error",
-          data: s.data,
-          error: `${message}. Fallback failed: ${fallbackMessage}`,
-        }));
+        const word = await fetchWordByIdFromSupabase(wordId);
+        if (word) {
+          setState({ status: "ready", data: [word], error: undefined });
+          return;
+        }
+      } catch (supabaseError) {
+        console.error("[WordDetail] Failed to fetch from Supabase:", supabaseError);
+        // Fall through to fallback
       }
     }
-  }, []);
+
+    // Fallback: Try to find word in local JSON files
+    try {
+      // Try all fallback sources
+      const sources = [
+        { name: "vocabulary", data: fallbackVocabulary },
+        { name: "urbanisme", data: fallbackUrbanisme },
+        { name: "regionalisme", data: fallbackRegionalisme },
+      ];
+
+      for (const source of sources) {
+        try {
+          const words = parseVocabulary(source.data as unknown);
+          const word = words.find((w) => w.id === wordId);
+          if (word) {
+            setState({ status: "ready", data: [word], error: undefined });
+            return;
+          }
+        } catch (parseError) {
+          // Continue to next source
+          continue;
+        }
+      }
+
+      // Word not found in any source
+      setState((s) => ({
+        status: "error",
+        data: s.data,
+        error: `Cuvântul cu ID "${wordId}" nu a fost găsit`,
+      }));
+    } catch (fallbackErr) {
+      const message = fallbackErr instanceof Error ? fallbackErr.message : "Unknown error";
+      setState((s) => ({
+        status: "error",
+        data: s.data,
+        error: `Fallback failed: ${message}`,
+      }));
+    }
+  }, [wordId]);
 
   useEffect(() => {
     void load();

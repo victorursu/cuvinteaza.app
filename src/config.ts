@@ -18,6 +18,10 @@ export const URBANISME_URL =
   process.env.EXPO_PUBLIC_URBANISME_URL ??
   "https://example.com/urbanisme.ro.json";
 
+export const URBANISME_COUNT = Number(process.env.EXPO_PUBLIC_URBANISME_COUNT ?? "15") || 15;
+
+export const REGIONALISME_COUNT = Number(process.env.EXPO_PUBLIC_REGIONALISME_COUNT ?? "15") || 15;
+
 export const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL ?? "";
 export const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? "";
 

@@ -1,7 +1,7 @@
 [
   {
     "id": "urb-001",
-    "title": "a da swipe",
+    "title": "1a da swipe",
     "grammar_block": "verb (locuțiune, infinitiv)",
     "definition": "A glisa cu degetul pe ecran (de obicei în aplicații), pentru a trece la următorul ecran/element.",
     "image": "https://picsum.photos/seed/urb-swipe/800/600",
@@ -13,7 +13,7 @@
   },
   {
     "id": "urb-002",
-    "title": "story",
+    "title": "1story",
     "grammar_block": "substantiv (n., col.)",
     "definition": "Postare scurtă (de obicei foto/video) care dispare după 24 de ore, popularizată de rețelele sociale.",
     "image": "https://picsum.photos/seed/urb-story/800/600",
@@ -21,162 +21,6 @@
     "examples": [
       "Am pus un <strong>story</strong> de la concert.",
       "Dă-mi tag în <strong>story</strong> dacă postezi poza."
-    ]
-  },
-  {
-    "id": "urb-003",
-    "title": "a da tag",
-    "grammar_block": "verb (locuțiune, infinitiv)",
-    "definition": "A menționa pe cineva într-o postare (de obicei cu @), ca să fie notificat.",
-    "image": "https://picsum.photos/seed/urb-tag/800/600",
-    "tags": ["urban", "social media"],
-    "examples": [
-      "M-a <strong>taguit</strong> în poză și am primit notificare.",
-      "Dă-mi <strong>tag</strong> când ajungi acolo."
-    ]
-  },
-  {
-    "id": "urb-004",
-    "title": "a da like",
-    "grammar_block": "verb (locuțiune, infinitiv)",
-    "definition": "A aprecia o postare cu un buton (inimă, thumbs up), în jargonul social media.",
-    "image": "https://picsum.photos/seed/urb-like/800/600",
-    "tags": ["urban", "social media"],
-    "examples": [
-      "Am dat <strong>like</strong> la postarea ta.",
-      "Dacă ți-a plăcut, dă <strong>like</strong> și share."
-    ]
-  },
-  {
-    "id": "urb-005",
-    "title": "vibe",
-    "grammar_block": "substantiv (n., col.)",
-    "definition": "Atmosferă/stare generală resimțită într-un loc sau într-o situație; „feeling”.",
-    "image": "https://picsum.photos/seed/urb-vibe/800/600",
-    "tags": ["urban", "slang", "emoții"],
-    "examples": [
-      "Localul are un <strong>vibe</strong> super relaxat.",
-      "Nu-mi place <strong>vibe-ul</strong> de aici, hai să plecăm."
-    ]
-  },
-  {
-    "id": "urb-006",
-    "title": "cringe",
-    "grammar_block": "adjectiv / substantiv (col.)",
-    "definition": "Ceva jenant sau stânjenitor, care te face să „strâmbi din nas” de rușine pentru altcineva.",
-    "image": "https://picsum.photos/seed/urb-cringe/800/600",
-    "tags": ["urban", "slang", "internet"],
-    "examples": [
-      "Clipul ăsta e <strong>cringe</strong>, nu pot să mă uit până la capăt.",
-      "Mi-a fost <strong>cringe</strong> de faza aia."
-    ]
-  },
-  {
-    "id": "urb-007",
-    "title": "a flexa",
-    "grammar_block": "verb (infinitiv, col.)",
-    "definition": "A se lăuda ostentativ cu ceva (bani, lucruri, realizări).",
-    "image": "https://picsum.photos/seed/urb-flexa/800/600",
-    "tags": ["urban", "slang", "social"],
-    "examples": [
-      "Tot <strong>flexează</strong> cu mașina nouă.",
-      "Nu mai <strong>flexa</strong>, că nu impresionezi pe nimeni."
-    ]
-  },
-  {
-    "id": "urb-008",
-    "title": "a da ghost",
-    "grammar_block": "verb (locuțiune, infinitiv)",
-    "definition": "A dispărea brusc dintr-o conversație/relatie, fără explicații (ghosting).",
-    "image": "https://picsum.photos/seed/urb-ghost/800/600",
-    "tags": ["urban", "slang", "relații", "internet"],
-    "examples": [
-      "După două zile, mi-a dat <strong>ghost</strong> și n-a mai răspuns.",
-      "Nu-i ok să dai <strong>ghost</strong> fără să spui nimic."
-    ]
-  },
-  {
-    "id": "urb-009",
-    "title": "binge",
-    "grammar_block": "verb (infinitiv, col.)",
-    "definition": "A consuma multe episoade/clipuri dintr-o dată (binge-watching).",
-    "image": "https://picsum.photos/seed/urb-binge/800/600",
-    "tags": ["urban", "slang", "media"],
-    "examples": [
-      "Am <strong>binge-uit</strong> tot sezonul într-o seară.",
-      "În weekend vreau să <strong>binge</strong> un serial nou."
-    ]
-  },
-  {
-    "id": "urb-010",
-    "title": "random",
-    "grammar_block": "adjectiv (col.)",
-    "definition": "Fără legătură clară cu contextul; întâmplător, neașteptat.",
-    "image": "https://picsum.photos/seed/urb-random/800/600",
-    "tags": ["urban", "slang", "internet"],
-    "examples": [
-      "A fost un mesaj <strong>random</strong>, n-avea nicio treabă.",
-      "Ne-am întâlnit <strong>random</strong> pe stradă."
-    ]
-  },
-  {
-    "id": "urb-011",
-    "title": "a face check-in",
-    "grammar_block": "verb (locuțiune, infinitiv)",
-    "definition": "A marca prezența într-un loc (în aplicații) sau a te înregistra la hotel/avioane; folosit des în jargon urban.",
-    "image": "https://picsum.photos/seed/urb-checkin/800/600",
-    "tags": ["urban", "travel", "social media"],
-    "examples": [
-      "Am făcut <strong>check-in</strong> la hotel în 5 minute.",
-      "Își face mereu <strong>check-in</strong> când ajunge la un local nou."
-    ]
-  },
-  {
-    "id": "urb-012",
-    "title": "a da un DM",
-    "grammar_block": "verb (locuțiune, infinitiv)",
-    "definition": "A trimite un mesaj privat (Direct Message) pe rețele sociale.",
-    "image": "https://picsum.photos/seed/urb-dm/800/600",
-    "tags": ["urban", "social media", "internet"],
-    "examples": [
-      "Dă-mi un <strong>DM</strong> și vorbim acolo.",
-      "Mi-a trimis <strong>DM</strong> după ce a văzut story-ul."
-    ]
-  },
-  {
-    "id": "urb-013",
-    "title": "hustle",
-    "grammar_block": "substantiv (n., col.)",
-    "definition": "Muncă intensă, alergătură constantă pentru bani/proiecte; „agitație productivă”.",
-    "image": "https://picsum.photos/seed/urb-hustle/800/600",
-    "tags": ["urban", "slang", "muncă"],
-    "examples": [
-      "În oraș, toată lumea e pe <strong>hustle</strong> nonstop.",
-      "Mi-am luat o pauză de la <strong>hustle</strong> și am dormit."
-    ]
-  },
-  {
-    "id": "urb-014",
-    "title": "a fi pe modul avion",
-    "grammar_block": "locuțiune (col.)",
-    "definition": "A fi „deconectat” de la social/media sau indisponibil; metaforă inspirată din setarea telefonului.",
-    "image": "https://picsum.photos/seed/urb-avion/800/600",
-    "tags": ["urban", "slang", "tech"],
-    "examples": [
-      "Weekendul ăsta sunt pe <strong>modul avion</strong>, fără notificări.",
-      "Când lucrez, intru pe <strong>modul avion</strong> și nu răspund."
-    ]
-  },
-  {
-    "id": "urb-015",
-    "title": "a lua Uber/Bolt",
-    "grammar_block": "verb (locuțiune, infinitiv)",
-    "definition": "A comanda o cursă prin aplicație (ride-sharing). În vorbirea urbană, numele brandului devine verb/expresie.",
-    "image": "https://picsum.photos/seed/urb-uber/800/600",
-    "tags": ["urban", "transport", "tech"],
-    "examples": [
-      "E târziu, hai să luăm un <strong>Uber</strong> până acasă.",
-      "Am luat un <strong>Bolt</strong> că nu mai era metrou."
     ]
   }
 ]

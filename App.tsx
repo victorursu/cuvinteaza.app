@@ -3,7 +3,7 @@ import { useMemo, useRef, useState } from "react";
 import { Animated, Platform, StyleSheet, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { BottomTabs, type TabKey } from "./src/components/BottomTabs";
-import { PlaceholderScreen } from "./src/screens/PlaceholderScreen";
+import { StatisticsScreen } from "./src/screens/StatisticsScreen";
 import { AccountScreen } from "./src/screens/AccountScreen";
 import { VocabularyScreen } from "./src/screens/VocabularyScreen";
 import { ThemeProvider, useTheme } from "./src/theme/theme";
@@ -418,7 +418,7 @@ function AppInner() {
       case "urbanisme":
         return <UrbanismeScreen />;
       case "setari":
-        return <PlaceholderScreen title="Setari" />;
+        return <StatisticsScreen />;
       case "cuvinte":
       default:
         return <VocabularyScreen />;

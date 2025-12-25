@@ -31,11 +31,15 @@ export function DictionaryScreen({
   subtitle,
   url,
   fallback,
+  preloadedWords,
+  onRefresh,
 }: {
   title: string;
   subtitle?: string;
   url: string;
   fallback: unknown;
+  preloadedWords?: VocabularyWord[];
+  onRefresh?: () => void;
 }) {
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
@@ -53,32 +57,81 @@ export function DictionaryScreen({
   }, []);
 
   const load = useCallback(async () => {
+    console.log(`[${title}] load() called - preloadedWords: ${preloadedWords?.length || 0}, url: "${url}"`);
     setState((s) => ({ ...s, status: "loading", error: undefined }));
-    try {
-      const words = await fetchVocabulary(url);
-      setState({ status: "ready", data: shuffle(words.slice()), source: "remote" });
+    
+    // If words are preloaded, use them directly
+    if (preloadedWords && preloadedWords.length > 0) {
+      console.log(`[${title}] ✅ Using ${preloadedWords.length} preloaded words`);
+      setState({ status: "ready", data: shuffle(preloadedWords.slice()), source: "remote" });
       scrollToStart();
-    } catch (e) {
+      return;
+    }
+    
+    // If preloadedWords is expected but not yet available (empty URL), wait
+    // This handles the case where UrbanismeScreen is still loading from Supabase
+    // We'll wait for the parent to pass words via the useEffect that watches preloadedWords
+    if (preloadedWords === undefined && url === "") {
+      console.log(`[${title}] ⏳ No preloaded words yet, waiting for parent to load...`);
+      // Keep loading state - the useEffect below will update when preloadedWords arrive
+      return;
+    }
+    
+    // Only fetch from URL if URL is provided and not empty
+    if (url && url !== "") {
+      try {
+        console.log(`[${title}] 🌐 Fetching from URL: ${url}`);
+        const words = await fetchVocabulary(url);
+        setState({ status: "ready", data: shuffle(words.slice()), source: "remote" });
+        scrollToStart();
+      } catch (e) {
+        console.log(`[${title}] ⚠️ URL fetch failed, using fallback`);
+        try {
+          const localWords = parseVocabulary(fallback);
+          setState({ status: "ready", data: shuffle(localWords.slice()), source: "local" });
+          scrollToStart();
+        } catch (fallbackErr) {
+          const message = e instanceof Error ? e.message : "Unknown error";
+          const fallbackMessage =
+            fallbackErr instanceof Error ? fallbackErr.message : "Unknown error";
+          setState((s) => ({
+            status: "error",
+            data: s.data,
+            error: `${message}. Fallback failed: ${fallbackMessage}`,
+          }));
+        }
+      }
+    } else if (!preloadedWords) {
+      // No URL and no preloaded words - use fallback
+      console.log(`[${title}] 📦 Using fallback (no URL, no preloaded words)`);
       try {
         const localWords = parseVocabulary(fallback);
         setState({ status: "ready", data: shuffle(localWords.slice()), source: "local" });
         scrollToStart();
       } catch (fallbackErr) {
-        const message = e instanceof Error ? e.message : "Unknown error";
-        const fallbackMessage =
-          fallbackErr instanceof Error ? fallbackErr.message : "Unknown error";
+        const message = fallbackErr instanceof Error ? fallbackErr.message : "Unknown error";
         setState((s) => ({
           status: "error",
           data: s.data,
-          error: `${message}. Fallback failed: ${fallbackMessage}`,
+          error: `Fallback failed: ${message}`,
         }));
       }
     }
-  }, [fallback, scrollToStart, url]);
+  }, [fallback, scrollToStart, url, preloadedWords, title]);
 
+  // Load when component mounts or when preloadedWords changes
   useEffect(() => {
     void load();
   }, [load]);
+  
+  // Also reload when preloadedWords changes (in case it arrives after initial mount)
+  useEffect(() => {
+    if (preloadedWords && preloadedWords.length > 0) {
+      console.log(`[${title}] Preloaded words received (${preloadedWords.length} words), updating...`);
+      setState({ status: "ready", data: shuffle(preloadedWords.slice()), source: "remote" });
+      scrollToStart();
+    }
+  }, [preloadedWords, title, scrollToStart]);
 
   // Always start at the beginning to avoid half-snapped initial positions.
   useEffect(() => {
@@ -111,7 +164,15 @@ export function DictionaryScreen({
               accessibilityRole="button"
               accessibilityLabel="Refresh"
               style={[styles.iconBtn, { backgroundColor: theme.colors.headerIconBg }]}
-              onPress={load}
+              onPress={() => {
+                // If parent provides onRefresh callback, use it (for Supabase reloads)
+                // Otherwise, use the local load function
+                if (onRefresh) {
+                  onRefresh();
+                } else {
+                  load();
+                }
+              }}
             >
               <RefreshIcon color={theme.colors.iconActive} />
             </Pressable>
