@@ -22,6 +22,8 @@ import { ThemeIcon } from "../components/icons/ThemeIcon";
 import { HeartIcon } from "../components/icons/HeartIcon";
 import { InlineRichText } from "../components/InlineRichText";
 import { useLikes } from "../hooks/useLikes";
+import { fetchDailyWordsFromSupabase } from "../api/supabase-words";
+import { isSupabaseConfigured, supabase } from "../lib/supabase";
 
 type LoadState =
   | {
@@ -53,30 +55,47 @@ export function VocabularyScreen() {
 
   const load = useCallback(async () => {
     setState((s) => ({ ...s, status: "loading", error: undefined }));
-    try {
-      const words = await fetchVocabulary(VOCABULARY_URL);
-      setState({ status: "ready", data: shuffle(words.slice()), source: "remote" });
-      scrollToStart();
-    } catch (e) {
-      // Fallback to bundled JSON if remote isn't reachable / invalid.
+    
+    // First, try to fetch daily words from Supabase
+    if (isSupabaseConfigured && supabase) {
       try {
-        const localWords = parseVocabulary(fallbackVocabulary as unknown);
-        setState({
-          status: "ready",
-          data: shuffle(localWords.slice()),
-          source: "local",
-        });
-        scrollToStart();
-      } catch (fallbackErr) {
-        const message = e instanceof Error ? e.message : "Unknown error";
-        const fallbackMessage =
-          fallbackErr instanceof Error ? fallbackErr.message : "Unknown error";
-        setState((s) => ({
-          status: "error",
-          data: s.data,
-          error: `${message}. Fallback failed: ${fallbackMessage}`,
-        }));
+        console.log("[VocabularyScreen] Attempting to fetch daily words from Supabase...");
+        const dailyWords = await fetchDailyWordsFromSupabase();
+        
+        if (dailyWords.length > 0) {
+          console.log(`[VocabularyScreen] ✅ Loaded ${dailyWords.length} daily words from Supabase`);
+          setState({ status: "ready", data: dailyWords, source: "remote" });
+          scrollToStart();
+          return;
+        } else {
+          console.log("[VocabularyScreen] ⚠️ No daily words found in Supabase, falling back to local JSON");
+        }
+      } catch (supabaseError) {
+        console.warn("[VocabularyScreen] ❌ Failed to fetch daily words from Supabase, falling back to local JSON:", supabaseError);
+        // Fall through to local fallback
       }
+    } else {
+      console.log("[VocabularyScreen] Supabase not configured, using local fallback");
+    }
+    
+    // Fallback to local JSON if Supabase fails or returns no words
+    try {
+      const localWords = parseVocabulary(fallbackVocabulary as unknown);
+      console.log(`[VocabularyScreen] ✅ Loaded ${localWords.length} words from local fallback`);
+      setState({
+        status: "ready",
+        data: shuffle(localWords.slice()),
+        source: "local",
+      });
+      scrollToStart();
+    } catch (fallbackErr) {
+      const fallbackMessage =
+        fallbackErr instanceof Error ? fallbackErr.message : "Unknown error";
+      setState((s) => ({
+        status: "error",
+        data: s.data,
+        error: `Failed to load words. Fallback failed: ${fallbackMessage}`,
+      }));
     }
   }, [scrollToStart]);
 

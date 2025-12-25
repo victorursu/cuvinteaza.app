@@ -260,6 +260,119 @@ export async function fetchRegionalismeFromSupabase(limit: number = 15): Promise
 }
 
 /**
+ * Fetch daily words from Supabase (from cuvinteziDailyWords table)
+ * @returns Array of VocabularyWord objects ordered by date (most recent first)
+ */
+export async function fetchDailyWordsFromSupabase(): Promise<VocabularyWord[]> {
+  console.log(`[fetchDailyWordsFromSupabase] ===== Starting fetch =====`);
+  console.log(`[fetchDailyWordsFromSupabase] isSupabaseConfigured: ${isSupabaseConfigured}`);
+  console.log(`[fetchDailyWordsFromSupabase] supabase exists: ${!!supabase}`);
+
+  if (!isSupabaseConfigured || !supabase) {
+    console.error("[fetchDailyWordsFromSupabase] ❌ Supabase is not configured");
+    throw new Error("Supabase is not configured");
+  }
+
+  try {
+    console.log(`[fetchDailyWordsFromSupabase] Querying Supabase for daily words...`);
+
+    // First, fetch daily words ordered by date (most recent first)
+    const { data: dailyWordsData, error: dailyWordsError } = await supabase
+      .from("cuvinteziDailyWords")
+      .select("word_id, date")
+      .order("date", { ascending: false });
+
+    console.log(`[fetchDailyWordsFromSupabase] Daily words query result - data length: ${dailyWordsData?.length || 0}`);
+    console.log(`[fetchDailyWordsFromSupabase] Daily words query result - error:`, dailyWordsError);
+
+    if (dailyWordsError) {
+      console.error("Error fetching daily words from Supabase:", dailyWordsError);
+      throw dailyWordsError;
+    }
+
+    if (!dailyWordsData || dailyWordsData.length === 0) {
+      console.log(`[fetchDailyWordsFromSupabase] ⚠️ No daily words found in database!`);
+      return [];
+    }
+
+    // Extract word IDs
+    const wordIds = dailyWordsData.map((dw) => dw.word_id).filter(Boolean);
+    console.log(`[fetchDailyWordsFromSupabase] Found ${wordIds.length} daily word IDs:`, wordIds);
+
+    if (wordIds.length === 0) {
+      console.log(`[fetchDailyWordsFromSupabase] ⚠️ No valid word IDs found!`);
+      return [];
+    }
+
+    // Fetch full word details from cuvinteziCuvinte
+    const { data: wordsData, error: wordsError } = await supabase
+      .from("cuvinteziCuvinte")
+      .select("id, title, grammar_block, definition, image, tags, examples")
+      .in("id", wordIds);
+
+    console.log(`[fetchDailyWordsFromSupabase] Words query result - data length: ${wordsData?.length || 0}`);
+    console.log(`[fetchDailyWordsFromSupabase] Words query result - error:`, wordsError);
+
+    if (wordsError) {
+      console.error("Error fetching words from Supabase:", wordsError);
+      throw wordsError;
+    }
+
+    if (!wordsData || wordsData.length === 0) {
+      console.log(`[fetchDailyWordsFromSupabase] ⚠️ No words found for the daily word IDs!`);
+      return [];
+    }
+
+    // Convert Supabase data to VocabularyWord format
+    const vocabularyWords: VocabularyWord[] = wordsData.map((word) => {
+      let tags: string[] = [];
+      let examples: string[] = [];
+
+      if (Array.isArray(word.tags)) {
+        tags = word.tags;
+      } else if (typeof word.tags === "string") {
+        try {
+          tags = JSON.parse(word.tags);
+        } catch {
+          tags = [];
+        }
+      }
+
+      if (Array.isArray(word.examples)) {
+        examples = word.examples;
+      } else if (typeof word.examples === "string") {
+        try {
+          examples = JSON.parse(word.examples);
+        } catch {
+          examples = [];
+        }
+      }
+
+      return {
+        id: word.id,
+        title: word.title,
+        grammar_block: word.grammar_block || "",
+        definition: word.definition,
+        image: word.image || "",
+        tags,
+        examples,
+      } as VocabularyWord;
+    });
+
+    // Maintain the order from dailyWordsData (most recent first)
+    const orderedWords = dailyWordsData
+      .map((dw) => vocabularyWords.find((w) => w.id === dw.word_id))
+      .filter((w): w is VocabularyWord => w !== undefined);
+
+    console.log(`[fetchDailyWordsFromSupabase] ✅ Successfully fetched ${orderedWords.length} daily words`);
+    return orderedWords;
+  } catch (error) {
+    console.error("Failed to fetch daily words from Supabase:", error);
+    throw error;
+  }
+}
+
+/**
  * Fetch a single word from Supabase by ID
  * @param wordId - The ID of the word to fetch
  * @returns VocabularyWord object or null if not found
