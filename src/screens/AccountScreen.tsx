@@ -18,6 +18,7 @@ import { supabase, isSupabaseConfigured } from "../lib/supabase";
 import type { Session } from "@supabase/supabase-js";
 import { LikedWords } from "../components/LikedWords";
 import { LastTestResults } from "../components/LastTestResults";
+import { TestTimeline } from "../components/TestTimeline";
 import * as Notifications from "expo-notifications";
 import * as Device from "expo-device";
 import Constants from "expo-constants";
@@ -933,11 +934,15 @@ export function AccountScreen({
           )}
         </View>
 
+        <View style={[styles.card, { backgroundColor: theme.colors.tabBarBg, borderColor: theme.colors.border }]}>
+          <LikedWords session={session} onNavigateToWord={onNavigateToWord} />
+        </View>
+
         <LastTestResults session={session} />
 
-            <View style={[styles.card, { backgroundColor: theme.colors.tabBarBg, borderColor: theme.colors.border }]}>
-              <LikedWords session={session} onNavigateToWord={onNavigateToWord} />
-            </View>
+        <View style={[styles.card, { backgroundColor: theme.colors.tabBarBg, borderColor: theme.colors.border }]}>
+          <TestTimeline session={session} />
+        </View>
       </ScrollView>
     );
   }
