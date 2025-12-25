@@ -20,33 +20,107 @@ export async function fetchTopLikedWords(limit: number = 5): Promise<Array<{ wor
   }
 
   try {
-    // Count likes per word_id
+    // Use database function to get accurate counts (bypasses RLS issues)
     const { data: likesData, error: likesError } = await supabase
-      .from("cuvinteziLikes")
-      .select("word_id");
+      .rpc("get_top_liked_words", { limit_count: limit });
 
     if (likesError) {
-      console.error("Error fetching likes:", likesError);
+      console.error("Error fetching top liked words:", likesError);
+      // Fallback to old method if function doesn't exist
+      console.log("Falling back to manual count method...");
+      const { data: fallbackData, error: fallbackError } = await supabase
+        .from("cuvinteziLikes")
+        .select("word_id");
+
+      if (fallbackError) {
+        console.error("Error fetching likes (fallback):", fallbackError);
+        return [];
+      }
+
+      // Count likes per word
+      const wordLikeCounts = new Map<string, number>();
+      fallbackData?.forEach((like) => {
+        const count = wordLikeCounts.get(like.word_id) || 0;
+        wordLikeCounts.set(like.word_id, count + 1);
+      });
+
+      // Sort by like count and get top N
+      const sortedWords = Array.from(wordLikeCounts.entries())
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, limit);
+
+      // Continue with existing logic below
+      const topWords: Array<{ word: VocabularyWord; likes: number; rank: number }> = [];
+      
+      for (let i = 0; i < sortedWords.length; i++) {
+        const [wordId, likes] = sortedWords[i];
+        
+        const { data: wordData, error: wordError } = await supabase
+          .from("cuvinteziCuvinte")
+          .select("id, title, grammar_block, definition, image, tags, examples")
+          .eq("id", wordId)
+          .single();
+
+        if (!wordError && wordData) {
+          let tags: string[] = [];
+          let examples: string[] = [];
+
+          if (Array.isArray(wordData.tags)) {
+            tags = wordData.tags;
+          } else if (typeof wordData.tags === "string") {
+            try {
+              tags = JSON.parse(wordData.tags);
+            } catch {
+              tags = [];
+            }
+          }
+
+          if (Array.isArray(wordData.examples)) {
+            examples = wordData.examples;
+          } else if (typeof wordData.examples === "string") {
+            try {
+              examples = JSON.parse(wordData.examples);
+            } catch {
+              examples = [];
+            }
+          }
+
+          topWords.push({
+            word: {
+              id: wordData.id,
+              title: wordData.title,
+              grammar_block: wordData.grammar_block || "",
+              definition: wordData.definition,
+              image: wordData.image || "",
+              tags,
+              examples,
+            } as VocabularyWord,
+            likes,
+            rank: i + 1,
+          });
+        }
+      }
+
+      return topWords;
+    }
+
+    if (!likesData || likesData.length === 0) {
       return [];
     }
 
-    // Count likes per word
-    const wordLikeCounts = new Map<string, number>();
-    likesData?.forEach((like) => {
-      const count = wordLikeCounts.get(like.word_id) || 0;
-      wordLikeCounts.set(like.word_id, count + 1);
-    });
-
-    // Sort by like count and get top N
-    const sortedWords = Array.from(wordLikeCounts.entries())
-      .sort((a, b) => b[1] - a[1])
+    // Sort by like count and get top N (already sorted by function, but ensure order)
+    const sortedWords = likesData
+      .sort((a, b) => b.like_count - a.like_count)
       .slice(0, limit);
 
     // Fetch word details for top liked words
     const topWords: Array<{ word: VocabularyWord; likes: number; rank: number }> = [];
     
     for (let i = 0; i < sortedWords.length; i++) {
-      const [wordId, likes] = sortedWords[i];
+      const item = sortedWords[i];
+      const wordId = item.word_id;
+      const likes = Number(item.like_count);
+      const rank = item.rank_number || i + 1;
       
       const { data: wordData, error: wordError } = await supabase
         .from("cuvinteziCuvinte")
@@ -89,7 +163,7 @@ export async function fetchTopLikedWords(limit: number = 5): Promise<Array<{ wor
             examples,
           } as VocabularyWord,
           likes,
-          rank: i + 1,
+          rank,
         });
       }
     }
@@ -130,11 +204,9 @@ export async function fetchStatistics(): Promise<Statistics> {
       supabase
         .from("cuvinteziProfile")
         .select("user_id", { count: "exact", head: true }),
-      // Count total users - get distinct user_ids from likes table
-      // This represents users who have interacted with the app (liked words)
+      // Count total users - use database function to get accurate count (bypasses RLS)
       supabase
-        .from("cuvinteziLikes")
-        .select("user_id"),
+        .rpc("get_total_users_from_likes"),
       supabase
         .from("cuvinteziCuvinte")
         .select("id", { count: "exact", head: true }),
@@ -144,11 +216,26 @@ export async function fetchStatistics(): Promise<Statistics> {
     ]);
 
     const activeUsers = activeUsersResult.count || 0;
-    // Count distinct user_ids from likes to get total users
-    const uniqueUserIds = new Set(
-      totalUsersResult.data?.map((row) => row.user_id) || []
-    );
-    const totalUsers = uniqueUserIds.size;
+    // Get total users from database function (accurate count, bypasses RLS)
+    // RPC returns the value directly, so data is the number itself
+    let totalUsers = 0;
+    if (totalUsersResult.data !== null && totalUsersResult.data !== undefined) {
+      totalUsers = typeof totalUsersResult.data === 'number' 
+        ? totalUsersResult.data 
+        : Number(totalUsersResult.data) || 0;
+    }
+    
+    // Fallback: if RPC fails, try to count from likes (may be filtered by RLS)
+    if (totalUsers === 0 && totalUsersResult.error) {
+      console.warn("RPC get_total_users_from_likes failed, using fallback:", totalUsersResult.error);
+      const { data: fallbackData } = await supabase
+        .from("cuvinteziLikes")
+        .select("user_id");
+      const uniqueUserIds = new Set(
+        fallbackData?.map((row) => row.user_id) || []
+      );
+      totalUsers = uniqueUserIds.size;
+    }
     const totalWords = totalWordsResult.count || 0;
 
     // Count distinct tags

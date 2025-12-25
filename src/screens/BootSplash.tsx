@@ -13,7 +13,7 @@ export function BootSplash({ progress }: { progress: AnimatedType.Value }) {
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={styles.brandWrap}>
         <Animated.Text style={[styles.brand, { color: brandColor }]}>
-          Cuvintezi.ro
+          Cuvintești.ro
         </Animated.Text>
       </View>
 

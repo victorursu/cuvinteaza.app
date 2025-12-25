@@ -17,8 +17,8 @@ import { isSupabaseConfigured } from "../lib/supabase";
 import { MedalIcon } from "../components/icons/MedalIcon";
 import { HeartIcon } from "../components/icons/HeartIcon";
 
-// Cache for statistics (10 minutes)
-const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes in milliseconds
+// Cache for statistics (1 minute)
+const CACHE_DURATION = 1 * 60 * 1000; // 1 minute in milliseconds
 
 interface CachedStatistics {
   data: Statistics;

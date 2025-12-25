@@ -137,7 +137,7 @@ export function VocabularyScreen() {
 
     // Console.log the source instead of displaying it
     if (sourceLabel) {
-      console.log(`[Cuvintezi.ro] Source: ${sourceLabel}`);
+      console.log(`[Cuvintești.ro] Source: ${sourceLabel}`);
     }
 
     return (
@@ -145,7 +145,7 @@ export function VocabularyScreen() {
         <View style={styles.headerRow}>
           <View style={styles.headerLeft}>
             <Text style={[styles.title, { color: theme.colors.textPrimary }]}>
-              Cuvintezi.ro
+              Cuvintești.ro
             </Text>
             <Text style={[styles.subtitle, { color: theme.colors.textSecondary }]}>
               Cuvinte recomandate pentru această săptămână
@@ -635,7 +635,10 @@ const styles = StyleSheet.create({
 
 function formatDailyWordDate(dateString: string): string {
   try {
-    const date = new Date(dateString);
+    // Parse YYYY-MM-DD format and create date in local timezone
+    // This prevents timezone issues where UTC dates shift to previous day
+    const [year, month, day] = dateString.split('-').map(Number);
+    const date = new Date(year, month - 1, day); // month is 0-indexed in Date constructor
     return date.toLocaleDateString("ro-RO", {
       day: "numeric",
       month: "long",
