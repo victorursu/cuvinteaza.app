@@ -14,3 +14,4 @@ USING (true);
 -- Keep existing insert and delete policies (users can only modify their own likes)
 -- These should already exist from supabase_setup.sql
 
+

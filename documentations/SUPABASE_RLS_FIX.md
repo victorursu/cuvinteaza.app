@@ -91,3 +91,4 @@ Then run the policy update script above.
 2. Check that the table name is exactly `cuvinteziPushTokens` (case-sensitive)
 3. Try refreshing your app or restarting Expo
 
+

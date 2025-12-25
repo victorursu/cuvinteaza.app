@@ -72,3 +72,4 @@ COMMENT ON COLUMN public."cuvinteziCuvinte".image IS 'URL to an image representi
 COMMENT ON COLUMN public."cuvinteziCuvinte".tags IS 'Array of tags as JSONB (e.g., ["emoții", "cultură", "nostalgie"])';
 COMMENT ON COLUMN public."cuvinteziCuvinte".examples IS 'Array of example sentences as JSONB (may contain HTML like <strong>)';
 
+

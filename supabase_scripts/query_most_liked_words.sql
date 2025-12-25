@@ -33,3 +33,4 @@ GROUP BY l.word_id, c.title, c.grammar_block
 ORDER BY like_count DESC
 LIMIT 10;
 
+

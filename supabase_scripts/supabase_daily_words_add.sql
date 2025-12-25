@@ -10,3 +10,4 @@ ON CONFLICT (date) DO UPDATE
 SET word_id = EXCLUDED.word_id,
     updated_at = timezone('utc'::text, now());
 
+
