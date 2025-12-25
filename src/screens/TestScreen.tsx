@@ -368,15 +368,9 @@ export function TestScreen() {
         <View style={styles.headerPad}>{header}</View>
         <View style={styles.splashContainer}>
           <Text style={[styles.splashDescription, { color: theme.colors.textSecondary }]}>
-            Vei răspunde la {questions.length} întrebări de dificultate variabilă.
-            {"\n\n"}
-            Testul este cronometrat. Timpul începe când apeși "Începe testul" și se oprește când finalizezi testul.
-            {"\n\n"}
+            {questions.length} întrebări de dificultate variabilă. Testul este cronometrat.
             {state.data.length > 0 && (
-              <>
-                În baza de date sunt disponibile {state.data.length} întrebări.
-                {"\n\n"}
-              </>
+              <> {state.data.length} întrebări disponibile în baza de date.</>
             )}
           </Text>
           <Pressable
@@ -398,21 +392,50 @@ export function TestScreen() {
               Începe testul
             </Text>
           </Pressable>
-          <Text style={[styles.splashDescription, { color: theme.colors.textSecondary }]}>
-            <Text style={{ fontWeight: "700", color: theme.colors.textPrimary }}>
+          <View style={styles.scoringSection}>
+            <Text style={[styles.scoringTitle, { color: theme.colors.textPrimary }]}>
               Sistem de punctaj:
             </Text>
-            {"\n"}
-            • Întrebări ușoare: 1 punct
-            {"\n"}
-            • Întrebări medii: 2 puncte
-            {"\n"}
-            • Întrebări grele: 3 puncte
-            {"\n\n"}
-            Scorul final se calculează pe baza punctelor obținute din totalul de puncte posibile.
-            {"\n\n"}
-            Fă-ți timp și răspunde cu atenție!
-          </Text>
+            <View
+              style={[
+                styles.scoringTable,
+                {
+                  borderColor: theme.colors.border,
+                  backgroundColor: theme.mode === "light" ? "rgba(11, 18, 32, 0.05)" : "rgba(255, 255, 255, 0.03)",
+                },
+              ]}
+            >
+              <View style={[styles.scoringRow, { borderBottomColor: theme.colors.border }]}>
+                <Text style={[styles.scoringDifficulty, { color: theme.colors.textPrimary }]}>
+                  Întrebări ușoare
+                </Text>
+                <Text style={[styles.scoringPoints, { color: theme.colors.textPrimary }]}>
+                  1 punct
+                </Text>
+              </View>
+              <View style={[styles.scoringRow, { borderBottomColor: theme.colors.border }]}>
+                <Text style={[styles.scoringDifficulty, { color: theme.colors.textPrimary }]}>
+                  Întrebări medii
+                </Text>
+                <Text style={[styles.scoringPoints, { color: theme.colors.textPrimary }]}>
+                  2 puncte
+                </Text>
+              </View>
+              <View style={styles.scoringRow}>
+                <Text style={[styles.scoringDifficulty, { color: theme.colors.textPrimary }]}>
+                  Întrebări grele
+                </Text>
+                <Text style={[styles.scoringPoints, { color: theme.colors.textPrimary }]}>
+                  3 puncte
+                </Text>
+              </View>
+            </View>
+            <Text style={[styles.splashDescription, { color: theme.colors.textSecondary, marginTop: 16 }]}>
+              Scorul final se calculează pe baza punctelor obținute din totalul de puncte posibile.
+              {"\n\n"}
+              Fă-ți timp și răspunde cu atenție!
+            </Text>
+          </View>
         </View>
       </View>
     );
@@ -951,6 +974,37 @@ const styles = StyleSheet.create({
   splashButtonText: {
     fontSize: 18,
     fontWeight: "900",
+  },
+  scoringSection: {
+    width: "100%",
+    alignItems: "center",
+  },
+  scoringTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    marginBottom: 12,
+  },
+  scoringTable: {
+    width: "100%",
+    borderWidth: 1,
+    borderRadius: 12,
+    overflow: "hidden",
+  },
+  scoringRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+  },
+  scoringDifficulty: {
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  scoringPoints: {
+    fontSize: 16,
+    fontWeight: "700",
   },
   scrollHint: {
     position: "absolute",
