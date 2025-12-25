@@ -158,17 +158,17 @@ export function StatisticsScreen({
                             <MedalIcon type={medalType} size={40} />
                             <View style={styles.cardHeaderRight}>
                               <View style={styles.titleRow}>
-                                <Text style={[styles.wordTitle, { color: theme.colors.textPrimary }]}>
+                                <Text style={[styles.wordTitle, { color: "#FFFFFF" }]}>
                                   {item.word.title}
                                 </Text>
                                 <View style={styles.likesContainer}>
                                   <HeartIcon size={18} color="#FF6B9D" filled />
-                                  <Text style={[styles.likesText, { color: theme.colors.textPrimary }]}>
+                                  <Text style={[styles.likesText, { color: "#FFFFFF" }]}>
                                     {item.likes}
                                   </Text>
                                 </View>
                               </View>
-                              <Text style={[styles.wordGrammar, { color: theme.colors.textSecondary }]}>
+                              <Text style={[styles.wordGrammar, { color: "rgba(255, 255, 255, 0.9)" }]}>
                                 {item.word.grammar_block}
                               </Text>
                             </View>
