@@ -480,6 +480,7 @@ export function TestScreen() {
                     current: Math.min(currentIndex + 1, total),
                     total,
                     answeredCount,
+                    totalInDb: state.data.length,
                   }}
                 />
               </View>
@@ -520,7 +521,7 @@ function QuestionCard({
   onAnswer: (selectedIndex: number) => void;
   onNext: () => void;
   remainingSec: number;
-  progress: { current: number; total: number; answeredCount: number };
+  progress: { current: number; total: number; answeredCount: number; totalInDb?: number };
 }) {
   const { theme } = useTheme();
   const [viewportH, setViewportH] = useState(0);
@@ -555,6 +556,9 @@ function QuestionCard({
             </Text>
             <Text style={styles.difficultyLabel}>
               {getDifficultyDisplayName(question.difficulty)} · {progress.current}/{progress.total}
+              {progress.totalInDb !== undefined && progress.totalInDb > 0 && (
+                <> · {progress.totalInDb} în baza de date</>
+              )}
             </Text>
             <View style={styles.progressBarTrack}>
               <View

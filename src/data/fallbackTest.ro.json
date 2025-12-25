@@ -1312,8 +1312,580 @@
       "correct_options": [0],
       "difficulty": "medium",
       "image": "https://picsum.photos/seed/test-150/900/1200"
-    }
+    },
+      {
+        "id": "q-151",
+        "question": "Ce înseamnă „a zăbovi”?",
+        "options": ["a întârzia", "a accelera", "a evita", "a ignora"],
+        "correct_options": [0],
+        "difficulty": "easy",
+        "image": "https://picsum.photos/seed/test-151/900/1200"
+      },
+      {
+        "id": "q-152",
+        "question": "Sinonimul corect pentru „prielnic” este:",
+        "options": ["favorabil", "ostil", "periculos", "incert"],
+        "correct_options": [0],
+        "difficulty": "easy",
+        "image": "https://picsum.photos/seed/test-152/900/1200"
+      },
+      {
+        "id": "q-153",
+        "question": "Ce înseamnă „a osteni”?",
+        "options": ["a obosi", "a învăța", "a începe", "a crea"],
+        "correct_options": [0],
+        "difficulty": "easy",
+        "image": "https://picsum.photos/seed/test-153/900/1200"
+      },
+      {
+        "id": "q-154",
+        "question": "Cuvântul „neîntrecut” înseamnă:",
+        "options": ["fără egal", "slab", "obișnuit", "recent"],
+        "correct_options": [0],
+        "difficulty": "easy",
+        "image": "https://picsum.photos/seed/test-154/900/1200"
+      },
+      {
+        "id": "q-155",
+        "question": "„A se dumiri” înseamnă:",
+        "options": ["a înțelege", "a confunda", "a uita", "a refuza"],
+        "correct_options": [0],
+        "difficulty": "easy",
+        "image": "https://picsum.photos/seed/test-155/900/1200"
+      },
     
-]
+      {
+        "id": "q-156",
+        "question": "Ce exprimă expresia „a lua aminte”?",
+        "options": ["a fi atent", "a greși", "a uita", "a evita"],
+        "correct_options": [0],
+        "difficulty": "medium",
+        "image": "https://picsum.photos/seed/test-156/900/1200"
+      },
+      {
+        "id": "q-157",
+        "question": "„A se bizui” înseamnă:",
+        "options": ["a se baza", "a renunța", "a critica", "a ezita"],
+        "correct_options": [0],
+        "difficulty": "medium",
+        "image": "https://picsum.photos/seed/test-157/900/1200"
+      },
+      {
+        "id": "q-158",
+        "question": "Ce înseamnă „fragil” (sens figurat)?",
+        "options": ["ușor de afectat", "foarte solid", "durabil", "constant"],
+        "correct_options": [0],
+        "difficulty": "medium",
+        "image": "https://picsum.photos/seed/test-158/900/1200"
+      },
+      {
+        "id": "q-159",
+        "question": "Sinonimul potrivit pentru „meticulos” este:",
+        "options": ["foarte atent", "neglijent", "rapid", "impulsiv"],
+        "correct_options": [0],
+        "difficulty": "medium",
+        "image": "https://picsum.photos/seed/test-159/900/1200"
+      },
+      {
+        "id": "q-160",
+        "question": "Ce înseamnă „a tempera”?",
+        "options": ["a calma", "a intensifica", "a ignora", "a provoca"],
+        "correct_options": [0],
+        "difficulty": "medium",
+        "image": "https://picsum.photos/seed/test-160/900/1200"
+      },
+    
+      {
+        "id": "q-161",
+        "question": "„A insinua” înseamnă:",
+        "options": ["a sugera indirect", "a afirma clar", "a nega", "a explica"],
+        "correct_options": [0],
+        "difficulty": "medium",
+        "image": "https://picsum.photos/seed/test-161/900/1200"
+      },
+      {
+        "id": "q-162",
+        "question": "Ce semnifică „consecvent”?",
+        "options": ["coerent în acțiuni", "contradictoriu", "impulsiv", "neclar"],
+        "correct_options": [0],
+        "difficulty": "medium",
+        "image": "https://picsum.photos/seed/test-162/900/1200"
+      },
+      {
+        "id": "q-163",
+        "question": "„A elogia” înseamnă:",
+        "options": ["a lăuda", "a critica", "a ignora", "a corecta"],
+        "correct_options": [0],
+        "difficulty": "medium",
+        "image": "https://picsum.photos/seed/test-163/900/1200"
+      },
+      {
+        "id": "q-164",
+        "question": "Ce este „rezilient”?",
+        "options": ["capabil să se refacă", "fragil", "instabil", "pasiv"],
+        "correct_options": [0],
+        "difficulty": "medium",
+        "image": "https://picsum.photos/seed/test-164/900/1200"
+      },
+      {
+        "id": "q-165",
+        "question": "Sinonimul corect pentru „sobru” este:",
+        "options": ["cumpătat", "excesiv", "zgomotos", "neglijent"],
+        "correct_options": [0],
+        "difficulty": "medium",
+        "image": "https://picsum.photos/seed/test-165/900/1200"
+      },
+    
+      {
+        "id": "q-166",
+        "question": "Ce înseamnă „a abdica”?",
+        "options": ["a renunța la o funcție", "a accepta", "a impune", "a negocia"],
+        "correct_options": [0],
+        "difficulty": "hard",
+        "image": "https://picsum.photos/seed/test-166/900/1200"
+      },
+      {
+        "id": "q-167",
+        "question": "„Probitate” înseamnă:",
+        "options": ["onestitate", "viclenie", "indiferență", "lașitate"],
+        "correct_options": [0],
+        "difficulty": "hard",
+        "image": "https://picsum.photos/seed/test-167/900/1200"
+      },
+      {
+        "id": "q-168",
+        "question": "Ce exprimă „a prevarica”?",
+        "options": ["a evita adevărul", "a spune sincer", "a corecta", "a clarifica"],
+        "correct_options": [0],
+        "difficulty": "hard",
+        "image": "https://picsum.photos/seed/test-168/900/1200"
+      },
+      {
+        "id": "q-169",
+        "question": "Cuvântul „specios” înseamnă:",
+        "options": ["înșelător, aparent corect", "clar", "evident", "autentic"],
+        "correct_options": [0],
+        "difficulty": "hard",
+        "image": "https://picsum.photos/seed/test-169/900/1200"
+      },
+      {
+        "id": "q-170",
+        "question": "„A denigra” înseamnă:",
+        "options": ["a defăima", "a susține", "a promova", "a repara"],
+        "correct_options": [0],
+        "difficulty": "hard",
+        "image": "https://picsum.photos/seed/test-170/900/1200"
+      },
+    
+      {
+        "id": "q-171",
+        "question": "Ce este „inerent”?",
+        "options": ["care ține de natura unui lucru", "accidental", "temporar", "extern"],
+        "correct_options": [0],
+        "difficulty": "hard",
+        "image": "https://picsum.photos/seed/test-171/900/1200"
+      },
+      {
+        "id": "q-172",
+        "question": "„A surveni” înseamnă:",
+        "options": ["a apărea", "a dispărea", "a continua", "a explica"],
+        "correct_options": [0],
+        "difficulty": "medium",
+        "image": "https://picsum.photos/seed/test-172/900/1200"
+      },
+      {
+        "id": "q-173",
+        "question": "Ce semnifică „impetuos”?",
+        "options": ["năvalnic", "lent", "calm", "calculat"],
+        "correct_options": [0],
+        "difficulty": "medium",
+        "image": "https://picsum.photos/seed/test-173/900/1200"
+      },
+      {
+        "id": "q-174",
+        "question": "„A tergiversa” este sinonim cu:",
+        "options": ["a amâna", "a accelera", "a finaliza", "a nega"],
+        "correct_options": [0],
+        "difficulty": "medium",
+        "image": "https://picsum.photos/seed/test-174/900/1200"
+      },
+      {
+        "id": "q-175",
+        "question": "Ce este „lacunar”?",
+        "options": ["incomplet", "detaliat", "clar", "exhaustiv"],
+        "correct_options": [0],
+        "difficulty": "hard",
+        "image": "https://picsum.photos/seed/test-175/900/1200"
+      },
+    
+      {
+        "id": "q-176",
+        "question": "„A consimți” înseamnă:",
+        "options": ["a fi de acord", "a refuza", "a contesta", "a ignora"],
+        "correct_options": [0],
+        "difficulty": "medium",
+        "image": "https://picsum.photos/seed/test-176/900/1200"
+      },
+      {
+        "id": "q-177",
+        "question": "Ce semnifică „protagonist”?",
+        "options": ["personaj principal", "personaj secundar", "narator", "critic"],
+        "correct_options": [0],
+        "difficulty": "easy",
+        "image": "https://picsum.photos/seed/test-177/900/1200"
+      },
+      {
+        "id": "q-178",
+        "question": "„A defalca” înseamnă:",
+        "options": ["a descompune în părți", "a uni", "a ascunde", "a complica"],
+        "correct_options": [0],
+        "difficulty": "medium",
+        "image": "https://picsum.photos/seed/test-178/900/1200"
+      },
+      {
+        "id": "q-179",
+        "question": "Ce este „ubiquitate”?",
+        "options": ["prezență pretutindeni", "raritate", "exclusivitate", "limitare"],
+        "correct_options": [0],
+        "difficulty": "hard",
+        "image": "https://picsum.photos/seed/test-179/900/1200"
+      },
+      {
+        "id": "q-180",
+        "question": "„A trivializa” înseamnă:",
+        "options": ["a banaliza", "a aprofunda", "a explica", "a analiza"],
+        "correct_options": [0],
+        "difficulty": "hard",
+        "image": "https://picsum.photos/seed/test-180/900/1200"
+      },
+    
+      {
+        "id": "q-181",
+        "question": "Ce semnifică „peren”?",
+        "options": ["durabil în timp", "temporar", "fragil", "recent"],
+        "correct_options": [0],
+        "difficulty": "medium",
+        "image": "https://picsum.photos/seed/test-181/900/1200"
+      },
+      {
+        "id": "q-182",
+        "question": "„A conota” înseamnă:",
+        "options": ["a sugera un sens secundar", "a defini exact", "a elimina", "a corecta"],
+        "correct_options": [0],
+        "difficulty": "hard",
+        "image": "https://picsum.photos/seed/test-182/900/1200"
+      },
+      {
+        "id": "q-183",
+        "question": "Ce înseamnă „inexorabil”?",
+        "options": ["implacabil", "blând", "evitabil", "îndoielnic"],
+        "correct_options": [0],
+        "difficulty": "hard",
+        "image": "https://picsum.photos/seed/test-183/900/1200"
+      },
+      {
+        "id": "q-184",
+        "question": "„A extenua” înseamnă:",
+        "options": ["a slăbi", "a întări", "a accelera", "a fixa"],
+        "correct_options": [0],
+        "difficulty": "hard",
+        "image": "https://picsum.photos/seed/test-184/900/1200"
+      },
+      {
+        "id": "q-185",
+        "question": "Sinonimul corect pentru „verosimil” este:",
+        "options": ["plauzibil", "fals", "absurd", "imposibil"],
+        "correct_options": [0],
+        "difficulty": "medium",
+        "image": "https://picsum.photos/seed/test-185/900/1200"
+      },
+    
+      {
+        "id": "q-186",
+        "question": "Ce înseamnă „a colporta”?",
+        "options": ["a răspândi zvonuri", "a corecta", "a analiza", "a păstra"],
+        "correct_options": [0],
+        "difficulty": "hard",
+        "image": "https://picsum.photos/seed/test-186/900/1200"
+      },
+      {
+        "id": "q-187",
+        "question": "„A decanta” (sens figurat) înseamnă:",
+        "options": ["a clarifica treptat", "a confuza", "a distruge", "a exagera"],
+        "correct_options": [0],
+        "difficulty": "hard",
+        "image": "https://picsum.photos/seed/test-187/900/1200"
+      },
+      {
+        "id": "q-188",
+        "question": "Ce este „fidel”?",
+        "options": ["loial", "instabil", "neglijent", "indiferent"],
+        "correct_options": [0],
+        "difficulty": "easy",
+        "image": "https://picsum.photos/seed/test-188/900/1200"
+      },
+      {
+        "id": "q-189",
+        "question": "„A surclasa” înseamnă:",
+        "options": ["a depăși net", "a egala", "a pierde", "a evita"],
+        "correct_options": [0],
+        "difficulty": "medium",
+        "image": "https://picsum.photos/seed/test-189/900/1200"
+      },
+      {
+        "id": "q-190",
+        "question": "Ce semnifică „reticent”?",
+        "options": ["rezervat", "entuziasmat", "impulsiv", "deschis"],
+        "correct_options": [0],
+        "difficulty": "medium",
+        "image": "https://picsum.photos/seed/test-190/900/1200"
+      },
+    
+      {
+        "id": "q-191",
+        "question": "„A decrepita” înseamnă:",
+        "options": ["a se deteriora grav", "a se îmbunătăți", "a repara", "a consolida"],
+        "correct_options": [0],
+        "difficulty": "hard",
+        "image": "https://picsum.photos/seed/test-191/900/1200"
+      },
+      {
+        "id": "q-192",
+        "question": "Ce este „auster”?",
+        "options": ["sever, sobru", "luxos", "excesiv", "relaxat"],
+        "correct_options": [0],
+        "difficulty": "medium",
+        "image": "https://picsum.photos/seed/test-192/900/1200"
+      },
+      {
+        "id": "q-193",
+        "question": "„A tergiversa” are ca antonim:",
+        "options": ["a urgenta", "a amâna", "a evita", "a ignora"],
+        "correct_options": [0],
+        "difficulty": "medium",
+        "image": "https://picsum.photos/seed/test-193/900/1200"
+      },
+      {
+        "id": "q-194",
+        "question": "Ce semnifică „insolit”?",
+        "options": ["neobișnuit", "banal", "comun", "repetitiv"],
+        "correct_options": [0],
+        "difficulty": "medium",
+        "image": "https://picsum.photos/seed/test-194/900/1200"
+      },
+      {
+        "id": "q-195",
+        "question": "„A eroda” (sens figurat) înseamnă:",
+        "options": ["a slăbi treptat", "a construi", "a fixa", "a proteja"],
+        "correct_options": [0],
+        "difficulty": "medium",
+        "image": "https://picsum.photos/seed/test-195/900/1200"
+      },
+    
+      {
+        "id": "q-196",
+        "question": "Ce este „concis”?",
+        "options": ["scurt și clar", "lung", "confuz", "ambiguu"],
+        "correct_options": [0],
+        "difficulty": "easy",
+        "image": "https://picsum.photos/seed/test-196/900/1200"
+      },
+      {
+        "id": "q-197",
+        "question": "„A specula” înseamnă:",
+        "options": ["a face presupuneri", "a demonstra", "a confirma", "a elimina"],
+        "correct_options": [0],
+        "difficulty": "medium",
+        "image": "https://picsum.photos/seed/test-197/900/1200"
+      },
+      {
+        "id": "q-198",
+        "question": "Ce semnifică „eminent”?",
+        "options": ["remarcabil", "mediocru", "slab", "neimportant"],
+        "correct_options": [0],
+        "difficulty": "medium",
+        "image": "https://picsum.photos/seed/test-198/900/1200"
+      },
+      {
+        "id": "q-199",
+        "question": "„A contesta” înseamnă:",
+        "options": ["a pune la îndoială", "a accepta", "a susține", "a confirma"],
+        "correct_options": [0],
+        "difficulty": "medium",
+        "image": "https://picsum.photos/seed/test-199/900/1200"
+      },
+      {
+        "id": "q-200",
+        "question": "Ce înseamnă „a prolixa”?",
+        "options": ["a vorbi prea mult", "a sintetiza", "a tăcea", "a corecta"],
+        "correct_options": [0],
+        "difficulty": "hard",
+        "image": "https://picsum.photos/seed/test-200/900/1200"
+      },
+      {
+        "id": "q-201",
+        "question": "Ce înseamnă „a se conforma”?",
+        "options": ["a respecta o regulă", "a contesta", "a evita", "a ignora"],
+        "correct_options": [0],
+        "difficulty": "easy",
+        "image": "https://picsum.photos/seed/test-201/900/1200"
+      },
+      {
+        "id": "q-202",
+        "question": "Sinonimul potrivit pentru „eficient” este:",
+        "options": ["productiv", "lent", "defectuos", "confuz"],
+        "correct_options": [0],
+        "difficulty": "easy",
+        "image": "https://picsum.photos/seed/test-202/900/1200"
+      },
+      {
+        "id": "q-203",
+        "question": "Ce înseamnă „a se avânta”?",
+        "options": ["a se lansa cu entuziasm", "a renunța", "a evita", "a ezita"],
+        "correct_options": [0],
+        "difficulty": "medium",
+        "image": "https://picsum.photos/seed/test-203/900/1200"
+      },
+      {
+        "id": "q-204",
+        "question": "Cuvântul „implicit” înseamnă:",
+        "options": ["subînțeles", "explicit", "confuz", "incorect"],
+        "correct_options": [0],
+        "difficulty": "medium",
+        "image": "https://picsum.photos/seed/test-204/900/1200"
+      },
+      {
+        "id": "q-205",
+        "question": "„A eluda” este sinonim cu:",
+        "options": ["a evita abil", "a respecta", "a afirma", "a explica"],
+        "correct_options": [0],
+        "difficulty": "hard",
+        "image": "https://picsum.photos/seed/test-205/900/1200"
+      },
+    
+      {
+        "id": "q-206",
+        "question": "Ce semnifică adjectivul „tenebros”?",
+        "options": ["întunecat, misterios", "clar", "transparent", "optimist"],
+        "correct_options": [0],
+        "difficulty": "hard",
+        "image": "https://picsum.photos/seed/test-206/900/1200"
+      },
+      {
+        "id": "q-207",
+        "question": "„A se preta” înseamnă:",
+        "options": ["a fi potrivit pentru ceva", "a refuza", "a interzice", "a ignora"],
+        "correct_options": [0],
+        "difficulty": "medium",
+        "image": "https://picsum.photos/seed/test-207/900/1200"
+      },
+      {
+        "id": "q-208",
+        "question": "Ce este „vulnerabil” (sens figurat)?",
+        "options": ["ușor de rănit", "foarte puternic", "independent", "stabil"],
+        "correct_options": [0],
+        "difficulty": "medium",
+        "image": "https://picsum.photos/seed/test-208/900/1200"
+      },
+      {
+        "id": "q-209",
+        "question": "Sinonimul corect pentru „a consuma” (sens figurat) este:",
+        "options": ["a epuiza", "a crea", "a repara", "a economisi"],
+        "correct_options": [0],
+        "difficulty": "medium",
+        "image": "https://picsum.photos/seed/test-209/900/1200"
+      },
+      {
+        "id": "q-210",
+        "question": "Ce înseamnă „a prelua”?",
+        "options": ["a lua asupra sa", "a refuza", "a evita", "a abandona"],
+        "correct_options": [0],
+        "difficulty": "easy",
+        "image": "https://picsum.photos/seed/test-210/900/1200"
+      },
+    
+      {
+        "id": "q-211",
+        "question": "„A sublinia” înseamnă:",
+        "options": ["a evidenția", "a ascunde", "a minimaliza", "a nega"],
+        "correct_options": [0],
+        "difficulty": "easy",
+        "image": "https://picsum.photos/seed/test-211/900/1200"
+      },
+      {
+        "id": "q-212",
+        "question": "Ce semnifică „redundant”?",
+        "options": ["repetitiv inutil", "esențial", "clar", "nou"],
+        "correct_options": [0],
+        "difficulty": "medium",
+        "image": "https://picsum.photos/seed/test-212/900/1200"
+      },
+      {
+        "id": "q-213",
+        "question": "„A exacerba” are ca antonim:",
+        "options": ["a atenua", "a intensifica", "a agrava", "a amplifica"],
+        "correct_options": [0],
+        "difficulty": "medium",
+        "image": "https://picsum.photos/seed/test-213/900/1200"
+      },
+      {
+        "id": "q-214",
+        "question": "Ce înseamnă „a revendica”?",
+        "options": ["a cere un drept", "a renunța", "a ascunde", "a evita"],
+        "correct_options": [0],
+        "difficulty": "medium",
+        "image": "https://picsum.photos/seed/test-214/900/1200"
+      },
+      {
+        "id": "q-215",
+        "question": "Cuvântul „laconic” descrie pe cineva care:",
+        "options": ["vorbește puțin", "vorbește mult", "exagerează", "se contrazice"],
+        "correct_options": [0],
+        "difficulty": "medium",
+        "image": "https://picsum.photos/seed/test-215/900/1200"
+      },
+    
+      {
+        "id": "q-216",
+        "question": "Ce semnifică „a perora”?",
+        "options": ["a vorbi lung și emfatic", "a tăcea", "a scrie", "a asculta"],
+        "correct_options": [0],
+        "difficulty": "hard",
+        "image": "https://picsum.photos/seed/test-216/900/1200"
+      },
+      {
+        "id": "q-217",
+        "question": "„A se sustrage” înseamnă:",
+        "options": ["a evita o obligație", "a accepta", "a confirma", "a susține"],
+        "correct_options": [0],
+        "difficulty": "hard",
+        "image": "https://picsum.photos/seed/test-217/900/1200"
+      },
+      {
+        "id": "q-218",
+        "question": "Ce este „speculativ”?",
+        "options": ["bazat pe presupuneri", "demonstrat", "cert", "verificat"],
+        "correct_options": [0],
+        "difficulty": "hard",
+        "image": "https://picsum.photos/seed/test-218/900/1200"
+      },
+      {
+        "id": "q-219",
+        "question": "„A estompa” înseamnă:",
+        "options": ["a diminua treptat", "a accentua", "a fixa", "a amplifica"],
+        "correct_options": [0],
+        "difficulty": "medium",
+        "image": "https://picsum.photos/seed/test-219/900/1200"
+      },
+      {
+        "id": "q-220",
+        "question": "Ce semnifică „inerție” (sens figurat)?",
+        "options": ["lipsă de reacție", "energie excesivă", "entuziasm", "inițiativă"],
+        "correct_options": [0],
+        "difficulty": "hard",
+        "image": "https://picsum.photos/seed/test-220/900/1200"
+      }
+    ]
+    
 
 
