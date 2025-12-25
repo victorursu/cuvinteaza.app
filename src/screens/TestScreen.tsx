@@ -18,6 +18,7 @@ import type { TestDifficulty, TestQuestion } from "../types";
 import { useTheme } from "../theme/theme";
 import { ThemeIcon } from "../components/icons/ThemeIcon";
 import { GlobeIcon } from "../components/icons/GlobeIcon";
+import { RotateCcw } from "lucide-react-native";
 import Svg, { Circle, Defs, LinearGradient, Stop } from "react-native-svg";
 import { supabase, isSupabaseConfigured } from "../lib/supabase";
 
@@ -49,6 +50,9 @@ export function TestScreen() {
   const [revealLock, setRevealLock] = useState<string | null>(null);
   const [revealEndsAt, setRevealEndsAt] = useState<number | null>(null);
   const [now, setNow] = useState(() => Date.now());
+  const [showSplash, setShowSplash] = useState(true);
+  const [testStartTime, setTestStartTime] = useState<number | null>(null);
+  const [elapsedTime, setElapsedTime] = useState(0);
 
   const clearRevealTimer = useCallback(() => {
     if (revealTimerRef.current) {
@@ -63,6 +67,20 @@ export function TestScreen() {
     const id = setInterval(() => setNow(Date.now()), 200);
     return () => clearInterval(id);
   }, [revealEndsAt]);
+
+  // Timer for test duration - stops when test is finished
+  useEffect(() => {
+    if (!testStartTime || finished) return;
+    const id = setInterval(() => {
+      setElapsedTime(Math.floor((Date.now() - testStartTime) / 1000));
+    }, 1000);
+    return () => clearInterval(id);
+  }, [testStartTime, finished]);
+
+  const startTest = useCallback(() => {
+    setShowSplash(false);
+    setTestStartTime(Date.now());
+  }, []);
 
   const remainingSec = useMemo(() => {
     if (!revealEndsAt) return 0;
@@ -160,6 +178,9 @@ export function TestScreen() {
     setRevealLock(null);
     setRevealEndsAt(null);
     setSelectionSeed((s) => s + 1);
+    setShowSplash(true);
+    setTestStartTime(null);
+    setElapsedTime(0);
 
     // Ensure we visually jump back to the first card.
     requestAnimationFrame(() => {
@@ -178,10 +199,14 @@ export function TestScreen() {
   );
 
   const finishNow = useCallback(() => {
+    // Capture final elapsed time before stopping
+    if (testStartTime) {
+      setElapsedTime(Math.floor((Date.now() - testStartTime) / 1000));
+    }
     setRevealLock(null);
     setRevealEndsAt(null);
     setFinished(true);
-  }, []);
+  }, [testStartTime]);
 
   // Save test results to Supabase when test is finished
   useEffect(() => {
@@ -240,6 +265,7 @@ export function TestScreen() {
           medium_percentage: Math.round(mediumPercentage * 100) / 100,
           hard_percentage: Math.round(hardPercentage * 100) / 100,
           final_percentage: Math.round(finalPercentage * 100) / 100,
+          completion_time_seconds: elapsedTime,
         };
 
         // Insert into Supabase
@@ -256,7 +282,7 @@ export function TestScreen() {
     };
 
     void saveTestResults();
-  }, [finished, stats, level, correctCount, total]);
+  }, [finished, stats, level, correctCount, total, elapsedTime]);
 
   const header = useMemo(() => {
     const isRemote = state.source === "remote";
@@ -279,19 +305,19 @@ export function TestScreen() {
           <View style={styles.headerActions}>
             <Pressable
               accessibilityRole="button"
+              accessibilityLabel="Restart"
+              style={[styles.iconBtn, { backgroundColor: theme.colors.headerIconBg }]}
+              onPress={reset}
+            >
+              <RotateCcw size={22} color={theme.colors.iconActive} />
+            </Pressable>
+            <Pressable
+              accessibilityRole="button"
               accessibilityLabel="Theme"
               style={[styles.iconBtn, { backgroundColor: theme.colors.headerIconBg }]}
               onPress={toggle}
             >
               <ThemeIcon mode={theme.mode} color={theme.colors.iconActive} />
-            </Pressable>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Restart"
-              style={[styles.smallBtn, { backgroundColor: theme.colors.headerIconBg }]}
-              onPress={reset}
-            >
-              <Text style={[styles.smallBtnText, { color: theme.colors.iconActive }]}>Reset</Text>
             </Pressable>
           </View>
         </View>
@@ -326,6 +352,53 @@ export function TestScreen() {
     );
   }
 
+  // Format elapsed time as MM:SS
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  // Show splash screen before test starts
+  if (showSplash && questions.length > 0 && !finished) {
+    return (
+      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+        <View style={styles.headerPad}>{header}</View>
+        <View style={styles.splashContainer}>
+          <Text style={[styles.splashTitle, { color: theme.colors.textPrimary }]}>
+            Evaluare lingvistică
+          </Text>
+          <Text style={[styles.splashSubtitle, { color: theme.colors.textSecondary }]}>
+            Subteste de vocabular, gramatică și înțelegerea limbii
+          </Text>
+          <Text style={[styles.splashDescription, { color: theme.colors.textSecondary }]}>
+            Vei răspunde la {questions.length} întrebări de dificultate variabilă.
+            {"\n"}Fă-ți timp și răspunde cu atenție!
+          </Text>
+          <Pressable
+            style={[
+              styles.splashButton,
+              {
+                backgroundColor: theme.mode === "light" ? "#4A90E2" : theme.colors.tabActiveBg,
+                borderColor: theme.colors.border,
+              },
+            ]}
+            onPress={startTest}
+          >
+            <Text
+              style={[
+                styles.splashButtonText,
+                { color: theme.mode === "light" ? "#FFFFFF" : theme.colors.textPrimary },
+              ]}
+            >
+              Începe testul
+            </Text>
+          </Pressable>
+        </View>
+      </View>
+    );
+  }
+
   if (finished) {
     const levelColors = getLevelColors(level, theme.mode);
     return (
@@ -352,6 +425,14 @@ export function TestScreen() {
               label="Corecte"
               value={`${correctCount} / ${total}`}
               icon="✅"
+              textColor={theme.colors.textPrimary}
+              subColor={theme.colors.textSecondary}
+              borderColor={theme.colors.border}
+            />
+            <StatCard
+              label="Timp"
+              value={formatTime(elapsedTime)}
+              icon="⏱️"
               textColor={theme.colors.textPrimary}
               subColor={theme.colors.textSecondary}
               borderColor={theme.colors.border}
@@ -446,6 +527,7 @@ export function TestScreen() {
                   question={item}
                   answered={answers[item.id]}
                   isLast={index === questions.length - 1}
+                  elapsedTime={elapsedTime}
                   onAnswer={(selectedIndex) => {
                     if (answers[item.id]) return;
                     const isCorrect = item.correct_options.includes(selectedIndex);
@@ -476,6 +558,7 @@ export function TestScreen() {
                     else finishNow();
                   }}
                   remainingSec={revealLock === item.id ? remainingSec : 0}
+                  elapsedTime={elapsedTime}
                   progress={{
                     current: Math.min(currentIndex + 1, total),
                     total,
@@ -513,6 +596,7 @@ function QuestionCard({
   onAnswer,
   onNext,
   remainingSec,
+  elapsedTime,
   progress,
 }: {
   question: TestQuestion;
@@ -521,8 +605,15 @@ function QuestionCard({
   onAnswer: (selectedIndex: number) => void;
   onNext: () => void;
   remainingSec: number;
+  elapsedTime: number;
   progress: { current: number; total: number; answeredCount: number; totalInDb?: number };
 }) {
+  // Format elapsed time as MM:SS
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+  };
   const { theme } = useTheme();
   const [viewportH, setViewportH] = useState(0);
   const [contentH, setContentH] = useState(0);
@@ -558,6 +649,9 @@ function QuestionCard({
               {getDifficultyDisplayName(question.difficulty)} · {progress.current}/{progress.total}
               {progress.totalInDb !== undefined && progress.totalInDb > 0 && (
                 <> · {progress.totalInDb} în baza de date</>
+              )}
+              {elapsedTime > 0 && (
+                <> - [ {formatTime(elapsedTime)} ]</>
               )}
             </Text>
             <View style={styles.progressBarTrack}>
@@ -805,6 +899,40 @@ const styles = StyleSheet.create({
   miniWrap: { width: "32%", alignItems: "center", gap: 6 },
   miniLabel: { fontSize: 12, fontWeight: "900" },
   miniPct: { fontSize: 12, fontWeight: "900" },
+  splashContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 24,
+    gap: 24,
+  },
+  splashTitle: {
+    fontSize: 32,
+    fontWeight: "900",
+    textAlign: "center",
+  },
+  splashSubtitle: {
+    fontSize: 16,
+    textAlign: "center",
+  },
+  splashDescription: {
+    fontSize: 16,
+    textAlign: "center",
+    lineHeight: 24,
+  },
+  splashButton: {
+    marginTop: 8,
+    borderWidth: 1,
+    borderRadius: 14,
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    alignItems: "center",
+    minWidth: 200,
+  },
+  splashButtonText: {
+    fontSize: 18,
+    fontWeight: "900",
+  },
   scrollHint: {
     position: "absolute",
     left: 0,

@@ -17,7 +17,6 @@ import type { VocabularyWord } from "../types";
 import { BOTTOM_TABS_HEIGHT } from "../components/BottomTabs";
 import fallbackVocabulary from "../data/fallbackVocabulary.ro.json";
 import { useTheme } from "../theme/theme";
-import { RefreshIcon } from "../components/icons/RefreshIcon";
 import { ThemeIcon } from "../components/icons/ThemeIcon";
 import { HeartIcon } from "../components/icons/HeartIcon";
 import { ShareIcon } from "../components/icons/ShareIcon";
@@ -150,21 +149,10 @@ export function VocabularyScreen() {
               Cuvintești.ro
             </Text>
             <Text style={[styles.subtitle, { color: theme.colors.textSecondary }]}>
-              Cuvinte recomandate pentru această săptămână
+              Cuvinte alese pentru această săptămână
             </Text>
           </View>
           <View style={styles.headerActions}>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Refresh"
-              style={[
-                styles.iconBtn,
-                { backgroundColor: theme.colors.headerIconBg },
-              ]}
-              onPress={load}
-            >
-              <RefreshIcon color={theme.colors.iconActive} />
-            </Pressable>
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Theme"
