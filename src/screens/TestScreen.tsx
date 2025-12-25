@@ -17,6 +17,7 @@ import fallbackTest from "../data/fallbackTest.ro.json";
 import type { TestDifficulty, TestQuestion } from "../types";
 import { useTheme } from "../theme/theme";
 import { ThemeIcon } from "../components/icons/ThemeIcon";
+import { GlobeIcon } from "../components/icons/GlobeIcon";
 import Svg, { Circle, Defs, LinearGradient, Stop } from "react-native-svg";
 import { supabase, isSupabaseConfigured } from "../lib/supabase";
 
@@ -258,16 +259,21 @@ export function TestScreen() {
   }, [finished, stats, level, correctCount, total]);
 
   const header = useMemo(() => {
-    const position = total > 0 ? `${Math.min(currentIndex + 1, total)} / ${total}` : "— / —";
-    const sourceLabel = state.source === "local" ? "Local" : state.source === "remote" ? "Online" : "";
+    const isRemote = state.source === "remote";
     return (
       <View style={styles.header}>
         <View style={styles.headerRow}>
           <View style={styles.headerLeft}>
-            <Text style={[styles.title, { color: theme.colors.textPrimary }]}>Testare</Text>
-            <Text style={[styles.subtitle, { color: theme.colors.textSecondary }]} numberOfLines={1}>
-              {position}
-              {sourceLabel ? ` · ${sourceLabel}` : ""}
+            <View style={styles.titleRow}>
+              <Text style={[styles.title, { color: theme.colors.textPrimary }]}>
+                Evaluare lingvistică
+              </Text>
+              {isRemote && (
+                <GlobeIcon size={20} color={theme.colors.iconActive} />
+              )}
+            </View>
+            <Text style={[styles.subtitle, { color: theme.colors.textSecondary }]}>
+              Subteste de vocabular, gramatică și înțelegerea limbii
             </Text>
           </View>
           <View style={styles.headerActions}>
@@ -297,7 +303,7 @@ export function TestScreen() {
         ) : null}
       </View>
     );
-  }, [currentIndex, total, state.source, state.status, state.error, theme, reset]);
+  }, [currentIndex, total, state.source, state.status, state.error, theme, toggle, reset]);
 
   const isInitialLoading = state.status === "loading" && state.data.length === 0;
 
@@ -645,6 +651,7 @@ const styles = StyleSheet.create({
   header: { gap: 6 },
   headerRow: { flexDirection: "row", alignItems: "center", gap: 12 },
   headerLeft: { flex: 1, gap: 2 },
+  titleRow: { flexDirection: "row", alignItems: "center", gap: 8 },
   headerActions: { flexDirection: "row", gap: 8, alignItems: "center" },
   iconBtn: {
     width: 40,

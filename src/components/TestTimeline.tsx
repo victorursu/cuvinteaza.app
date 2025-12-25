@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import {
   ActivityIndicator,
+  Pressable,
   StyleSheet,
   Text,
   View,
@@ -18,7 +19,13 @@ type TestResult = {
   final_calculated_level: string;
 };
 
-export function TestTimeline({ session }: { session: Session }) {
+export function TestTimeline({
+  session,
+  onNavigateToTest,
+}: {
+  session: Session;
+  onNavigateToTest?: () => void;
+}) {
   const { theme } = useTheme();
   const { width } = useWindowDimensions();
   const [testResults, setTestResults] = useState<TestResult[]>([]);
@@ -83,6 +90,16 @@ export function TestTimeline({ session }: { session: Session }) {
       <Text style={[styles.title, { color: theme.colors.textPrimary }]}>
         Evoluția scorurilor · Test general
       </Text>
+      {onNavigateToTest && (
+        <Pressable
+          style={[styles.testButton, { backgroundColor: theme.colors.tabActiveBg, borderColor: theme.colors.border }]}
+          onPress={onNavigateToTest}
+        >
+          <Text style={[styles.testButtonText, { color: theme.colors.textPrimary }]}>
+            Începe testul
+          </Text>
+        </Pressable>
+      )}
       <TestGraph
         results={testResults}
         width={width - 48}
@@ -291,6 +308,19 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     marginBottom: 4,
     textAlign: "center",
+  },
+  testButton: {
+    marginTop: 8,
+    marginBottom: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    alignItems: "center",
+  },
+  testButtonText: {
+    fontSize: 14,
+    fontWeight: "700",
   },
   emptyText: {
     fontSize: 14,

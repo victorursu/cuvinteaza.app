@@ -410,7 +410,7 @@ function AppInner() {
 
     switch (tab) {
       case "account":
-        return <AccountScreen onNavigateToWord={setViewingWordId} />;
+        return <AccountScreen onNavigateToWord={setViewingWordId} onNavigateToTest={() => setTab("testare")} />;
       case "testare":
         return <TestScreen />;
       case "regionalisme":

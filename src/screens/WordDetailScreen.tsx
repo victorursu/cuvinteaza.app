@@ -10,8 +10,8 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fetchVocabulary, parseVocabulary } from "../api/vocabulary";
-import { fetchWordByIdFromSupabase } from "../api/supabase-words";
-import { isSupabaseConfigured } from "../lib/supabase";
+import { fetchWordByIdFromSupabase, fetchDailyWordDate } from "../api/supabase-words";
+import { isSupabaseConfigured, supabase } from "../lib/supabase";
 import type { VocabularyWord } from "../types";
 import fallbackVocabulary from "../data/fallbackVocabulary.ro.json";
 import fallbackUrbanisme from "../data/fallbackUrbanisme.ro.json";
@@ -108,9 +108,23 @@ export function WordDetailScreen({
     status: "idle",
     data: [],
   });
+  const [dailyWordDate, setDailyWordDate] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setState((s) => ({ ...s, status: "loading", error: undefined }));
+    setDailyWordDate(null);
+    
+    // Check if word is a daily word
+    if (isSupabaseConfigured && supabase) {
+      try {
+        const date = await fetchDailyWordDate(wordId);
+        if (date) {
+          setDailyWordDate(date);
+        }
+      } catch (error) {
+        console.error("[WordDetail] Failed to fetch daily word date:", error);
+      }
+    }
     
     // First, try to fetch from Supabase by ID
     if (isSupabaseConfigured) {
@@ -243,15 +257,17 @@ export function WordDetailScreen({
     );
   }
 
-  return <WordCard word={word} onBack={onBack} />;
+  return <WordCard word={word} onBack={onBack} dailyWordDate={dailyWordDate} />;
 }
 
 function WordCard({
   word,
   onBack,
+  dailyWordDate,
 }: {
   word: VocabularyWord;
   onBack?: () => void;
+  dailyWordDate: string | null;
 }) {
   const insets = useSafeAreaInsets();
   const [viewportH, setViewportH] = useState(0);
@@ -302,6 +318,13 @@ function WordCard({
           </View>
 
           <View style={styles.content}>
+            {dailyWordDate && (
+              <View style={styles.dailyWordBadge}>
+                <Text style={styles.dailyWordText}>
+                  Cuvântul zilei · {formatDailyWordDate(dailyWordDate)}
+                </Text>
+              </View>
+            )}
             <Text style={styles.definition}>{word.definition}</Text>
 
             {word.examples.length > 0 && (
@@ -472,5 +495,33 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "rgba(238, 243, 255, 0.9)",
   },
+  dailyWordBadge: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    backgroundColor: "rgba(255, 215, 0, 0.2)",
+    borderWidth: 1,
+    borderColor: "rgba(255, 215, 0, 0.4)",
+    marginBottom: 16,
+  },
+  dailyWordText: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#FFD700",
+    textAlign: "center",
+  },
 });
+
+function formatDailyWordDate(dateString: string): string {
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("ro-RO", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  } catch (error) {
+    return dateString;
+  }
+}
 

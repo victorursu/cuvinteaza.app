@@ -25,8 +25,10 @@ import Constants from "expo-constants";
 
 export function AccountScreen({
   onNavigateToWord,
+  onNavigateToTest,
 }: {
   onNavigateToWord?: (wordId: string) => void;
+  onNavigateToTest?: () => void;
 }) {
   const { theme, toggle } = useTheme();
   const insets = useSafeAreaInsets();
@@ -941,7 +943,7 @@ export function AccountScreen({
         <LastTestResults session={session} />
 
         <View style={[styles.card, { backgroundColor: theme.colors.tabBarBg, borderColor: theme.colors.border }]}>
-          <TestTimeline session={session} />
+          <TestTimeline session={session} onNavigateToTest={onNavigateToTest} />
         </View>
       </ScrollView>
     );

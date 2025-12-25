@@ -14,6 +14,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { VocabularyWord } from "../types";
 import { fetchVocabulary, parseVocabulary } from "../api/vocabulary";
 import { useTheme } from "../theme/theme";
+import { fetchDailyWordDates } from "../api/supabase-words";
+import { isSupabaseConfigured, supabase } from "../lib/supabase";
 import { RefreshIcon } from "../components/icons/RefreshIcon";
 import { ThemeIcon } from "../components/icons/ThemeIcon";
 import { HeartIcon } from "../components/icons/HeartIcon";
@@ -48,6 +50,7 @@ export function DictionaryScreen({
 
   const [state, setState] = useState<LoadState>({ status: "idle", data: [] });
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [dailyWordDates, setDailyWordDates] = useState<Map<string, string>>(new Map());
 
   const scrollToStart = useCallback(() => {
     setCurrentIndex(0);
@@ -128,10 +131,38 @@ export function DictionaryScreen({
   useEffect(() => {
     if (preloadedWords && preloadedWords.length > 0) {
       console.log(`[${title}] Preloaded words received (${preloadedWords.length} words), updating...`);
-      setState({ status: "ready", data: shuffle(preloadedWords.slice()), source: "remote" });
+      const shuffledWords = shuffle(preloadedWords.slice());
+      setState({ status: "ready", data: shuffledWords, source: "remote" });
+      
+      // Fetch daily word dates for preloaded words
+      const fetchDates = async () => {
+        if (isSupabaseConfigured && supabase) {
+          const wordIds = shuffledWords.map((w) => w.id);
+          const dates = await fetchDailyWordDates(wordIds);
+          setDailyWordDates(dates);
+          console.log(`[${title}] Fetched daily word dates for ${dates.size} preloaded words`);
+        }
+      };
+      void fetchDates();
+      
       scrollToStart();
     }
   }, [preloadedWords, title, scrollToStart]);
+
+  // Fetch daily word dates when words are loaded
+  useEffect(() => {
+    if (state.status === "ready" && state.data.length > 0) {
+      const fetchDates = async () => {
+        if (isSupabaseConfigured && supabase) {
+          const wordIds = state.data.map((w) => w.id);
+          const dates = await fetchDailyWordDates(wordIds);
+          setDailyWordDates(dates);
+          console.log(`[${title}] Fetched daily word dates for ${dates.size} words`);
+        }
+      };
+      void fetchDates();
+    }
+  }, [state.status, state.data, title]);
 
   // Always start at the beginning to avoid half-snapped initial positions.
   useEffect(() => {
@@ -266,7 +297,7 @@ export function DictionaryScreen({
                     height: "100%",
                   }}
                 >
-                  <WordCard word={item} />
+                  <WordCard word={item} dailyWordDate={dailyWordDates.get(item.id)} />
                 </View>
               )}
               getItemLayout={(_, index) => ({
@@ -296,7 +327,7 @@ export function DictionaryScreen({
   );
 }
 
-function WordCard({ word }: { word: VocabularyWord }) {
+function WordCard({ word, dailyWordDate }: { word: VocabularyWord; dailyWordDate?: string | null }) {
   const [viewportH, setViewportH] = useState(0);
   const [contentH, setContentH] = useState(0);
   const [scrollY, setScrollY] = useState(0);
@@ -347,6 +378,13 @@ function WordCard({ word }: { word: VocabularyWord }) {
           </View>
 
           <View style={styles.scrollBody}>
+            {dailyWordDate && (
+              <View style={styles.dailyWordBadge}>
+                <Text style={styles.dailyWordText}>
+                  Cuvântul zilei · {formatDailyWordDate(dailyWordDate)}
+                </Text>
+              </View>
+            )}
             <Text style={styles.definition}>{word.definition}</Text>
 
             <Text style={styles.sectionTitle}>Exemple</Text>
@@ -601,6 +639,34 @@ const styles = StyleSheet.create({
     fontSize: 18,
     lineHeight: 18,
   },
+  dailyWordBadge: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    backgroundColor: "rgba(255, 215, 0, 0.2)",
+    borderWidth: 1,
+    borderColor: "rgba(255, 215, 0, 0.4)",
+    marginBottom: 16,
+  },
+  dailyWordText: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#FFD700",
+    textAlign: "center",
+  },
 });
+
+function formatDailyWordDate(dateString: string): string {
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("ro-RO", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  } catch (error) {
+    return dateString;
+  }
+}
 
 

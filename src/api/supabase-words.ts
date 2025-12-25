@@ -276,10 +276,16 @@ export async function fetchDailyWordsFromSupabase(): Promise<VocabularyWord[]> {
   try {
     console.log(`[fetchDailyWordsFromSupabase] Querying Supabase for daily words...`);
 
+    // Get current date in YYYY-MM-DD format
+    const today = new Date().toISOString().split('T')[0];
+    console.log(`[fetchDailyWordsFromSupabase] Filtering for dates <= ${today}`);
+
     // First, fetch daily words ordered by date (most recent first)
+    // Only include words with dates <= current date (exclude future dates)
     const { data: dailyWordsData, error: dailyWordsError } = await supabase
       .from("cuvinteziDailyWords")
       .select("word_id, date")
+      .lte("date", today)
       .order("date", { ascending: false });
 
     console.log(`[fetchDailyWordsFromSupabase] Daily words query result - data length: ${dailyWordsData?.length || 0}`);
@@ -369,6 +375,91 @@ export async function fetchDailyWordsFromSupabase(): Promise<VocabularyWord[]> {
   } catch (error) {
     console.error("Failed to fetch daily words from Supabase:", error);
     throw error;
+  }
+}
+
+/**
+ * Fetch the date when a word is a daily word
+ * @param wordId - The ID of the word to check
+ * @returns The date string (YYYY-MM-DD) or null if not a daily word
+ */
+export async function fetchDailyWordDate(wordId: string): Promise<string | null> {
+  if (!isSupabaseConfigured || !supabase) {
+    return null;
+  }
+
+  try {
+    // Get current date in YYYY-MM-DD format
+    const today = new Date().toISOString().split('T')[0];
+
+    const { data, error } = await supabase
+      .from("cuvinteziDailyWords")
+      .select("date")
+      .eq("word_id", wordId)
+      .lte("date", today)
+      .single();
+
+    if (error) {
+      if (error.code === "PGRST116") {
+        // Not found
+        return null;
+      }
+      console.error("Error fetching daily word date:", error);
+      return null;
+    }
+
+    // Only return date if it's <= current date
+    const wordDate = data?.date;
+    if (wordDate && wordDate <= today) {
+      return wordDate;
+    }
+    return null;
+  } catch (error) {
+    console.error("Failed to fetch daily word date:", error);
+    return null;
+  }
+}
+
+/**
+ * Fetch daily word dates for multiple words at once
+ * @param wordIds - Array of word IDs to check
+ * @returns Map of wordId to date string (YYYY-MM-DD)
+ */
+export async function fetchDailyWordDates(wordIds: string[]): Promise<Map<string, string>> {
+  const result = new Map<string, string>();
+  
+  if (!isSupabaseConfigured || !supabase || wordIds.length === 0) {
+    return result;
+  }
+
+  try {
+    // Get current date in YYYY-MM-DD format
+    const today = new Date().toISOString().split('T')[0];
+
+    const { data, error } = await supabase
+      .from("cuvinteziDailyWords")
+      .select("word_id, date")
+      .in("word_id", wordIds)
+      .lte("date", today);
+
+    if (error) {
+      console.error("Error fetching daily word dates:", error);
+      return result;
+    }
+
+    if (data) {
+      data.forEach((item) => {
+        // Only include dates that are <= current date
+        if (item.word_id && item.date && item.date <= today) {
+          result.set(item.word_id, item.date);
+        }
+      });
+    }
+
+    return result;
+  } catch (error) {
+    console.error("Failed to fetch daily word dates:", error);
+    return result;
   }
 }
 
