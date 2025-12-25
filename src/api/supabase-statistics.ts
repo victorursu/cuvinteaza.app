@@ -126,7 +126,7 @@ export async function fetchStatistics(): Promise<Statistics> {
       totalWordsResult,
       allWordsResult,
     ] = await Promise.all([
-      fetchTopLikedWords(5),
+      fetchTopLikedWords(3),
       supabase
         .from("cuvinteziProfile")
         .select("user_id", { count: "exact", head: true }),

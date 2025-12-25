@@ -418,7 +418,7 @@ function AppInner() {
       case "urbanisme":
         return <UrbanismeScreen />;
       case "setari":
-        return <StatisticsScreen />;
+        return <StatisticsScreen onNavigateToWord={setViewingWordId} />;
       case "cuvinte":
       default:
         return <VocabularyScreen />;

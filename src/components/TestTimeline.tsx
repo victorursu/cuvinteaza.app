@@ -31,6 +31,11 @@ export function TestTimeline({ session }: { session: Session }) {
     }
 
     const loadTestResults = async () => {
+      if (!supabase) {
+        setLoading(false);
+        return;
+      }
+
       try {
         const { data, error } = await supabase
           .from("cuvinteziTeste")
@@ -74,9 +79,9 @@ export function TestTimeline({ session }: { session: Session }) {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.cardBg }]}>
+    <View style={[styles.container, { backgroundColor: theme.colors.tabBarBg }]}>
       <Text style={[styles.title, { color: theme.colors.textPrimary }]}>
-        Evoluția Testelor
+        Evoluția scorurilor · Test general
       </Text>
       <TestGraph
         results={testResults}
@@ -133,6 +138,28 @@ function TestGraph({
     <View style={styles.graphWrapper}>
       <View style={styles.graphContainer}>
         <Svg width={width} height={graphHeight}>
+          {/* Y-axis (vertical line on the left) */}
+          <Line
+            x1={padding}
+            y1={padding}
+            x2={padding}
+            y2={graphHeight - padding}
+            stroke={theme.colors.textPrimary}
+            strokeWidth={2}
+            opacity={0.6}
+          />
+
+          {/* X-axis (horizontal line at the bottom) */}
+          <Line
+            x1={padding}
+            y1={graphHeight - padding}
+            x2={width - padding}
+            y2={graphHeight - padding}
+            stroke={theme.colors.textPrimary}
+            strokeWidth={2}
+            opacity={0.6}
+          />
+
           {/* Grid lines */}
           {[0, 25, 50, 75, 100].map((percent) => {
             const y =
@@ -163,11 +190,11 @@ function TestGraph({
             return (
               <SvgText
                 key={percent}
-                x={padding - 8}
-                y={y + 4}
+                x={padding - 12}
+                y={y + 5}
                 fontSize="10"
-                fontWeight="600"
-                fill={theme.colors.textSecondary}
+                fontWeight="700"
+                fill={theme.colors.textPrimary}
                 textAnchor="end"
               >
                 {percent}%
@@ -207,10 +234,10 @@ function TestGraph({
               <SvgText
                 key={result.id}
                 x={x}
-                y={graphHeight - padding + 20}
+                y={graphHeight - padding + 22}
                 fontSize="9"
-                fontWeight="500"
-                fill={theme.colors.textSecondary}
+                fontWeight="100"
+                fill={theme.colors.textPrimary}
                 textAnchor="middle"
               >
                 {formatDate(result.created_at)}
@@ -254,13 +281,16 @@ function TestGraph({
 const styles = StyleSheet.create({
   container: {
     borderRadius: 16,
-    padding: 20,
-    gap: 16,
+    padding: 16,
+    paddingTop: 12,
+    paddingBottom: 12,
+    gap: 12,
   },
   title: {
     fontSize: 20,
     fontWeight: "700",
-    marginBottom: 8,
+    marginBottom: 4,
+    textAlign: "center",
   },
   emptyText: {
     fontSize: 14,

@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Text,
   View,
+  ImageBackground,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "../theme/theme";
@@ -13,6 +14,8 @@ import { ThemeIcon } from "../components/icons/ThemeIcon";
 import { fetchStatistics } from "../api/supabase-statistics";
 import type { Statistics } from "../api/supabase-statistics";
 import { isSupabaseConfigured } from "../lib/supabase";
+import { MedalIcon } from "../components/icons/MedalIcon";
+import { HeartIcon } from "../components/icons/HeartIcon";
 
 // Cache for statistics (10 minutes)
 const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes in milliseconds
@@ -25,13 +28,12 @@ interface CachedStatistics {
 // Global cache (persists across component remounts)
 let statisticsCache: CachedStatistics | null = null;
 
-const MEDAL_COLORS = {
-  1: "#FFD700", // Gold
-  2: "#C0C0C0", // Silver
-  3: "#CD7F32", // Bronze
-};
 
-export function StatisticsScreen() {
+export function StatisticsScreen({
+  onNavigateToWord,
+}: {
+  onNavigateToWord?: (wordId: string) => void;
+}) {
   const { theme, toggle } = useTheme();
   const insets = useSafeAreaInsets();
   const [stats, setStats] = useState<Statistics | null>(null);
@@ -126,47 +128,56 @@ export function StatisticsScreen() {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          {/* Top 5 Liked Words */}
-          <View style={[styles.card, { backgroundColor: theme.colors.cardBg }]}>
+          {/* Top 3 Liked Words */}
+          <View style={[styles.card, { backgroundColor: theme.colors.tabBarBg, borderColor: theme.colors.border }]}>
             <Text style={[styles.cardTitle, { color: theme.colors.textPrimary }]}>
-              Top 5 Cuvinte Preferate
+              Cele mai îndrăgite cuvinte
             </Text>
             {stats?.topLikedWords && stats.topLikedWords.length > 0 ? (
               <View style={styles.topWordsList}>
-                {stats.topLikedWords.map((item) => (
-                  <View
-                    key={item.word.id}
-                    style={[
-                      styles.topWordItem,
-                      { backgroundColor: theme.colors.background },
-                    ]}
-                  >
-                    <View style={styles.rankContainer}>
-                      {item.rank <= 3 ? (
-                        <View
-                          style={[
-                            styles.medal,
-                            { backgroundColor: MEDAL_COLORS[item.rank as 1 | 2 | 3] },
-                          ]}
-                        >
-                          <Text style={styles.medalText}>{item.rank}</Text>
+                {stats.topLikedWords.slice(0, 3).map((item) => {
+                  const medalType = item.rank === 1 ? "gold" : item.rank === 2 ? "silver" : "bronze";
+                  return (
+                    <Pressable
+                      key={item.word.id}
+                      onPress={() => onNavigateToWord?.(item.word.id)}
+                      style={[
+                        styles.wordCard,
+                        { backgroundColor: theme.colors.background, borderColor: theme.colors.border },
+                      ]}
+                    >
+                      <ImageBackground
+                        source={{ uri: item.word.image }}
+                        style={styles.cardImage}
+                        imageStyle={styles.cardImageInner}
+                        resizeMode="cover"
+                      >
+                        <View style={styles.imageDarken} />
+                        <View style={styles.cardContent}>
+                          <View style={styles.cardHeader}>
+                            <MedalIcon type={medalType} size={40} />
+                            <View style={styles.cardHeaderRight}>
+                              <View style={styles.titleRow}>
+                                <Text style={[styles.wordTitle, { color: theme.colors.textPrimary }]}>
+                                  {item.word.title}
+                                </Text>
+                                <View style={styles.likesContainer}>
+                                  <HeartIcon size={18} color="#FF6B9D" filled />
+                                  <Text style={[styles.likesText, { color: theme.colors.textPrimary }]}>
+                                    {item.likes}
+                                  </Text>
+                                </View>
+                              </View>
+                              <Text style={[styles.wordGrammar, { color: theme.colors.textSecondary }]}>
+                                {item.word.grammar_block}
+                              </Text>
+                            </View>
+                          </View>
                         </View>
-                      ) : (
-                        <Text style={[styles.rankText, { color: theme.colors.textSecondary }]}>
-                          {item.rank}.
-                        </Text>
-                      )}
-                    </View>
-                    <View style={styles.wordInfo}>
-                      <Text style={[styles.wordTitle, { color: theme.colors.textPrimary }]}>
-                        {item.word.title}
-                      </Text>
-                      <Text style={[styles.wordLikes, { color: theme.colors.textSecondary }]}>
-                        {item.likes} {item.likes === 1 ? "like" : "likes"}
-                      </Text>
-                    </View>
-                  </View>
-                ))}
+                      </ImageBackground>
+                    </Pressable>
+                  );
+                })}
               </View>
             ) : (
               <Text style={[styles.emptyText, { color: theme.colors.textSecondary }]}>
@@ -224,12 +235,12 @@ function StatCard({
   theme: ReturnType<typeof useTheme>["theme"];
 }) {
   return (
-    <View style={[styles.statCard, { backgroundColor: theme.colors.cardBg }]}>
-      <Text style={[styles.statValue, { color: theme.colors.textPrimary }]}>
-        {value.toLocaleString()}
-      </Text>
+    <View style={[styles.statCard, { backgroundColor: theme.colors.tabBarBg, borderColor: theme.colors.border }]}>
       <Text style={[styles.statTitle, { color: theme.colors.textSecondary }]}>
         {title}
+      </Text>
+      <Text style={[styles.statValue, { color: theme.colors.textPrimary }]}>
+        {value.toLocaleString()}
       </Text>
     </View>
   );
@@ -285,53 +296,20 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 20,
     gap: 16,
+    borderWidth: 1,
   },
   cardTitle: {
     fontSize: 20,
     fontWeight: "700",
     marginBottom: 8,
+    textAlign: "center",
   },
   topWordsList: {
     gap: 12,
   },
-  topWordItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 12,
-    borderRadius: 12,
-    gap: 12,
-  },
-  rankContainer: {
-    width: 40,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  medal: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  medalText: {
-    color: "#000",
-    fontSize: 14,
-    fontWeight: "800",
-  },
-  rankText: {
-    fontSize: 16,
-    fontWeight: "700",
-  },
-  wordInfo: {
-    flex: 1,
-    gap: 4,
-  },
   wordTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  wordLikes: {
-    fontSize: 12,
+    fontSize: 20,
+    fontWeight: "700",
   },
   emptyText: {
     fontSize: 14,
@@ -343,6 +321,56 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: 12,
   },
+  wordCard: {
+    borderRadius: 16,
+    overflow: "hidden",
+    borderWidth: 1,
+    marginBottom: 12,
+  },
+  cardImage: {
+    width: "100%",
+    minHeight: 100,
+    backgroundColor: "#0F1930",
+  },
+  cardImageInner: {
+    borderRadius: 16,
+  },
+  imageDarken: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  cardContent: {
+    padding: 12,
+  },
+  cardHeader: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 12,
+  },
+  cardHeaderRight: {
+    flex: 1,
+    gap: 4,
+  },
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+  },
+  wordGrammar: {
+    fontSize: 12,
+    fontStyle: "italic",
+  },
+  likesContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    alignSelf: "flex-end",
+  },
+  likesText: {
+    fontSize: 16,
+    fontWeight: "700",
+  },
   statCard: {
     flex: 1,
     minWidth: "45%",
@@ -350,15 +378,16 @@ const styles = StyleSheet.create({
     padding: 16,
     alignItems: "center",
     gap: 8,
-  },
-  statValue: {
-    fontSize: 32,
-    fontWeight: "900",
+    borderWidth: 1,
   },
   statTitle: {
     fontSize: 12,
     fontWeight: "600",
     textAlign: "center",
+  },
+  statValue: {
+    fontSize: 32,
+    fontWeight: "900",
   },
 });
 
