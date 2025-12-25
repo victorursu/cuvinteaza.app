@@ -367,15 +367,17 @@ export function TestScreen() {
       <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <View style={styles.headerPad}>{header}</View>
         <View style={styles.splashContainer}>
-          <Text style={[styles.splashTitle, { color: theme.colors.textPrimary }]}>
-            Evaluare lingvistică
-          </Text>
-          <Text style={[styles.splashSubtitle, { color: theme.colors.textSecondary }]}>
-            Subteste de vocabular, gramatică și înțelegerea limbii
-          </Text>
           <Text style={[styles.splashDescription, { color: theme.colors.textSecondary }]}>
             Vei răspunde la {questions.length} întrebări de dificultate variabilă.
-            {"\n"}Fă-ți timp și răspunde cu atenție!
+            {"\n\n"}
+            Testul este cronometrat. Timpul începe când apeși "Începe testul" și se oprește când finalizezi testul.
+            {"\n\n"}
+            {state.data.length > 0 && (
+              <>
+                În baza de date sunt disponibile {state.data.length} întrebări.
+                {"\n\n"}
+              </>
+            )}
           </Text>
           <Pressable
             style={[
@@ -396,6 +398,21 @@ export function TestScreen() {
               Începe testul
             </Text>
           </Pressable>
+          <Text style={[styles.splashDescription, { color: theme.colors.textSecondary }]}>
+            <Text style={{ fontWeight: "700", color: theme.colors.textPrimary }}>
+              Sistem de punctaj:
+            </Text>
+            {"\n"}
+            • Întrebări ușoare: 1 punct
+            {"\n"}
+            • Întrebări medii: 2 puncte
+            {"\n"}
+            • Întrebări grele: 3 puncte
+            {"\n\n"}
+            Scorul final se calculează pe baza punctelor obținute din totalul de puncte posibile.
+            {"\n\n"}
+            Fă-ți timp și răspunde cu atenție!
+          </Text>
         </View>
       </View>
     );
