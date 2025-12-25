@@ -391,10 +391,10 @@ export function TestScreen() {
           </View>
 
           <Pressable
-            style={[styles.primaryBtn, { backgroundColor: theme.colors.tabActiveBg, borderColor: theme.colors.border }]}
+            style={[styles.primaryBtn, { backgroundColor: theme.mode === "light" ? "#4A90E2" : theme.colors.tabActiveBg, borderColor: theme.colors.border }]}
             onPress={reset}
           >
-            <Text style={[styles.primaryBtnText, { color: theme.colors.textPrimary }]}>Reîncepe</Text>
+            <Text style={[styles.primaryBtnText, { color: theme.mode === "light" ? "#FFFFFF" : theme.colors.textPrimary }]}>Reîncepe</Text>
           </Pressable>
         </View>
       </View>
@@ -619,13 +619,13 @@ function QuestionCard({
                 style={[
                   styles.primaryBtn,
                   {
-                    backgroundColor: theme.colors.tabActiveBg,
+                    backgroundColor: theme.mode === "light" ? "#4A90E2" : theme.colors.tabActiveBg,
                     borderColor: theme.colors.border,
                   },
                 ]}
                 onPress={onNext}
               >
-                <Text style={[styles.primaryBtnText, { color: theme.colors.textPrimary }]}>
+                <Text style={[styles.primaryBtnText, { color: theme.mode === "light" ? "#FFFFFF" : theme.colors.textPrimary }]}>
                   {isLast ? "Rezultat" : "Următoarea"}
                   {remainingSec > 0 ? ` în ${remainingSec}s.` : ""}
                 </Text>
