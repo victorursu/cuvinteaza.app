@@ -1,63 +1,50 @@
-import type { VocabularyWord } from "../types";
+import type { VocabularyPayload, VocabularyWord } from "../types";
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
-}
-
-function slugifyId(input: string) {
-  return input
-    .trim()
-    .toLowerCase()
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)+/g, "");
-}
-
-function isVocabularyWord(value: unknown): value is VocabularyWord {
-  if (!isRecord(value)) return false;
-  return (
-    // id can be added later by parseVocabulary for backward compatibility
-    typeof value.title === "string" &&
-    typeof value.grammar_block === "string" &&
-    typeof value.definition === "string" &&
-    typeof value.image === "string" &&
-    Array.isArray(value.tags) &&
-    value.tags.every((t) => typeof t === "string") &&
-    Array.isArray(value.examples) &&
-    value.examples.every((e) => typeof e === "string")
-  );
-}
-
-export function parseVocabulary(data: unknown): VocabularyWord[] {
-  // Accept either:
-  // 1) top-level array of words: VocabularyWord[]
-  // 2) wrapped object: { words: VocabularyWord[] }
-  let words: unknown[] | undefined;
-  if (Array.isArray(data)) words = data;
-  else if (isRecord(data) && Array.isArray(data.words)) words = data.words;
-  else throw new Error("Invalid vocabulary JSON shape");
-
-  if (!words.every(isVocabularyWord)) {
-    throw new Error("Invalid vocabulary word entries");
+/**
+ * Parses a vocabulary payload (either an array of words or an object with a words property)
+ * and returns a normalized array of VocabularyWord objects.
+ */
+export function parseVocabulary(payload: unknown): VocabularyWord[] {
+  if (!payload) {
+    throw new Error("Vocabulary payload is null or undefined");
   }
 
-  // Backward-compatible: if `id` is missing, derive one from title + index.
-  return words.map((w, idx) => {
-    const maybeId = isRecord(w) && typeof w.id === "string" ? w.id : "";
-    const id = maybeId || `${slugifyId(String(w.title)) || "word"}-${idx + 1}`;
-    return { ...(w as Omit<VocabularyWord, "id">), id };
-  });
+  // Check if it's already an array
+  if (Array.isArray(payload)) {
+    return payload as VocabularyWord[];
+  }
+
+  // Check if it's an object with a 'words' property
+  if (typeof payload === "object" && payload !== null && "words" in payload) {
+    const obj = payload as { words: unknown };
+    if (Array.isArray(obj.words)) {
+      return obj.words as VocabularyWord[];
+    }
+  }
+
+  throw new Error("Invalid vocabulary payload format");
 }
 
+/**
+ * Fetches vocabulary words from a remote URL.
+ * Returns a promise that resolves to an array of VocabularyWord objects.
+ */
 export async function fetchVocabulary(url: string): Promise<VocabularyWord[]> {
-  const res = await fetch(url);
-  if (!res.ok) {
-    throw new Error(`Failed to load vocabulary (${res.status})`);
+  if (!url) {
+    throw new Error("Vocabulary URL is required");
   }
 
-  const data: unknown = await res.json();
-  return parseVocabulary(data);
-}
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch vocabulary: ${response.status} ${response.statusText}`);
+    }
 
+    const data: unknown = await response.json();
+    return parseVocabulary(data);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    throw new Error(`Failed to fetch vocabulary from ${url}: ${message}`);
+  }
+}
 

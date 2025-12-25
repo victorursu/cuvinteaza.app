@@ -18,8 +18,10 @@ import fallbackUrbanisme from "../data/fallbackUrbanisme.ro.json";
 import fallbackRegionalisme from "../data/fallbackRegionalisme.ro.json";
 import { useTheme } from "../theme/theme";
 import { HeartIcon } from "../components/icons/HeartIcon";
+import { ShareIcon } from "../components/icons/ShareIcon";
 import { InlineRichText } from "../components/InlineRichText";
 import { useLikes } from "../hooks/useLikes";
+import { shareWord } from "../utils/shareWord";
 // Highlight functions (copied from VocabularyScreen.tsx)
 function escapeRegex(input: string) {
   return input.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -284,6 +286,10 @@ function WordCard({
     return word.examples.map((ex) => highlightExampleHtml(ex, needles));
   }, [word.examples, word.title]);
 
+  const handleShare = useCallback(async () => {
+    await shareWord(word);
+  }, [word]);
+
   return (
     <View style={styles.card}>
       <ImageBackground
@@ -305,14 +311,24 @@ function WordCard({
           <View style={styles.stickyHeader}>
             <View style={styles.stickyHeaderRow}>
               <Text style={styles.wordTitle}>{word.title}</Text>
-              <Pressable
-                onPress={() => toggleLike(word.id)}
-                style={styles.heartButton}
-                accessibilityRole="button"
-                accessibilityLabel={liked ? "Unlike word" : "Like word"}
-              >
-                <HeartIcon size={28} color={liked ? "#FF6B9D" : "#EEF3FF"} filled={liked} />
-              </Pressable>
+              <View style={styles.headerActions}>
+                <Pressable
+                  onPress={handleShare}
+                  style={styles.shareButton}
+                  accessibilityRole="button"
+                  accessibilityLabel="Share word"
+                >
+                  <ShareIcon size={28} color="#EEF3FF" />
+                </Pressable>
+                <Pressable
+                  onPress={() => toggleLike(word.id)}
+                  style={styles.heartButton}
+                  accessibilityRole="button"
+                  accessibilityLabel={liked ? "Unlike word" : "Like word"}
+                >
+                  <HeartIcon size={28} color={liked ? "#FF6B9D" : "#EEF3FF"} filled={liked} />
+                </Pressable>
+              </View>
             </View>
             <Text style={styles.grammarBlock}>{word.grammar_block}</Text>
           </View>
@@ -434,6 +450,16 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "rgba(238, 243, 255, 0.85)",
     marginTop: 8,
+  },
+  headerActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    flexShrink: 0,
+  },
+  shareButton: {
+    padding: 4,
+    flexShrink: 0,
   },
   heartButton: {
     padding: 4,

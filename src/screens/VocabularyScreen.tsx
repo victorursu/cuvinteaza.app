@@ -20,8 +20,10 @@ import { useTheme } from "../theme/theme";
 import { RefreshIcon } from "../components/icons/RefreshIcon";
 import { ThemeIcon } from "../components/icons/ThemeIcon";
 import { HeartIcon } from "../components/icons/HeartIcon";
+import { ShareIcon } from "../components/icons/ShareIcon";
 import { InlineRichText } from "../components/InlineRichText";
 import { useLikes } from "../hooks/useLikes";
+import { shareWord } from "../utils/shareWord";
 import { fetchDailyWordsFromSupabase, fetchDailyWordDates } from "../api/supabase-words";
 import { isSupabaseConfigured, supabase } from "../lib/supabase";
 
@@ -311,6 +313,10 @@ function WordCard({ word, dailyWordDate }: { word: VocabularyWord; dailyWordDate
     return word.examples.map((ex) => highlightExampleHtml(ex, needles));
   }, [word.examples, word.title]);
 
+  const handleShare = useCallback(async () => {
+    await shareWord(word);
+  }, [word]);
+
   return (
     <View style={styles.card}>
       <ImageBackground
@@ -334,14 +340,24 @@ function WordCard({ word, dailyWordDate }: { word: VocabularyWord; dailyWordDate
           <View style={styles.stickyHeader}>
             <View style={styles.stickyHeaderRow}>
               <Text style={styles.wordTitle}>{word.title}</Text>
-              <Pressable
-                onPress={() => toggleLike(word.id)}
-                style={styles.heartButton}
-                accessibilityRole="button"
-                accessibilityLabel={liked ? "Unlike word" : "Like word"}
-              >
-                <HeartIcon size={28} color={liked ? "#FF6B9D" : "#EEF3FF"} filled={liked} />
-              </Pressable>
+              <View style={styles.headerActions}>
+                <Pressable
+                  onPress={handleShare}
+                  style={styles.shareButton}
+                  accessibilityRole="button"
+                  accessibilityLabel="Share word"
+                >
+                  <ShareIcon size={28} color="#EEF3FF" />
+                </Pressable>
+                <Pressable
+                  onPress={() => toggleLike(word.id)}
+                  style={styles.heartButton}
+                  accessibilityRole="button"
+                  accessibilityLabel={liked ? "Unlike word" : "Like word"}
+                >
+                  <HeartIcon size={28} color={liked ? "#FF6B9D" : "#EEF3FF"} filled={liked} />
+                </Pressable>
+              </View>
             </View>
             <Text style={styles.grammarBlock}>{word.grammar_block}</Text>
           </View>
@@ -550,6 +566,16 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   wordTitle: { fontSize: 54, fontWeight: "900", color: "#EEF3FF", flexShrink: 1 },
+  headerActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    flexShrink: 0,
+  },
+  shareButton: {
+    padding: 4,
+    flexShrink: 0,
+  },
   heartButton: {
     padding: 4,
     marginRight: -4,
