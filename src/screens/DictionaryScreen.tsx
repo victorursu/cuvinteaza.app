@@ -314,7 +314,15 @@ export function DictionaryScreen({
   );
 }
 
-export function WordCard({ word, dailyWordDate }: { word: VocabularyWord; dailyWordDate?: string | null }) {
+export function WordCard({ 
+  word, 
+  dailyWordDate,
+  compact = false 
+}: { 
+  word: VocabularyWord; 
+  dailyWordDate?: string | null;
+  compact?: boolean;
+}) {
   const [viewportH, setViewportH] = useState(0);
   const [contentH, setContentH] = useState(0);
   const [scrollY, setScrollY] = useState(0);
@@ -355,7 +363,7 @@ export function WordCard({ word, dailyWordDate }: { word: VocabularyWord; dailyW
         >
           <View style={styles.stickyHeader}>
             <View style={styles.stickyHeaderRow}>
-              <Text style={styles.wordTitle}>{word.title}</Text>
+              <Text style={[styles.wordTitle, compact && styles.wordTitleCompact]}>{word.title}</Text>
               <View style={styles.headerActions}>
                 <Pressable
                   onPress={handleShare}
@@ -375,7 +383,7 @@ export function WordCard({ word, dailyWordDate }: { word: VocabularyWord; dailyW
                 </Pressable>
               </View>
             </View>
-            <Text style={styles.grammarBlock}>{word.grammar_block}</Text>
+            <Text style={[styles.grammarBlock, compact && styles.grammarBlockCompact]}>{word.grammar_block}</Text>
           </View>
 
           <View style={styles.scrollBody}>
@@ -386,17 +394,21 @@ export function WordCard({ word, dailyWordDate }: { word: VocabularyWord; dailyW
                 </Text>
               </View>
             )}
-            <Text style={styles.definition}>{word.definition}</Text>
+            <Text style={[styles.definition, compact && styles.definitionCompact]}>{word.definition}</Text>
 
-            <Text style={styles.sectionTitle}>Exemple</Text>
-            <View style={styles.examplesWrap}>
-              {examples.map((ex, idx) => (
-                <View key={`${word.id}-ex-${idx}`} style={styles.exampleRow}>
-                  <Text style={styles.exampleIndex}>{idx + 1}.</Text>
-                  <InlineRichText text={ex} style={styles.exampleText} />
+            {examples.length > 0 && (
+              <>
+                <Text style={[styles.sectionTitle, compact && styles.sectionTitleCompact]}>Exemple</Text>
+                <View style={styles.examplesWrap}>
+                  {examples.map((ex, idx) => (
+                    <View key={`${word.id}-ex-${idx}`} style={styles.exampleRow}>
+                      <Text style={styles.exampleIndex}>{idx + 1}.</Text>
+                      <InlineRichText text={ex} style={[styles.exampleText, compact && styles.exampleTextCompact]} />
+                    </View>
+                  ))}
                 </View>
-              ))}
-            </View>
+              </>
+            )}
 
             <View style={styles.tagRow}>
               {word.tags.map((t) => (
@@ -591,17 +603,26 @@ const styles = StyleSheet.create({
   scrollBody: { paddingHorizontal: 14, paddingTop: 12, gap: 10 },
 
   wordTitle: { fontSize: 54, fontWeight: "900", color: "#EEF3FF", flexShrink: 1 },
+  wordTitleCompact: { fontSize: 42, letterSpacing: -1 },
   grammarBlock: {
     fontSize: 16,
     fontStyle: "italic",
     color: "rgba(238, 243, 255, 0.92)",
   },
+  grammarBlockCompact: {
+    fontSize: 14,
+  },
   definition: { fontSize: 26, lineHeight: 34, color: "#E1EAFF" },
+  definitionCompact: { fontSize: 20, lineHeight: 28 },
   sectionTitle: {
     fontSize: 18,
     fontWeight: "900",
     color: "#EEF3FF",
     marginTop: 14,
+  },
+  sectionTitleCompact: {
+    fontSize: 16,
+    marginTop: 12,
   },
   examplesWrap: { gap: 10 },
   exampleRow: { flexDirection: "row", gap: 8, alignItems: "flex-start" },
@@ -616,6 +637,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
     lineHeight: 24,
     color: "rgba(225, 234, 255, 0.95)",
+  },
+  exampleTextCompact: {
+    fontSize: 15,
+    lineHeight: 20,
   },
 
   tagRow: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 14 },

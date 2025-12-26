@@ -27,7 +27,7 @@ export function SearchScreen({
 }) {
   const insets = useSafeAreaInsets();
   const { theme, toggle } = useTheme();
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
   const [searchTerm, setSearchTerm] = useState("");
   const [results, setResults] = useState<VocabularyWord[]>([]);
   const [loading, setLoading] = useState(false);
@@ -179,10 +179,10 @@ export function SearchScreen({
       style={[
         styles.container,
         { backgroundColor: theme.colors.background },
-        { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 20 },
+        { paddingBottom: insets.bottom + 20 },
       ]}
     >
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: 12 }]}>
         <View style={styles.headerRow}>
           <View style={styles.headerLeft}>
             <Text style={[styles.title, { color: theme.colors.textPrimary }]}>
@@ -265,42 +265,54 @@ export function SearchScreen({
         </View>
       ) : results.length > 0 ? (
         viewMode === "card" ? (
-          <FlatList
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            data={results}
-            keyExtractor={(item) => item.id}
-            decelerationRate="fast"
-            snapToInterval={snapInterval}
-            snapToAlignment="start"
-            disableIntervalMomentum
-            style={styles.carousel}
-            contentContainerStyle={{
-              paddingRight: contentPadding,
-              paddingBottom: 0,
-            }}
-            renderItem={({ item, index }) => (
-              <View
-                style={{
-                  width: itemWidth,
-                  marginRight: index < results.length - 1 ? ITEM_SPACING : 0,
-                  height: "100%",
-                }}
-              >
-                <Pressable onPress={() => onNavigateToWord?.(item.id)} style={{ flex: 1 }}>
-                  <WordCard
-                    word={item}
-                    dailyWordDate={dailyWordDates.get(item.id)}
-                  />
-                </Pressable>
-              </View>
-            )}
-            getItemLayout={(_, index) => ({
-              length: snapInterval,
-              offset: snapInterval * index,
-              index,
-            })}
-          />
+          <View style={styles.carouselContainer}>
+            <FlatList
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              data={results}
+              keyExtractor={(item) => item.id}
+              decelerationRate="fast"
+              snapToInterval={snapInterval}
+              snapToAlignment="start"
+              disableIntervalMomentum
+              style={styles.carousel}
+              contentContainerStyle={{
+                paddingRight: contentPadding,
+                paddingBottom: 0,
+              }}
+              onEndReached={loadMore}
+              onEndReachedThreshold={0.5}
+              ListFooterComponent={
+                loadingMore ? (
+                  <View style={styles.loadingMoreCard}>
+                    <ActivityIndicator size="small" color={theme.colors.iconActive} />
+                  </View>
+                ) : null
+              }
+              renderItem={({ item, index }) => (
+                <View
+                  style={{
+                    width: itemWidth,
+                    marginRight: index < results.length - 1 ? ITEM_SPACING : 0,
+                    height: "100%",
+                  }}
+                >
+                  <Pressable onPress={() => onNavigateToWord?.(item.id)} style={{ flex: 1 }}>
+                    <WordCard
+                      word={item}
+                      dailyWordDate={dailyWordDates.get(item.id)}
+                      compact={true}
+                    />
+                  </Pressable>
+                </View>
+              )}
+              getItemLayout={(_, index) => ({
+                length: snapInterval,
+                offset: snapInterval * index,
+                index,
+              })}
+            />
+          </View>
         ) : (
           <FlatList
             data={results}
@@ -449,6 +461,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: "center",
   },
+  carouselContainer: {
+    flex: 1,
+  },
   carousel: {
     flex: 1,
   },
@@ -463,12 +478,11 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: "hidden",
     borderWidth: 1,
-    minHeight: 120,
+    height: 140,
   },
   listItemImage: {
     width: "100%",
-    height: "100%",
-    minHeight: 120,
+    height: 140,
     backgroundColor: "#0F1930",
   },
   listItemImageInner: {
@@ -517,6 +531,12 @@ const styles = StyleSheet.create({
   loadingMore: {
     paddingVertical: 20,
     alignItems: "center",
+  },
+  loadingMoreCard: {
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    minWidth: 100,
   },
 });
 

@@ -11,6 +11,7 @@ import { supabase, isSupabaseConfigured } from "../lib/supabase";
 import type { Session } from "@supabase/supabase-js";
 import { useTheme } from "../theme/theme";
 import Svg, { Line, Circle, Polyline, Text as SvgText } from "react-native-svg";
+import { ChevronDown, ChevronUp } from "lucide-react-native";
 
 type TestResult = {
   id: string;
@@ -30,6 +31,7 @@ export function TestTimeline({
   const { width } = useWindowDimensions();
   const [testResults, setTestResults] = useState<TestResult[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
     if (!isSupabaseConfigured || !supabase) {
@@ -87,24 +89,42 @@ export function TestTimeline({
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.tabBarBg }]}>
-      <Text style={[styles.title, { color: theme.colors.textPrimary }]}>
-        Evoluția scorurilor · Test general
-      </Text>
-      {onNavigateToTest && (
+      <View style={styles.titleRow}>
+        <Text style={[styles.title, { color: theme.colors.textPrimary }]}>
+          Evoluția scorurilor · Test general
+        </Text>
         <Pressable
-          style={[styles.testButton, { backgroundColor: theme.colors.tabActiveBg, borderColor: theme.colors.border }]}
-          onPress={onNavigateToTest}
+          style={[styles.toggleButton, { backgroundColor: theme.colors.headerIconBg }]}
+          onPress={() => setIsExpanded(!isExpanded)}
+          accessibilityRole="button"
+          accessibilityLabel={isExpanded ? "Collapse timeline" : "Expand timeline"}
         >
-          <Text style={[styles.testButtonText, { color: theme.colors.textPrimary }]}>
-            Începe testul
-          </Text>
+          {isExpanded ? (
+            <ChevronUp size={20} color={theme.colors.iconActive} />
+          ) : (
+            <ChevronDown size={20} color={theme.colors.iconActive} />
+          )}
         </Pressable>
+      </View>
+      {isExpanded && (
+        <>
+          {onNavigateToTest && (
+            <Pressable
+              style={[styles.testButton, { backgroundColor: theme.colors.tabActiveBg, borderColor: theme.colors.border }]}
+              onPress={onNavigateToTest}
+            >
+              <Text style={[styles.testButtonText, { color: theme.colors.textPrimary }]}>
+                Începe testul
+              </Text>
+            </Pressable>
+          )}
+          <TestGraph
+            results={testResults}
+            width={width - 48}
+            theme={theme}
+          />
+        </>
       )}
-      <TestGraph
-        results={testResults}
-        width={width - 48}
-        theme={theme}
-      />
     </View>
   );
 }
@@ -303,11 +323,23 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
     gap: 12,
   },
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 4,
+  },
   title: {
     fontSize: 20,
     fontWeight: "700",
-    marginBottom: 4,
-    textAlign: "center",
+    textAlign: "left",
+  },
+  toggleButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
   },
   testButton: {
     marginTop: 8,
