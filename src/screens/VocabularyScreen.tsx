@@ -11,11 +11,8 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { fetchVocabulary, parseVocabulary } from "../api/vocabulary";
-import { VOCABULARY_URL } from "../config";
 import type { VocabularyWord } from "../types";
 import { BOTTOM_TABS_HEIGHT } from "../components/BottomTabs";
-import fallbackVocabulary from "../data/fallbackVocabulary.ro.json";
 import { useTheme } from "../theme/theme";
 import { ThemeIcon } from "../components/icons/ThemeIcon";
 import { HeartIcon } from "../components/icons/HeartIcon";
@@ -76,33 +73,27 @@ export function VocabularyScreen() {
           scrollToStart();
           return;
         } else {
-          console.log("[VocabularyScreen] ⚠️ No daily words found in Supabase, falling back to local JSON");
+          console.log("[VocabularyScreen] ⚠️ No daily words found in Supabase");
+          setState((s) => ({
+            status: "error",
+            data: s.data,
+            error: "Nu s-au găsit cuvinte în baza de date",
+          }));
         }
       } catch (supabaseError) {
-        console.warn("[VocabularyScreen] ❌ Failed to fetch daily words from Supabase, falling back to local JSON:", supabaseError);
-        // Fall through to local fallback
+        console.error("[VocabularyScreen] ❌ Failed to fetch daily words from Supabase:", supabaseError);
+        setState((s) => ({
+          status: "error",
+          data: s.data,
+          error: "Eroare la conectarea la baza de date",
+        }));
       }
     } else {
-      console.log("[VocabularyScreen] Supabase not configured, using local fallback");
-    }
-    
-    // Fallback to local JSON if Supabase fails or returns no words
-    try {
-      const localWords = parseVocabulary(fallbackVocabulary as unknown);
-      console.log(`[VocabularyScreen] ✅ Loaded ${localWords.length} words from local fallback`);
-      setState({
-        status: "ready",
-        data: shuffle(localWords.slice()),
-        source: "local",
-      });
-      scrollToStart();
-    } catch (fallbackErr) {
-      const fallbackMessage =
-        fallbackErr instanceof Error ? fallbackErr.message : "Unknown error";
+      console.log("[VocabularyScreen] Supabase not configured");
       setState((s) => ({
         status: "error",
         data: s.data,
-        error: `Failed to load words. Fallback failed: ${fallbackMessage}`,
+        error: "Baza de date nu este configurată",
       }));
     }
   }, [scrollToStart]);

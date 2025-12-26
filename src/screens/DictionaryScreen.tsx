@@ -90,37 +90,22 @@ export function DictionaryScreen({
         setState({ status: "ready", data: shuffle(words.slice()), source: "remote" });
         scrollToStart();
       } catch (e) {
-        console.log(`[${title}] ⚠️ URL fetch failed, using fallback`);
-        try {
-          const localWords = parseVocabulary(fallback);
-          setState({ status: "ready", data: shuffle(localWords.slice()), source: "local" });
-          scrollToStart();
-        } catch (fallbackErr) {
-          const message = e instanceof Error ? e.message : "Unknown error";
-          const fallbackMessage =
-            fallbackErr instanceof Error ? fallbackErr.message : "Unknown error";
-          setState((s) => ({
-            status: "error",
-            data: s.data,
-            error: `${message}. Fallback failed: ${fallbackMessage}`,
-          }));
-        }
-      }
-    } else if (!preloadedWords) {
-      // No URL and no preloaded words - use fallback
-      console.log(`[${title}] 📦 Using fallback (no URL, no preloaded words)`);
-      try {
-        const localWords = parseVocabulary(fallback);
-        setState({ status: "ready", data: shuffle(localWords.slice()), source: "local" });
-        scrollToStart();
-      } catch (fallbackErr) {
-        const message = fallbackErr instanceof Error ? fallbackErr.message : "Unknown error";
+        const message = e instanceof Error ? e.message : "Unknown error";
+        console.error(`[${title}] ⚠️ URL fetch failed:`, message);
         setState((s) => ({
           status: "error",
           data: s.data,
-          error: `Fallback failed: ${message}`,
+          error: `Eroare la încărcarea datelor: ${message}`,
         }));
       }
+    } else if (!preloadedWords) {
+      // No URL and no preloaded words - show error
+      console.log(`[${title}] ⚠️ No data source available (no URL, no preloaded words)`);
+      setState((s) => ({
+        status: "error",
+        data: s.data,
+        error: "Nu sunt disponibile date",
+      }));
     }
   }, [fallback, scrollToStart, url, preloadedWords, title]);
 

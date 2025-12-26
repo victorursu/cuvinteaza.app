@@ -2,6 +2,56 @@ import { supabase, isSupabaseConfigured } from "../lib/supabase";
 import type { VocabularyWord } from "../types";
 
 /**
+ * Fetch tags for words from the cuvinteziCuvinteTags junction table
+ * @param wordIds - Array of word IDs to fetch tags for
+ * @returns Map of wordId to array of tag labels
+ */
+async function fetchTagsForWords(wordIds: (string | number)[]): Promise<Map<string | number, string[]>> {
+  const tagsMap = new Map<string | number, string[]>();
+  
+  if (!isSupabaseConfigured || !supabase || wordIds.length === 0) {
+    return tagsMap;
+  }
+
+  try {
+    // Fetch tags from junction table joined with tags table
+    const { data, error } = await supabase
+      .from("cuvinteziCuvinteTags")
+      .select(`
+        word_id,
+        cuvinteziTags (
+          label
+        )
+      `)
+      .in("word_id", wordIds);
+
+    if (error) {
+      console.error("Error fetching tags for words:", error);
+      return tagsMap;
+    }
+
+    if (data) {
+      data.forEach((item: any) => {
+        const wordId = item.word_id;
+        const tag = item.cuvinteziTags;
+        
+        if (wordId && tag && tag.label) {
+          if (!tagsMap.has(wordId)) {
+            tagsMap.set(wordId, []);
+          }
+          tagsMap.get(wordId)!.push(tag.label);
+        }
+      });
+    }
+
+    return tagsMap;
+  } catch (error) {
+    console.error("Failed to fetch tags for words:", error);
+    return tagsMap;
+  }
+}
+
+/**
  * Fetch words from Supabase that have tags containing "urban" or "slang"
  * @param limit - Maximum number of words to fetch (default: 15)
  * @returns Array of VocabularyWord objects
@@ -20,11 +70,23 @@ export async function fetchUrbanismeFromSupabase(limit: number = 15): Promise<Vo
   try {
     console.log(`[fetchUrbanismeFromSupabase] Querying Supabase for words with tags "urban" or "slang"...`);
     
-    // Query all words and filter in JavaScript (most reliable approach)
-    console.log(`[fetchUrbanismeFromSupabase] Fetching all words and filtering in JavaScript...`);
+    // Query all words with tags from junction table
+    console.log(`[fetchUrbanismeFromSupabase] Fetching all words with tags from junction table...`);
     const { data: allData, error } = await supabase
       .from("cuvinteziCuvinte")
-      .select("id, title, grammar_block, definition, image, tags, examples")
+      .select(`
+        id, 
+        title, 
+        grammar_block, 
+        definition, 
+        image, 
+        examples,
+        cuvinteziCuvinteTags (
+          cuvinteziTags (
+            label
+          )
+        )
+      `)
       .limit(1000); // Fetch enough to get all words (or most of them)
     
     console.log(`[fetchUrbanismeFromSupabase] Query result - data length: ${allData?.length || 0}`);
@@ -41,36 +103,30 @@ export async function fetchUrbanismeFromSupabase(limit: number = 15): Promise<Vo
       return [];
     }
 
+    // Extract tags from junction table data
+    const wordsWithTags = allData.map((word: any) => {
+      const tags: string[] = [];
+      if (word.cuvinteziCuvinteTags && Array.isArray(word.cuvinteziCuvinteTags)) {
+        word.cuvinteziCuvinteTags.forEach((junction: any) => {
+          if (junction.cuvinteziTags && junction.cuvinteziTags.label) {
+            tags.push(junction.cuvinteziTags.label);
+          }
+        });
+      }
+      return { ...word, tags };
+    });
+
     // Log first few words to debug
-    console.log(`[fetchUrbanismeFromSupabase] First word sample:`, JSON.stringify(allData[0], null, 2));
-    console.log(`[fetchUrbanismeFromSupabase] First word tags type:`, typeof allData[0]?.tags);
-    console.log(`[fetchUrbanismeFromSupabase] First word tags value:`, allData[0]?.tags);
-    console.log(`[fetchUrbanismeFromSupabase] First word tags is array:`, Array.isArray(allData[0]?.tags));
+    console.log(`[fetchUrbanismeFromSupabase] First word sample:`, JSON.stringify(wordsWithTags[0], null, 2));
+    console.log(`[fetchUrbanismeFromSupabase] First word tags:`, wordsWithTags[0]?.tags);
 
     // Filter words that have "urban" or "slang" in their tags
-    const filteredData = allData.filter((word) => {
-      let tags: string[] = [];
+    const filteredData = wordsWithTags.filter((word) => {
+      const tags = word.tags || [];
       
-      if (Array.isArray(word.tags)) {
-        tags = word.tags;
-      } else if (typeof word.tags === "string") {
-        try {
-          tags = JSON.parse(word.tags);
-        } catch {
-          console.log(`[fetchUrbanismeFromSupabase] Failed to parse tags as JSON:`, word.tags);
-          return false;
-        }
-      } else if (word.tags) {
-        // Try to handle other formats
-        console.log(`[fetchUrbanismeFromSupabase] Unexpected tags type:`, typeof word.tags, word.tags);
-        return false;
-      } else {
-        return false;
-      }
-
       // Check if tags array contains "urban" or "slang" (case-insensitive)
       const hasMatch = tags.some(
-        (tag) => tag.toLowerCase() === "urban" || tag.toLowerCase() === "slang"
+        (tag: string) => tag.toLowerCase() === "urban" || tag.toLowerCase() === "slang"
       );
       
       if (hasMatch) {
@@ -88,22 +144,12 @@ export async function fetchUrbanismeFromSupabase(limit: number = 15): Promise<Vo
     console.log(`[fetchUrbanismeFromSupabase] Filtered to ${filteredData.length} words with "urban" or "slang" tags, randomly selected ${data.length}`);
 
     // Convert Supabase data to VocabularyWord format
-    // Supabase returns tags and examples as JSONB (arrays), but we need to ensure they're arrays
-    return data.map((word) => {
-      // Parse tags and examples if they're strings, otherwise use as-is
-      let tags: string[] = [];
+    return data.map((word: any) => {
+      // Tags are already extracted from junction table
+      const tags: string[] = word.tags || [];
+      
+      // Parse examples if they're strings, otherwise use as-is
       let examples: string[] = [];
-
-      if (Array.isArray(word.tags)) {
-        tags = word.tags;
-      } else if (typeof word.tags === "string") {
-        try {
-          tags = JSON.parse(word.tags);
-        } catch {
-          tags = [];
-        }
-      }
-
       if (Array.isArray(word.examples)) {
         examples = word.examples;
       } else if (typeof word.examples === "string") {
@@ -149,11 +195,23 @@ export async function fetchRegionalismeFromSupabase(limit: number = 15): Promise
   try {
     console.log(`[fetchRegionalismeFromSupabase] Querying Supabase for words with tags "regionalisme" or "regionalism"...`);
     
-    // Query all words and filter in JavaScript (most reliable approach)
-    console.log(`[fetchRegionalismeFromSupabase] Fetching all words and filtering in JavaScript...`);
+    // Query all words with tags from junction table
+    console.log(`[fetchRegionalismeFromSupabase] Fetching all words with tags from junction table...`);
     const { data: allData, error } = await supabase
       .from("cuvinteziCuvinte")
-      .select("id, title, grammar_block, definition, image, tags, examples")
+      .select(`
+        id, 
+        title, 
+        grammar_block, 
+        definition, 
+        image, 
+        examples,
+        cuvinteziCuvinteTags (
+          cuvinteziTags (
+            label
+          )
+        )
+      `)
       .limit(1000); // Fetch enough to get all words (or most of them)
     
     console.log(`[fetchRegionalismeFromSupabase] Query result - data length: ${allData?.length || 0}`);
@@ -170,36 +228,30 @@ export async function fetchRegionalismeFromSupabase(limit: number = 15): Promise
       return [];
     }
 
+    // Extract tags from junction table data
+    const wordsWithTags = allData.map((word: any) => {
+      const tags: string[] = [];
+      if (word.cuvinteziCuvinteTags && Array.isArray(word.cuvinteziCuvinteTags)) {
+        word.cuvinteziCuvinteTags.forEach((junction: any) => {
+          if (junction.cuvinteziTags && junction.cuvinteziTags.label) {
+            tags.push(junction.cuvinteziTags.label);
+          }
+        });
+      }
+      return { ...word, tags };
+    });
+
     // Log first few words to debug
-    console.log(`[fetchRegionalismeFromSupabase] First word sample:`, JSON.stringify(allData[0], null, 2));
-    console.log(`[fetchRegionalismeFromSupabase] First word tags type:`, typeof allData[0]?.tags);
-    console.log(`[fetchRegionalismeFromSupabase] First word tags value:`, allData[0]?.tags);
-    console.log(`[fetchRegionalismeFromSupabase] First word tags is array:`, Array.isArray(allData[0]?.tags));
+    console.log(`[fetchRegionalismeFromSupabase] First word sample:`, JSON.stringify(wordsWithTags[0], null, 2));
+    console.log(`[fetchRegionalismeFromSupabase] First word tags:`, wordsWithTags[0]?.tags);
 
     // Filter words that have "regionalisme" or "regionalism" in their tags
-    const filteredData = allData.filter((word) => {
-      let tags: string[] = [];
+    const filteredData = wordsWithTags.filter((word) => {
+      const tags = word.tags || [];
       
-      if (Array.isArray(word.tags)) {
-        tags = word.tags;
-      } else if (typeof word.tags === "string") {
-        try {
-          tags = JSON.parse(word.tags);
-        } catch {
-          console.log(`[fetchRegionalismeFromSupabase] Failed to parse tags as JSON:`, word.tags);
-          return false;
-        }
-      } else if (word.tags) {
-        // Try to handle other formats
-        console.log(`[fetchRegionalismeFromSupabase] Unexpected tags type:`, typeof word.tags, word.tags);
-        return false;
-      } else {
-        return false;
-      }
-
       // Check if tags array contains "regionalisme" or "regionalism" (case-insensitive)
       const hasMatch = tags.some(
-        (tag) => tag.toLowerCase() === "regionalisme" || tag.toLowerCase() === "regionalism"
+        (tag: string) => tag.toLowerCase() === "regionalisme" || tag.toLowerCase() === "regionalism"
       );
       
       if (hasMatch) {
@@ -217,22 +269,12 @@ export async function fetchRegionalismeFromSupabase(limit: number = 15): Promise
     console.log(`[fetchRegionalismeFromSupabase] Filtered to ${filteredData.length} words with "regionalisme" or "regionalism" tags, randomly selected ${data.length}`);
 
     // Convert Supabase data to VocabularyWord format
-    // Supabase returns tags and examples as JSONB (arrays), but we need to ensure they're arrays
-    return data.map((word) => {
-      // Parse tags and examples if they're strings, otherwise use as-is
-      let tags: string[] = [];
+    return data.map((word: any) => {
+      // Tags are already extracted from junction table
+      const tags: string[] = word.tags || [];
+      
+      // Parse examples if they're strings, otherwise use as-is
       let examples: string[] = [];
-
-      if (Array.isArray(word.tags)) {
-        tags = word.tags;
-      } else if (typeof word.tags === "string") {
-        try {
-          tags = JSON.parse(word.tags);
-        } catch {
-          tags = [];
-        }
-      }
-
       if (Array.isArray(word.examples)) {
         examples = word.examples;
       } else if (typeof word.examples === "string") {
@@ -310,10 +352,22 @@ export async function fetchDailyWordsFromSupabase(): Promise<VocabularyWord[]> {
       return [];
     }
 
-    // Fetch full word details from cuvinteziCuvinte
+    // Fetch full word details from cuvinteziCuvinte with tags from junction table
     const { data: wordsData, error: wordsError } = await supabase
       .from("cuvinteziCuvinte")
-      .select("id, title, grammar_block, definition, image, tags, examples")
+      .select(`
+        id, 
+        title, 
+        grammar_block, 
+        definition, 
+        image, 
+        examples,
+        cuvinteziCuvinteTags (
+          cuvinteziTags (
+            label
+          )
+        )
+      `)
       .in("id", wordIds);
 
     console.log(`[fetchDailyWordsFromSupabase] Words query result - data length: ${wordsData?.length || 0}`);
@@ -330,20 +384,19 @@ export async function fetchDailyWordsFromSupabase(): Promise<VocabularyWord[]> {
     }
 
     // Convert Supabase data to VocabularyWord format
-    const vocabularyWords: VocabularyWord[] = wordsData.map((word) => {
-      let tags: string[] = [];
-      let examples: string[] = [];
-
-      if (Array.isArray(word.tags)) {
-        tags = word.tags;
-      } else if (typeof word.tags === "string") {
-        try {
-          tags = JSON.parse(word.tags);
-        } catch {
-          tags = [];
-        }
+    const vocabularyWords: VocabularyWord[] = wordsData.map((word: any) => {
+      // Extract tags from junction table
+      const tags: string[] = [];
+      if (word.cuvinteziCuvinteTags && Array.isArray(word.cuvinteziCuvinteTags)) {
+        word.cuvinteziCuvinteTags.forEach((junction: any) => {
+          if (junction.cuvinteziTags && junction.cuvinteziTags.label) {
+            tags.push(junction.cuvinteziTags.label);
+          }
+        });
       }
-
+      
+      // Parse examples if they're strings, otherwise use as-is
+      let examples: string[] = [];
       if (Array.isArray(word.examples)) {
         examples = word.examples;
       } else if (typeof word.examples === "string") {
@@ -464,8 +517,8 @@ export async function fetchDailyWordDates(wordIds: string[]): Promise<Map<string
 }
 
 /**
- * Fetch a single word from Supabase by ID
- * @param wordId - The ID of the word to fetch
+ * Fetch a single word from Supabase by ID or slug
+ * @param wordId - The numeric ID (as string) or slug of the word to fetch
  * @returns VocabularyWord object or null if not found
  */
 export async function fetchWordByIdFromSupabase(wordId: string): Promise<VocabularyWord | null> {
@@ -474,38 +527,60 @@ export async function fetchWordByIdFromSupabase(wordId: string): Promise<Vocabul
   }
 
   try {
-    const { data, error } = await supabase
+    // Check if wordId is numeric (BIGINT ID) or a slug
+    const isNumericId = /^\d+$/.test(wordId);
+    
+    const query = supabase
       .from("cuvinteziCuvinte")
-      .select("id, title, grammar_block, definition, image, tags, examples")
-      .eq("id", wordId)
-      .single();
+      .select(`
+        id, 
+        title, 
+        grammar_block, 
+        definition, 
+        image, 
+        examples,
+        cuvinteziCuvinteTags (
+          cuvinteziTags (
+            label
+          )
+        )
+      `);
+    
+    // Query by ID if numeric, otherwise by slug
+    // PostgREST handles string-to-BIGINT conversion automatically, so we can pass the string directly
+    const { data, error } = isNumericId
+      ? await query.eq("id", wordId).single()  // Pass as string, Supabase will convert to BIGINT
+      : await query.eq("slug", wordId).single();
 
     if (error) {
+      console.error(`[fetchWordByIdFromSupabase] Error fetching word ${wordId}:`, error);
       if (error.code === "PGRST116") {
         // Not found
+        console.log(`[fetchWordByIdFromSupabase] Word not found: ${wordId}`);
         return null;
       }
       throw error;
     }
 
     if (!data) {
+      console.log(`[fetchWordByIdFromSupabase] No data returned for word: ${wordId}`);
       return null;
     }
 
-    // Convert Supabase data to VocabularyWord format
-    let tags: string[] = [];
-    let examples: string[] = [];
+    console.log(`[fetchWordByIdFromSupabase] Successfully fetched word: ${wordId}, database ID: ${data.id}`);
 
-    if (Array.isArray(data.tags)) {
-      tags = data.tags;
-    } else if (typeof data.tags === "string") {
-      try {
-        tags = JSON.parse(data.tags);
-      } catch {
-        tags = [];
-      }
+    // Extract tags from junction table
+    const tags: string[] = [];
+    if ((data as any).cuvinteziCuvinteTags && Array.isArray((data as any).cuvinteziCuvinteTags)) {
+      (data as any).cuvinteziCuvinteTags.forEach((junction: any) => {
+        if (junction.cuvinteziTags && junction.cuvinteziTags.label) {
+          tags.push(junction.cuvinteziTags.label);
+        }
+      });
     }
 
+    // Parse examples if they're strings, otherwise use as-is
+    let examples: string[] = [];
     if (Array.isArray(data.examples)) {
       examples = data.examples;
     } else if (typeof data.examples === "string") {
@@ -517,7 +592,7 @@ export async function fetchWordByIdFromSupabase(wordId: string): Promise<Vocabul
     }
 
     return {
-      id: data.id,
+      id: String(data.id), // Convert BIGINT to string for VocabularyWord type
       title: data.title,
       grammar_block: data.grammar_block || "",
       definition: data.definition,

@@ -4,7 +4,7 @@
 
 CREATE OR REPLACE FUNCTION public.get_top_liked_words(limit_count INTEGER DEFAULT 5)
 RETURNS TABLE (
-  word_id TEXT,
+  word_id BIGINT,
   like_count BIGINT,
   rank_number INTEGER
 ) 
@@ -15,7 +15,7 @@ AS $$
 BEGIN
   RETURN QUERY
   SELECT 
-    l.word_id,
+    l.word_id::BIGINT,
     COUNT(*)::BIGINT as like_count,
     ROW_NUMBER() OVER (ORDER BY COUNT(*) DESC)::INTEGER as rank_number
   FROM public."cuvinteziLikes" l

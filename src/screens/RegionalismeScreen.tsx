@@ -1,9 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
-import fallbackRegionalisme from "../data/fallbackRegionalisme.ro.json";
 import { REGIONALISME_COUNT } from "../config";
 import { DictionaryScreen } from "./DictionaryScreen";
 import { fetchRegionalismeFromSupabase } from "../api/supabase-words";
-import { parseVocabulary } from "../api/vocabulary";
 import type { VocabularyWord } from "../types";
 import { isSupabaseConfigured, supabase } from "../lib/supabase";
 
@@ -18,31 +16,25 @@ export function RegionalismeScreen() {
     
     // First, test if Supabase is accessible
     if (!isSupabaseConfigured || !supabase) {
-      // Fall through to use fallback
-    } else {
-      try {
-        // Try to fetch from Supabase
-        const supabaseWords = await fetchRegionalismeFromSupabase(REGIONALISME_COUNT);
-        
-        if (supabaseWords.length > 0) {
-          setWords(supabaseWords);
-          setWordsFromSupabase(true);
-          setIsLoading(false);
-          return;
-        }
-      } catch (supabaseError: any) {
-        console.error("[Regionalisme] Failed to fetch from Supabase:", supabaseError);
-        // Fall through to fallback
-      }
+      console.error("[Regionalisme] Supabase is not configured");
+      setWords([]);
+      setIsLoading(false);
+      return;
     }
 
-    // Fallback to local JSON if Supabase fails or returns no words
     try {
-      const fallbackWords = parseVocabulary(fallbackRegionalisme);
-      setWords(fallbackWords);
-      setWordsFromSupabase(false);
-    } catch (error) {
-      console.error("[Regionalisme] Error parsing fallback:", error);
+      // Try to fetch from Supabase
+      const supabaseWords = await fetchRegionalismeFromSupabase(REGIONALISME_COUNT);
+      
+      if (supabaseWords.length > 0) {
+        setWords(supabaseWords);
+        setWordsFromSupabase(true);
+      } else {
+        setWords([]);
+        setWordsFromSupabase(false);
+      }
+    } catch (supabaseError: any) {
+      console.error("[Regionalisme] Failed to fetch from Supabase:", supabaseError);
       setWords([]);
       setWordsFromSupabase(false);
     } finally {
@@ -62,8 +54,8 @@ export function RegionalismeScreen() {
     <DictionaryScreen
       title="Regionalisme"
       subtitle="expresii regionale din toată țara"
-      url="" // Always empty - we handle loading in RegionalismeScreen
-      fallback={fallbackRegionalisme as unknown}
+      url=""
+      fallback={[]}
       preloadedWords={wordsToPass.length > 0 ? wordsToPass : undefined}
       onRefresh={() => {
         void loadWords();

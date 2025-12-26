@@ -9,13 +9,9 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { fetchVocabulary, parseVocabulary } from "../api/vocabulary";
 import { fetchWordByIdFromSupabase, fetchDailyWordDate } from "../api/supabase-words";
 import { isSupabaseConfigured, supabase } from "../lib/supabase";
 import type { VocabularyWord } from "../types";
-import fallbackVocabulary from "../data/fallbackVocabulary.ro.json";
-import fallbackUrbanisme from "../data/fallbackUrbanisme.ro.json";
-import fallbackRegionalisme from "../data/fallbackRegionalisme.ro.json";
 import { useTheme } from "../theme/theme";
 import { HeartIcon } from "../components/icons/HeartIcon";
 import { ShareIcon } from "../components/icons/ShareIcon";
@@ -138,45 +134,17 @@ export function WordDetailScreen({
         }
       } catch (supabaseError) {
         console.error("[WordDetail] Failed to fetch from Supabase:", supabaseError);
-        // Fall through to fallback
+        setState((s) => ({
+          status: "error",
+          data: s.data,
+          error: "Eroare la conectarea la baza de date",
+        }));
       }
-    }
-
-    // Fallback: Try to find word in local JSON files
-    try {
-      // Try all fallback sources
-      const sources = [
-        { name: "vocabulary", data: fallbackVocabulary },
-        { name: "urbanisme", data: fallbackUrbanisme },
-        { name: "regionalisme", data: fallbackRegionalisme },
-      ];
-
-      for (const source of sources) {
-        try {
-          const words = parseVocabulary(source.data as unknown);
-          const word = words.find((w) => w.id === wordId);
-          if (word) {
-            setState({ status: "ready", data: [word], error: undefined });
-            return;
-          }
-        } catch (parseError) {
-          // Continue to next source
-          continue;
-        }
-      }
-
-      // Word not found in any source
+    } else {
       setState((s) => ({
         status: "error",
         data: s.data,
-        error: `Cuvântul cu ID "${wordId}" nu a fost găsit`,
-      }));
-    } catch (fallbackErr) {
-      const message = fallbackErr instanceof Error ? fallbackErr.message : "Unknown error";
-      setState((s) => ({
-        status: "error",
-        data: s.data,
-        error: `Fallback failed: ${message}`,
+        error: "Baza de date nu este configurată",
       }));
     }
   }, [wordId]);
@@ -187,7 +155,8 @@ export function WordDetailScreen({
 
   const word = useMemo(() => {
     if (state.status !== "ready") return null;
-    return state.data.find((w) => w.id === wordId) || null;
+    // Compare as strings to handle both numeric IDs and slugs
+    return state.data.find((w) => String(w.id) === String(wordId)) || null;
   }, [state, wordId]);
 
   if (state.status === "loading" || state.status === "idle") {

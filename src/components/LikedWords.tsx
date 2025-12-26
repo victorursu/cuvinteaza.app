@@ -10,15 +10,7 @@ import {
 import { supabase, isSupabaseConfigured } from "../lib/supabase";
 import type { Session } from "@supabase/supabase-js";
 import type { VocabularyWord } from "../types";
-import { fetchVocabulary, parseVocabulary } from "../api/vocabulary";
-import {
-  VOCABULARY_URL,
-  REGIONALISME_URL,
-  URBANISME_URL,
-} from "../config";
-import fallbackVocabulary from "../data/fallbackVocabulary.ro.json";
-import fallbackRegionalisme from "../data/fallbackRegionalisme.ro.json";
-import fallbackUrbanisme from "../data/fallbackUrbanisme.ro.json";
+import { fetchWordByIdFromSupabase } from "../api/supabase-words";
 import { useTheme } from "../theme/theme";
 import { TrashIcon } from "./icons/TrashIcon";
 import { HeartIcon } from "./icons/HeartIcon";
@@ -86,59 +78,24 @@ export function LikedWords({
           wordIdToDate.set(row.word_id, row.created_at);
         });
 
-        const likedWordIds = new Set(likesData.map((row) => row.word_id));
+        const likedWordIds = Array.from(new Set(likesData.map((row) => row.word_id)));
 
-        // Fetch all vocabulary from all sources
+        // Fetch words directly from Supabase using their IDs
         const allWords: VocabularyWord[] = [];
-
-        // Fetch from cuvinte (vocabulary)
-        try {
-          const words = await fetchVocabulary(VOCABULARY_URL);
-          allWords.push(...words);
-        } catch (e) {
+        
+        for (const wordId of likedWordIds) {
           try {
-            const localWords = parseVocabulary(
-              fallbackVocabulary as unknown
-            );
-            allWords.push(...localWords);
+            const word = await fetchWordByIdFromSupabase(wordId);
+            if (word) {
+              allWords.push(word);
+            }
           } catch (err) {
-            console.error("Failed to load vocabulary:", err);
-          }
-        }
-
-        // Fetch from regionalisme
-        try {
-          const words = await fetchVocabulary(REGIONALISME_URL);
-          allWords.push(...words);
-        } catch (e) {
-          try {
-            const localWords = parseVocabulary(
-              fallbackRegionalisme as unknown
-            );
-            allWords.push(...localWords);
-          } catch (err) {
-            console.error("Failed to load regionalisme:", err);
-          }
-        }
-
-        // Fetch from urbanisme
-        try {
-          const words = await fetchVocabulary(URBANISME_URL);
-          allWords.push(...words);
-        } catch (e) {
-          try {
-            const localWords = parseVocabulary(
-              fallbackUrbanisme as unknown
-            );
-            allWords.push(...localWords);
-          } catch (err) {
-            console.error("Failed to load urbanisme:", err);
+            console.error(`Failed to load word ${wordId}:`, err);
           }
         }
 
         // Match liked word IDs with full word data and add created_at
         const matchedWords: LikedWordWithDate[] = allWords
-          .filter((word) => likedWordIds.has(word.id))
           .map((word) => ({
             ...word,
             created_at: wordIdToDate.get(word.id) || new Date().toISOString(),

@@ -57,24 +57,34 @@ export async function fetchTopLikedWords(limit: number = 5): Promise<Array<{ wor
         
         const { data: wordData, error: wordError } = await supabase
           .from("cuvinteziCuvinte")
-          .select("id, title, grammar_block, definition, image, tags, examples")
+          .select(`
+            id, 
+            title, 
+            grammar_block, 
+            definition, 
+            image, 
+            examples,
+            cuvinteziCuvinteTags (
+              cuvinteziTags (
+                label
+              )
+            )
+          `)
           .eq("id", wordId)
           .single();
 
         if (!wordError && wordData) {
-          let tags: string[] = [];
-          let examples: string[] = [];
-
-          if (Array.isArray(wordData.tags)) {
-            tags = wordData.tags;
-          } else if (typeof wordData.tags === "string") {
-            try {
-              tags = JSON.parse(wordData.tags);
-            } catch {
-              tags = [];
-            }
+          // Extract tags from junction table
+          const tags: string[] = [];
+          if ((wordData as any).cuvinteziCuvinteTags && Array.isArray((wordData as any).cuvinteziCuvinteTags)) {
+            (wordData as any).cuvinteziCuvinteTags.forEach((junction: any) => {
+              if (junction.cuvinteziTags && junction.cuvinteziTags.label) {
+                tags.push(junction.cuvinteziTags.label);
+              }
+            });
           }
-
+          
+          let examples: string[] = [];
           if (Array.isArray(wordData.examples)) {
             examples = wordData.examples;
           } else if (typeof wordData.examples === "string") {
@@ -87,7 +97,7 @@ export async function fetchTopLikedWords(limit: number = 5): Promise<Array<{ wor
 
           topWords.push({
             word: {
-              id: wordData.id,
+              id: String(wordData.id), // Convert BIGINT to string
               title: wordData.title,
               grammar_block: wordData.grammar_block || "",
               definition: wordData.definition,
@@ -124,24 +134,34 @@ export async function fetchTopLikedWords(limit: number = 5): Promise<Array<{ wor
       
       const { data: wordData, error: wordError } = await supabase
         .from("cuvinteziCuvinte")
-        .select("id, title, grammar_block, definition, image, tags, examples")
+        .select(`
+          id, 
+          title, 
+          grammar_block, 
+          definition, 
+          image, 
+          examples,
+          cuvinteziCuvinteTags (
+            cuvinteziTags (
+              label
+            )
+          )
+        `)
         .eq("id", wordId)
         .single();
 
       if (!wordError && wordData) {
-        let tags: string[] = [];
-        let examples: string[] = [];
-
-        if (Array.isArray(wordData.tags)) {
-          tags = wordData.tags;
-        } else if (typeof wordData.tags === "string") {
-          try {
-            tags = JSON.parse(wordData.tags);
-          } catch {
-            tags = [];
-          }
+        // Extract tags from junction table
+        const tags: string[] = [];
+        if ((wordData as any).cuvinteziCuvinteTags && Array.isArray((wordData as any).cuvinteziCuvinteTags)) {
+          (wordData as any).cuvinteziCuvinteTags.forEach((junction: any) => {
+            if (junction.cuvinteziTags && junction.cuvinteziTags.label) {
+              tags.push(junction.cuvinteziTags.label);
+            }
+          });
         }
-
+        
+        let examples: string[] = [];
         if (Array.isArray(wordData.examples)) {
           examples = wordData.examples;
         } else if (typeof wordData.examples === "string") {
@@ -154,7 +174,7 @@ export async function fetchTopLikedWords(limit: number = 5): Promise<Array<{ wor
 
         topWords.push({
           word: {
-            id: wordData.id,
+            id: String(wordData.id), // Convert BIGINT to string
             title: wordData.title,
             grammar_block: wordData.grammar_block || "",
             definition: wordData.definition,
@@ -212,7 +232,14 @@ export async function fetchStatistics(): Promise<Statistics> {
         .select("id", { count: "exact", head: true }),
       supabase
         .from("cuvinteziCuvinte")
-        .select("tags"),
+        .select(`
+          id,
+          cuvinteziCuvinteTags (
+            cuvinteziTags (
+              label
+            )
+          )
+        `),
     ]);
 
     const activeUsers = activeUsersResult.count || 0;
@@ -238,37 +265,23 @@ export async function fetchStatistics(): Promise<Statistics> {
     }
     const totalWords = totalWordsResult.count || 0;
 
-    // Count distinct tags
+    // Count distinct tags and categorize words
     const allTags = new Set<string>();
-    allWordsResult.data?.forEach((word) => {
-      let tags: string[] = [];
-      if (Array.isArray(word.tags)) {
-        tags = word.tags;
-      } else if (typeof word.tags === "string") {
-        try {
-          tags = JSON.parse(word.tags);
-        } catch {
-          // Ignore parse errors
-        }
-      }
-      tags.forEach((tag) => allTags.add(tag.toLowerCase()));
-    });
-
-    // Count regionalisme and urbanisme words
     let regionalismeWords = 0;
     let urbanismeWords = 0;
 
-    allWordsResult.data?.forEach((word) => {
-      let tags: string[] = [];
-      if (Array.isArray(word.tags)) {
-        tags = word.tags;
-      } else if (typeof word.tags === "string") {
-        try {
-          tags = JSON.parse(word.tags);
-        } catch {
-          // Ignore parse errors
-        }
+    allWordsResult.data?.forEach((word: any) => {
+      // Extract tags from junction table
+      const tags: string[] = [];
+      if (word.cuvinteziCuvinteTags && Array.isArray(word.cuvinteziCuvinteTags)) {
+        word.cuvinteziCuvinteTags.forEach((junction: any) => {
+          if (junction.cuvinteziTags && junction.cuvinteziTags.label) {
+            tags.push(junction.cuvinteziTags.label);
+          }
+        });
       }
+
+      tags.forEach((tag) => allTags.add(tag.toLowerCase()));
 
       const lowerTags = tags.map((t) => t.toLowerCase());
       if (
