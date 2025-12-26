@@ -25,99 +25,21 @@ export async function fetchTopLikedWords(limit: number = 5): Promise<Array<{ wor
       .rpc("get_top_liked_words", { limit_count: limit });
 
     if (likesError) {
-      console.error("Error fetching top liked words:", likesError);
-      // Fallback to old method if function doesn't exist
-      console.log("Falling back to manual count method...");
-      const { data: fallbackData, error: fallbackError } = await supabase
-        .from("cuvinteziLikes")
-        .select("word_id");
+      console.error("Error fetching top liked words from RPC:", likesError);
+      console.error("Error details:", JSON.stringify(likesError, null, 2));
+      // Don't use fallback - RLS will filter to only current user's likes
+      // Instead, return empty array and log the error
+      return [];
 
-      if (fallbackError) {
-        console.error("Error fetching likes (fallback):", fallbackError);
-        return [];
-      }
-
-      // Count likes per word
-      const wordLikeCounts = new Map<string, number>();
-      fallbackData?.forEach((like) => {
-        const count = wordLikeCounts.get(like.word_id) || 0;
-        wordLikeCounts.set(like.word_id, count + 1);
-      });
-
-      // Sort by like count and get top N
-      const sortedWords = Array.from(wordLikeCounts.entries())
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, limit);
-
-      // Continue with existing logic below
-      const topWords: Array<{ word: VocabularyWord; likes: number; rank: number }> = [];
-      
-      for (let i = 0; i < sortedWords.length; i++) {
-        const [wordId, likes] = sortedWords[i];
-        
-        const { data: wordData, error: wordError } = await supabase
-          .from("cuvinteziCuvinte")
-          .select(`
-            id, 
-            title, 
-            grammar_block, 
-            definition, 
-            image, 
-            examples,
-            cuvinteziCuvinteTags (
-              cuvinteziTags (
-                label
-              )
-            )
-          `)
-          .eq("id", wordId)
-          .single();
-
-        if (!wordError && wordData) {
-          // Extract tags from junction table
-          const tags: string[] = [];
-          if ((wordData as any).cuvinteziCuvinteTags && Array.isArray((wordData as any).cuvinteziCuvinteTags)) {
-            (wordData as any).cuvinteziCuvinteTags.forEach((junction: any) => {
-              if (junction.cuvinteziTags && junction.cuvinteziTags.label) {
-                tags.push(junction.cuvinteziTags.label);
-              }
-            });
-          }
-          
-          let examples: string[] = [];
-          if (Array.isArray(wordData.examples)) {
-            examples = wordData.examples;
-          } else if (typeof wordData.examples === "string") {
-            try {
-              examples = JSON.parse(wordData.examples);
-            } catch {
-              examples = [];
-            }
-          }
-
-          topWords.push({
-            word: {
-              id: String(wordData.id), // Convert BIGINT to string
-              title: wordData.title,
-              grammar_block: wordData.grammar_block || "",
-              definition: wordData.definition,
-              image: wordData.image || "",
-              tags,
-              examples,
-            } as VocabularyWord,
-            likes,
-            rank: i + 1,
-          });
-        }
-      }
-
-      return topWords;
     }
 
     if (!likesData || likesData.length === 0) {
+      console.log("[fetchTopLikedWords] No likes data returned from RPC function");
       return [];
     }
 
+    console.log(`[fetchTopLikedWords] RPC function returned ${likesData.length} words`);
+    
     // Sort by like count and get top N (already sorted by function, but ensure order)
     const sortedWords = likesData
       .sort((a, b) => b.like_count - a.like_count)
@@ -128,9 +50,16 @@ export async function fetchTopLikedWords(limit: number = 5): Promise<Array<{ wor
     
     for (let i = 0; i < sortedWords.length; i++) {
       const item = sortedWords[i];
+      // Handle both TEXT and BIGINT word_id from function result
       const wordId = item.word_id;
       const likes = Number(item.like_count);
       const rank = item.rank_number || i + 1;
+      
+      console.log(`[fetchTopLikedWords] Fetching word ${i + 1}/${sortedWords.length}: word_id=${wordId} (type: ${typeof wordId}), likes=${likes}`);
+      
+      // Convert wordId to string for query
+      // If word_id is BIGINT, convert to string; if it's already a string, use as-is
+      const wordIdString = String(wordId);
       
       const { data: wordData, error: wordError } = await supabase
         .from("cuvinteziCuvinte")
@@ -147,10 +76,21 @@ export async function fetchTopLikedWords(limit: number = 5): Promise<Array<{ wor
             )
           )
         `)
-        .eq("id", wordId)
+        .eq("id", wordIdString)
         .single();
 
-      if (!wordError && wordData) {
+      if (wordError) {
+        console.error(`[fetchTopLikedWords] Error fetching word ${wordId}:`, wordError);
+        console.error(`[fetchTopLikedWords] Word ID type: ${typeof wordId}, value: ${wordId}`);
+        continue; // Skip this word and continue with next
+      }
+
+      if (!wordData) {
+        console.warn(`[fetchTopLikedWords] No word data returned for word_id: ${wordId}`);
+        continue;
+      }
+
+      if (wordData) {
         // Extract tags from junction table
         const tags: string[] = [];
         if ((wordData as any).cuvinteziCuvinteTags && Array.isArray((wordData as any).cuvinteziCuvinteTags)) {

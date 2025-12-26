@@ -2,6 +2,9 @@
 -- This function bypasses RLS issues by running with SECURITY DEFINER
 -- and ensures we get accurate counts for all users
 
+-- Drop the function if it exists (in case return type changed)
+DROP FUNCTION IF EXISTS public.get_top_liked_words(INTEGER);
+
 CREATE OR REPLACE FUNCTION public.get_top_liked_words(limit_count INTEGER DEFAULT 5)
 RETURNS TABLE (
   word_id BIGINT,
