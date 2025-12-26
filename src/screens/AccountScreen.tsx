@@ -445,22 +445,34 @@ export function AccountScreen({
 
     setLoginError(null);
 
-    if (!email || !password) {
-      setLoginError("Te rugăm să completezi toate câmpurile obligatorii.");
+    // Validate all mandatory fields
+    if (authMode === "register") {
+      if (!fullName.trim() || !email.trim() || !password || !confirmPassword) {
+        setLoginError("Toate câmpurile sunt obligatorii");
+        return;
+      }
+    } else {
+      if (!email.trim() || !password) {
+        setLoginError("Toate câmpurile sunt obligatorii");
+        return;
+      }
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      setLoginError("Formatul email-ului este incorect");
       return;
     }
 
+    // Validate passwords match (for registration)
     if (authMode === "register") {
-      if (!fullName.trim()) {
-        Alert.alert("Eroare", "Te rugăm să introduci numele complet.");
-        return;
-      }
       if (password !== confirmPassword) {
-        Alert.alert("Eroare", "Parolele nu se potrivesc.");
+        setLoginError("Parolele nu se potrivesc");
         return;
       }
       if (password.length < 6) {
-        Alert.alert("Eroare", "Parola trebuie să aibă cel puțin 6 caractere.");
+        setLoginError("Parola trebuie să aibă cel puțin 6 caractere.");
         return;
       }
     }
@@ -477,7 +489,11 @@ export function AccountScreen({
             },
           },
         });
-        if (error) throw error;
+        if (error) {
+          setLoginError(error.message || "A apărut o eroare la înregistrare.");
+          setAuthLoading(false);
+          return;
+        }
         // Show email verification state
         setVerificationEmail(email);
         setEmailVerificationSent(true);
@@ -486,6 +502,7 @@ export function AccountScreen({
         setPassword("");
         setConfirmPassword("");
         setFullName("");
+        setLoginError(null);
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
@@ -493,6 +510,7 @@ export function AccountScreen({
         });
         if (error) {
           setLoginError(error.message || "Email sau parolă incorectă.");
+          setAuthLoading(false);
           return;
         }
         // Clear form and error on success
@@ -990,8 +1008,9 @@ export function AccountScreen({
           </View>
         </View>
 
-      <View style={[styles.card, { backgroundColor: theme.colors.tabBarBg, borderColor: theme.colors.border }]}>
-        {showForgotPassword ? (
+      {!emailVerificationSent && (
+        <View style={[styles.card, { backgroundColor: theme.colors.tabBarBg, borderColor: theme.colors.border }]}>
+          {showForgotPassword ? (
           <>
             {resetEmailSent ? (
               <>
@@ -1063,8 +1082,7 @@ export function AccountScreen({
                   <Pressable
                     style={[
                       styles.button,
-                      styles.primaryButton,
-                      { backgroundColor: theme.colors.iconActive, flex: 1, marginLeft: 12 },
+                      { backgroundColor: theme.colors.iconActive, flex: 1 },
                       authLoading && styles.buttonDisabled,
                     ]}
                     onPress={handlePasswordReset}
@@ -1082,7 +1100,7 @@ export function AccountScreen({
               </>
             )}
           </>
-        ) : (
+        ) : !emailVerificationSent ? (
           <>
             {authMode === "register" && (
               <TextInput
@@ -1094,10 +1112,13 @@ export function AccountScreen({
                     borderColor: theme.colors.border,
                   },
                 ]}
-                placeholder="Nume complet"
+                placeholder="Numele tău"
                 placeholderTextColor={theme.colors.textSecondary}
                 value={fullName}
-                onChangeText={setFullName}
+                onChangeText={(text) => {
+                  setFullName(text);
+                  setLoginError(null);
+                }}
                 autoCapitalize="words"
                 autoComplete="name"
                 editable={!authLoading}
@@ -1161,7 +1182,10 @@ export function AccountScreen({
                 placeholder="Confirmă parola"
                 placeholderTextColor={theme.colors.textSecondary}
                 value={confirmPassword}
-                onChangeText={setConfirmPassword}
+                onChangeText={(text) => {
+                  setConfirmPassword(text);
+                  setLoginError(null);
+                }}
                 secureTextEntry
                 autoCapitalize="none"
                 autoComplete="password-new"
@@ -1169,7 +1193,7 @@ export function AccountScreen({
               />
             )}
 
-            {authMode === "login" && loginError && (
+            {loginError && (
               <View style={styles.errorBox}>
                 <Text style={[styles.errorText, { color: "#FFB4B4" }]}>{loginError}</Text>
               </View>
@@ -1208,8 +1232,9 @@ export function AccountScreen({
               )}
             </Pressable>
           </>
-        )}
-      </View>
+        ) : null}
+        </View>
+      )}
 
       {/* Benefits section - only shown in login mode */}
       {authMode === "login" && (
@@ -1599,6 +1624,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 12,
     marginTop: 8,
+    alignItems: "center",
   },
   resetEmailSentTitle: {
     fontSize: 20,
