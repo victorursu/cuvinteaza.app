@@ -17,6 +17,7 @@ import { useTheme } from "../theme/theme";
 import { ThemeIcon } from "../components/icons/ThemeIcon";
 import { HeartIcon } from "../components/icons/HeartIcon";
 import { ShareIcon } from "../components/icons/ShareIcon";
+import { SearchIcon } from "../components/icons/SearchIcon";
 import { InlineRichText } from "../components/InlineRichText";
 import { useLikes } from "../hooks/useLikes";
 import { shareWord } from "../utils/shareWord";
@@ -33,7 +34,11 @@ type LoadState =
   | { status: "ready"; data: VocabularyWord[]; source: "remote" | "local"; error?: undefined }
   | { status: "error"; data: VocabularyWord[]; source?: "remote" | "local"; error: string };
 
-export function VocabularyScreen() {
+export function VocabularyScreen({
+  onNavigateToSearch,
+}: {
+  onNavigateToSearch?: () => void;
+} = {}) {
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const { theme, toggle } = useTheme();
@@ -144,6 +149,19 @@ export function VocabularyScreen() {
             </Text>
           </View>
           <View style={styles.headerActions}>
+            {onNavigateToSearch && (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Search"
+                style={[
+                  styles.iconBtn,
+                  { backgroundColor: theme.colors.headerIconBg },
+                ]}
+                onPress={onNavigateToSearch}
+              >
+                <SearchIcon size={22} color={theme.colors.iconActive} />
+              </Pressable>
+            )}
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Theme"
@@ -178,6 +196,7 @@ export function VocabularyScreen() {
     theme.colors.iconActive,
     theme.mode,
     toggle,
+    onNavigateToSearch,
   ]);
 
   const isInitialLoading = state.status === "loading" && state.data.length === 0;

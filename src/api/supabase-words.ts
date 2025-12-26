@@ -6,6 +6,31 @@ import type { VocabularyWord } from "../types";
  * @param wordIds - Array of word IDs to fetch tags for
  * @returns Map of wordId to array of tag labels
  */
+/**
+ * Get total count of words in the vocabulary database
+ */
+export async function getTotalWordCount(): Promise<number> {
+  if (!isSupabaseConfigured || !supabase) {
+    return 0;
+  }
+
+  try {
+    const { count, error } = await supabase
+      .from("cuvinteziCuvinte")
+      .select("id", { count: "exact", head: true });
+
+    if (error) {
+      console.error("Error getting total word count:", error);
+      return 0;
+    }
+
+    return count || 0;
+  } catch (error) {
+    console.error("Failed to get total word count:", error);
+    return 0;
+  }
+}
+
 async function fetchTagsForWords(wordIds: (string | number)[]): Promise<Map<string | number, string[]>> {
   const tagsMap = new Map<string | number, string[]>();
   
@@ -604,7 +629,27 @@ export async function fetchAllWordsFromSupabase(
 }
 
 /**
- * Search for words in Supabase by title (partial match, case-insensitive)
+ * Normalize Romanian diacritics to ASCII equivalents for search
+ * Converts: ăâîșțĂÂÎȘȚ -> aaisAIS
+ */
+function normalizeDiacritics(text: string): string {
+  return text
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // Remove combining diacritical marks
+    .replace(/ă/g, "a")
+    .replace(/â/g, "a")
+    .replace(/î/g, "i")
+    .replace(/ș/g, "s")
+    .replace(/ț/g, "t")
+    .replace(/Ă/g, "A")
+    .replace(/Â/g, "A")
+    .replace(/Î/g, "I")
+    .replace(/Ș/g, "S")
+    .replace(/Ț/g, "T");
+}
+
+/**
+ * Search for words in Supabase by title (partial match, case-insensitive, diacritic-insensitive)
  * @param searchTerm - The search term to match against word titles
  * @param limit - Maximum number of results to return (default: 50)
  * @param offset - Number of results to skip (for pagination, default: 0)
@@ -619,13 +664,18 @@ export async function searchWordsFromSupabase(
     throw new Error("Supabase is not configured");
   }
 
+  // If search term is empty, return all words
   if (!searchTerm || searchTerm.trim().length === 0) {
-    return [];
+    return fetchAllWordsFromSupabase(limit, offset);
   }
 
   try {
-      // Use ilike for case-insensitive partial matching
-      // Supabase range is inclusive on both ends: range(from, to)
+      // Normalize the search term to match against the slug field (which is already normalized)
+      const normalizedSearchTerm = normalizeDiacritics(searchTerm.trim().toLowerCase());
+      
+      // Search using the slug field which is already normalized (diacritic-insensitive)
+      // Also search the title field for exact matches
+      // Use or() to match either slug or title
       const { data, error } = await supabase
         .from("cuvinteziCuvinte")
         .select(`
@@ -635,13 +685,14 @@ export async function searchWordsFromSupabase(
           definition, 
           image, 
           examples,
+          slug,
           cuvinteziCuvinteTags (
             cuvinteziTags (
               label
             )
           )
         `)
-        .ilike("title", `%${searchTerm.trim()}%`)
+        .or(`slug.ilike.%${normalizedSearchTerm}%,title.ilike.%${searchTerm.trim()}%`)
         .order("title", { ascending: true })
         .range(offset, offset + limit - 1);
 

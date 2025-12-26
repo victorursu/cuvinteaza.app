@@ -424,7 +424,7 @@ function AppInner() {
         return <StatisticsScreen onNavigateToWord={setViewingWordId} />;
       case "cuvinte":
       default:
-        return <VocabularyScreen />;
+        return <VocabularyScreen onNavigateToSearch={() => setTab("cautare")} />;
     }
   }, [tab, viewingWordId]);
 

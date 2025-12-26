@@ -12,7 +12,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "../theme/theme";
 import { ThemeIcon } from "../components/icons/ThemeIcon";
-import { searchWordsFromSupabase, fetchAllWordsFromSupabase } from "../api/supabase-words";
+import { searchWordsFromSupabase, fetchAllWordsFromSupabase, getTotalWordCount } from "../api/supabase-words";
 import type { VocabularyWord } from "../types";
 import { WordCard } from "./DictionaryScreen";
 import { fetchDailyWordDates } from "../api/supabase-words";
@@ -37,6 +37,25 @@ export function SearchScreen({
   const [hasMore, setHasMore] = useState(false);
   const [currentSearchTerm, setCurrentSearchTerm] = useState("");
   const [isSearchMode, setIsSearchMode] = useState(false);
+  const [totalWords, setTotalWords] = useState<number | null>(null);
+
+  // Load total word count on mount
+  useEffect(() => {
+    const loadTotalCount = async () => {
+      if (!isSupabaseConfigured) {
+        return;
+      }
+
+      try {
+        const count = await getTotalWordCount();
+        setTotalWords(count);
+      } catch (error) {
+        console.error("Error loading total word count:", error);
+      }
+    };
+
+    void loadTotalCount();
+  }, []);
 
   // Load all words on mount
   useEffect(() => {
@@ -72,7 +91,7 @@ export function SearchScreen({
   }, []);
 
   const handleSearch = useCallback(async () => {
-    if (!searchTerm.trim() || !isSupabaseConfigured) {
+    if (!isSupabaseConfigured) {
       setResults([]);
       setHasMore(false);
       setCurrentSearchTerm("");
@@ -82,9 +101,11 @@ export function SearchScreen({
     setLoading(true);
     const trimmedTerm = searchTerm.trim();
     setCurrentSearchTerm(trimmedTerm);
-    setIsSearchMode(true);
+    // If search term is empty, treat it as "show all" (not search mode)
+    setIsSearchMode(trimmedTerm.length > 0);
     try {
       // Initially load 10 words
+      // If search term is empty, searchWordsFromSupabase will return all words
       const words = await searchWordsFromSupabase(trimmedTerm, 10);
       setResults(words);
       setHasMore(words.length === 10); // If we got 10, there might be more
@@ -163,9 +184,15 @@ export function SearchScreen({
     >
       <View style={styles.header}>
         <View style={styles.headerRow}>
-          <Text style={[styles.title, { color: theme.colors.textPrimary }]}>
-            Căutare
-          </Text>
+          <View style={styles.headerLeft}>
+            <Text style={[styles.title, { color: theme.colors.textPrimary }]}>
+              Căutare
+            </Text>
+            <Text style={[styles.subtitle, { color: theme.colors.textSecondary }]}>
+              {totalWords !== null && `Cuvinte în vocabular: ${totalWords}`}
+              {isSearchMode && currentSearchTerm && ` · Rezultate căutare: ${results.length}`}
+            </Text>
+          </View>
           <View style={styles.headerActions}>
             <Pressable
               accessibilityRole="button"
@@ -359,10 +386,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
   },
+  headerLeft: {
+    flex: 1,
+    gap: 4,
+  },
   title: {
     fontSize: 28,
     fontWeight: "900",
-    flex: 1,
+  },
+  subtitle: {
+    fontSize: 12,
   },
   headerActions: {
     flexDirection: "row",
