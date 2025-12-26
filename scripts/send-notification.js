@@ -42,6 +42,16 @@ if (!token || !wordId) {
 // Supabase configuration
 const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+// Use service role key if available for inserting notifications (bypasses RLS)
+// If not set, falls back to anon key (requires proper RLS policy)
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+
+if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  console.log('✅ Using service role key (RLS bypassed)');
+} else {
+  console.log('⚠️  Using anon key (RLS policy must allow inserts)');
+  console.log('   Consider setting SUPABASE_SERVICE_ROLE_KEY in .env for better security');
+}
 
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   console.error('❌ Error: Supabase credentials not found in environment variables');
@@ -109,6 +119,107 @@ function fetchWordFromSupabase(wordId) {
   });
 }
 
+// Function to find user_id from push token
+function findUserIdFromToken(token) {
+  return new Promise((resolve) => {
+    const supabaseUrl = new URL(SUPABASE_URL);
+    const path = `/rest/v1/cuvinteziPushTokens`;
+    const queryString = `token=eq.${encodeURIComponent(token)}&select=user_id&limit=1`;
+    
+    const options = {
+      hostname: supabaseUrl.hostname,
+      path: `${path}?${queryString}`,
+      method: 'GET',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json',
+      },
+    };
+
+    const req = https.request(options, (res) => {
+      let data = '';
+
+      res.on('data', (chunk) => {
+        data += chunk;
+      });
+
+      res.on('end', () => {
+        try {
+          if (res.statusCode === 200) {
+            const tokens = JSON.parse(data);
+            if (tokens && tokens.length > 0 && tokens[0].user_id) {
+              resolve(tokens[0].user_id);
+            } else {
+              resolve(null);
+            }
+          } else {
+            resolve(null);
+          }
+        } catch (e) {
+          resolve(null);
+        }
+      });
+    });
+
+    req.on('error', () => {
+      resolve(null);
+    });
+
+    req.end();
+  });
+}
+
+// Function to save notification to Supabase
+function saveNotificationToSupabase(notificationData) {
+  return new Promise((resolve, reject) => {
+    const supabaseUrl = new URL(SUPABASE_URL);
+    const path = `/rest/v1/cuvinteziNotifications`;
+    
+    const postData = JSON.stringify(notificationData);
+    
+    const options = {
+      hostname: supabaseUrl.hostname,
+      path: path,
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_SERVICE_KEY,
+        'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(postData),
+        'Prefer': 'return=representation',
+      },
+    };
+
+    const req = https.request(options, (res) => {
+      let data = '';
+
+      res.on('data', (chunk) => {
+        data += chunk;
+      });
+
+      res.on('end', () => {
+        try {
+          if (res.statusCode === 201 || res.statusCode === 200) {
+            resolve(JSON.parse(data));
+          } else {
+            reject(new Error(`Failed to save notification: ${res.statusCode} - ${data}`));
+          }
+        } catch (e) {
+          reject(new Error(`Failed to parse response: ${e.message}`));
+        }
+      });
+    });
+
+    req.on('error', (e) => {
+      reject(new Error(`Request error: ${e.message}`));
+    });
+
+    req.write(postData);
+    req.end();
+  });
+}
+
 // Function to send notification
 function sendNotification(token, title, body, wordId) {
   return new Promise((resolve, reject) => {
@@ -148,7 +259,16 @@ function sendNotification(token, title, body, wordId) {
       res.on('end', () => {
         try {
           const result = JSON.parse(data);
-          if (result.data && result.data.status === 'ok') {
+          // Expo API returns an array of results in result.data
+          if (result.data && Array.isArray(result.data) && result.data.length > 0) {
+            const firstResult = result.data[0];
+            if (firstResult.status === 'ok') {
+              resolve(result);
+            } else {
+              reject(new Error(`Failed to send notification: ${JSON.stringify(result)}`));
+            }
+          } else if (result.data && result.data.status === 'ok') {
+            // Handle non-array response format (shouldn't happen, but just in case)
             resolve(result);
           } else {
             reject(new Error(`Failed to send notification: ${JSON.stringify(result)}`));
@@ -182,14 +302,37 @@ function sendNotification(token, title, body, wordId) {
       : word.title;
     const body = `${firstLine}\n${word.definition || ''}`;
     
+    // Find user_id from token (if exists)
+    console.log(`🔍 Looking up user for token...`);
+    const userId = await findUserIdFromToken(token);
+    
     console.log(`📤 Sending notification...`);
     const result = await sendNotification(token, title, body, word.id);
     
-    console.log('✅ Notification sent successfully!');
-    console.log('Ticket ID:', result.data.id);
-    console.log(`\nNotification preview:`);
-    console.log(`Title: ${title}`);
-    console.log(`Body:\n${body}`);
+    // Handle array response from Expo API
+    const notificationResult = Array.isArray(result.data) ? result.data[0] : result.data;
+    const ticketId = notificationResult.id;
+    
+    // Save notification to database
+    console.log(`💾 Saving notification to database...`);
+    const notificationData = {
+      word_id: word.id,
+      word_title: word.title,
+      token: token,
+      user_id: userId || null,
+      sent_at: new Date().toISOString(),
+      notification_title: title,
+      notification_body: body,
+      ticket_id: ticketId,
+    };
+    
+    await saveNotificationToSupabase(notificationData);
+    
+    console.log('✅ Notification sent and saved successfully!');
+    console.log(`Ticket ID: ${ticketId}`);
+    if (userId) {
+      console.log(`User ID: ${userId}`);
+    }
   } catch (error) {
     console.error('❌ Error:', error.message);
     process.exit(1);
