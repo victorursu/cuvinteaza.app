@@ -7,7 +7,10 @@
  *   node scripts/import-words-from-csv.js <CSV_FILE_PATH>
  * 
  * CSV format (with header row):
- *   title,grammar_block,description
+ *   title,grammar_block,description,tags
+ * 
+ * Tags column is optional. If provided, tags should match existing tags in cuvinteziTags table (case-insensitive).
+ * Multiple tags can be separated by commas.
  * 
  * Example:
  *   node scripts/import-words-from-csv.js words.csv
@@ -92,13 +95,14 @@ function parseCSV(filePath) {
   const hasAllHeaders = expectedHeaders.every(h => headerLower.includes(h));
   
   if (!hasAllHeaders) {
-    throw new Error(`CSV must have columns: ${expectedHeaders.join(', ')}`);
+    throw new Error(`CSV must have columns: ${expectedHeaders.join(', ')} (tags is optional)`);
   }
   
   // Find column indices
   const titleIdx = headerLower.indexOf('title');
   const grammarIdx = headerLower.indexOf('grammar_block');
   const descIdx = headerLower.indexOf('description');
+  const tagsIdx = headerLower.indexOf('tags'); // Optional column
   
   // Parse data rows
   const words = [];
@@ -128,18 +132,122 @@ function parseCSV(filePath) {
       const title = values[titleIdx]?.replace(/^"|"$/g, '') || '';
       const grammar_block = values[grammarIdx]?.replace(/^"|"$/g, '') || '';
       const description = values[descIdx]?.replace(/^"|"$/g, '') || '';
+      const tags = tagsIdx >= 0 ? (values[tagsIdx]?.replace(/^"|"$/g, '') || '').trim() : '';
       
       if (title && description) {
+        // Parse tags (can be comma-separated or single value)
+        const tagList = tags 
+          ? tags.split(',').map(t => t.trim()).filter(t => t.length > 0)
+          : [];
+        
         words.push({
           title: title.trim(),
           grammar_block: grammar_block.trim(),
           description: description.trim(),
+          tags: tagList,
         });
       }
     }
   }
   
   return words;
+}
+
+/**
+ * Find existing tags by label (case-insensitive)
+ * Returns a map of tag label (lowercase) to tag id
+ */
+async function findExistingTags(tagLabels) {
+  if (!tagLabels || tagLabels.length === 0) {
+    return new Map();
+  }
+  
+  try {
+    // Fetch all tags and match case-insensitively
+    const { data: allTags, error } = await supabase
+      .from('cuvinteziTags')
+      .select('id, label, slug');
+    
+    if (error) {
+      console.warn(`⚠️  Error fetching tags: ${error.message}`);
+      return new Map();
+    }
+    
+    if (!allTags || allTags.length === 0) {
+      return new Map();
+    }
+    
+    // Create a map of lowercase label to tag id
+    const tagMap = new Map();
+    const tagLabelsLower = tagLabels.map(t => t.toLowerCase());
+    
+    allTags.forEach(tag => {
+      const tagLabelLower = tag.label.toLowerCase();
+      if (tagLabelsLower.includes(tagLabelLower)) {
+        tagMap.set(tagLabelLower, tag.id);
+      }
+    });
+    
+    return tagMap;
+  } catch (error) {
+    console.warn(`⚠️  Error finding tags: ${error.message}`);
+    return new Map();
+  }
+}
+
+/**
+ * Create tag relationships for a word
+ */
+async function createTagRelationships(wordId, tagLabels) {
+  if (!tagLabels || tagLabels.length === 0) {
+    return { created: 0, skipped: 0 };
+  }
+  
+  try {
+    // Find existing tags
+    const existingTags = await findExistingTags(tagLabels);
+    
+    if (existingTags.size === 0) {
+      console.log(`   ⚠️  No matching tags found for: ${tagLabels.join(', ')}`);
+      return { created: 0, skipped: tagLabels.length };
+    }
+    
+    // Create relationships for matching tags
+    const relationships = [];
+    const matchedLabels = [];
+    
+    tagLabels.forEach(tagLabel => {
+      const tagLabelLower = tagLabel.toLowerCase();
+      const tagId = existingTags.get(tagLabelLower);
+      if (tagId) {
+        relationships.push({
+          word_id: wordId,
+          tag_id: tagId,
+        });
+        matchedLabels.push(tagLabel);
+      }
+    });
+    
+    if (relationships.length === 0) {
+      return { created: 0, skipped: tagLabels.length };
+    }
+    
+    // Insert relationships (using ON CONFLICT to handle duplicates)
+    const { error } = await supabase
+      .from('cuvinteziCuvinteTags')
+      .upsert(relationships, { onConflict: 'word_id,tag_id' });
+    
+    if (error) {
+      console.warn(`   ⚠️  Error creating tag relationships: ${error.message}`);
+      return { created: 0, skipped: tagLabels.length };
+    }
+    
+    const skipped = tagLabels.length - relationships.length;
+    return { created: relationships.length, skipped };
+  } catch (error) {
+    console.warn(`   ⚠️  Error creating tag relationships: ${error.message}`);
+    return { created: 0, skipped: tagLabels.length };
+  }
 }
 
 /**
@@ -242,7 +350,20 @@ async function importWords(words) {
           throw error;
         }
       } else {
-        console.log(`✅ [${i + 1}/${words.length}] Imported: "${word.title}" (slug: ${data[0]?.slug || slug})`);
+        const wordId = data[0]?.id;
+        console.log(`✅ [${i + 1}/${words.length}] Imported: "${word.title}" (ID: ${wordId}, slug: ${data[0]?.slug || slug})`);
+        
+        // Create tag relationships if tags are provided
+        if (word.tags && word.tags.length > 0) {
+          const tagResult = await createTagRelationships(wordId, word.tags);
+          if (tagResult.created > 0) {
+            console.log(`   📌 Created ${tagResult.created} tag relationship(s)`);
+          }
+          if (tagResult.skipped > 0) {
+            console.log(`   ⚠️  Skipped ${tagResult.skipped} tag(s) (not found in database)`);
+          }
+        }
+        
         successCount++;
       }
     } catch (error) {
