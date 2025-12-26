@@ -661,6 +661,24 @@ function QuestionCard({
   const [contentH, setContentH] = useState(0);
   const [scrollY, setScrollY] = useState(0);
 
+  // Shuffle options for this question (memoized per question ID)
+  const shuffledData = useMemo(() => {
+    const indices = question.options.map((_, idx) => idx);
+    const shuffledIndices = shuffle([...indices]);
+    const shuffledOptions = shuffledIndices.map((origIdx) => question.options[origIdx]);
+    // Create mapping: shuffled index -> original index
+    const shuffledToOriginal = new Map<number, number>();
+    shuffledIndices.forEach((origIdx, shuffledIdx) => {
+      shuffledToOriginal.set(shuffledIdx, origIdx);
+    });
+    // Create reverse mapping: original index -> shuffled index (for highlighting)
+    const originalToShuffled = new Map<number, number>();
+    shuffledIndices.forEach((origIdx, shuffledIdx) => {
+      originalToShuffled.set(origIdx, shuffledIdx);
+    });
+    return { shuffledOptions, shuffledToOriginal, originalToShuffled };
+  }, [question.id, question.options]);
+
   const canScroll = contentH > viewportH + 2;
   const atBottom = scrollY + viewportH >= contentH - 8;
 
@@ -714,9 +732,12 @@ function QuestionCard({
 
           <View style={styles.scrollBody}>
             <View style={styles.optionsWrap}>
-              {question.options.map((opt, idx) => {
-                const isSelected = answered?.selectedIndex === idx;
-                const isCorrect = question.correct_options.includes(idx);
+              {shuffledData.shuffledOptions.map((opt, shuffledIdx) => {
+                // Map shuffled index back to original index
+                const originalIdx = shuffledData.shuffledToOriginal.get(shuffledIdx) ?? shuffledIdx;
+                // Check if this shuffled position corresponds to the selected original index
+                const isSelected = answered?.selectedIndex === originalIdx;
+                const isCorrect = question.correct_options.includes(originalIdx);
                 const showResult = Boolean(answered);
 
                 let bg = "rgba(255,255,255,0.08)";
@@ -734,8 +755,8 @@ function QuestionCard({
 
                 return (
                   <Pressable
-                    key={`${question.id}-opt-${idx}`}
-                    onPress={() => onAnswer(idx)}
+                    key={`${question.id}-opt-${shuffledIdx}`}
+                    onPress={() => onAnswer(originalIdx)}
                     disabled={Boolean(answered)}
                     style={({ pressed }) => [
                       styles.optionBtn,
@@ -743,7 +764,7 @@ function QuestionCard({
                       pressed && !answered ? { opacity: 0.85 } : null,
                     ]}
                   >
-                    <Text style={styles.optionIndex}>{String.fromCharCode(65 + idx)}</Text>
+                    <Text style={styles.optionIndex}>{String.fromCharCode(65 + shuffledIdx)}</Text>
                     <Text style={styles.optionText}>{opt}</Text>
                   </Pressable>
                 );
