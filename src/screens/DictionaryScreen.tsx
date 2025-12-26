@@ -581,7 +581,7 @@ const styles = StyleSheet.create({
   },
   stickyHeaderRow: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     justifyContent: "space-between",
     gap: 12,
   },
@@ -590,6 +590,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
     flexShrink: 0,
+    paddingTop: 15,
   },
   shareButton: {
     padding: 4,
@@ -602,8 +603,8 @@ const styles = StyleSheet.create({
   },
   scrollBody: { paddingHorizontal: 14, paddingTop: 12, gap: 10 },
 
-  wordTitle: { fontSize: 54, fontWeight: "900", color: "#EEF3FF", flexShrink: 1 },
-  wordTitleCompact: { fontSize: 42, letterSpacing: -1 },
+  wordTitle: { fontSize: 54, fontWeight: "900", color: "#EEF3FF", flexShrink: 1, letterSpacing: -2 },
+  wordTitleCompact: { fontSize: 42, letterSpacing: -2 },
   grammarBlock: {
     fontSize: 16,
     fontStyle: "italic",

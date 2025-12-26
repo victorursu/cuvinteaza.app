@@ -560,16 +560,17 @@ const styles = StyleSheet.create({
   },
   stickyHeaderRow: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     justifyContent: "space-between",
     gap: 12,
   },
-  wordTitle: { fontSize: 54, fontWeight: "900", color: "#EEF3FF", flexShrink: 1 },
+  wordTitle: { fontSize: 54, fontWeight: "900", color: "#EEF3FF", flexShrink: 1, letterSpacing: -2 },
   headerActions: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
     flexShrink: 0,
+    paddingTop: 15,
   },
   shareButton: {
     padding: 4,
