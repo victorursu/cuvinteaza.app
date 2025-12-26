@@ -521,6 +521,179 @@ export async function fetchDailyWordDates(wordIds: string[]): Promise<Map<string
  * @param wordId - The numeric ID (as string) or slug of the word to fetch
  * @returns VocabularyWord object or null if not found
  */
+/**
+ * Fetch all words from Supabase with pagination
+ * @param limit - Maximum number of results to return (default: 50)
+ * @param offset - Number of results to skip (for pagination, default: 0)
+ * @returns Array of VocabularyWord objects
+ */
+export async function fetchAllWordsFromSupabase(
+  limit: number = 50,
+  offset: number = 0
+): Promise<VocabularyWord[]> {
+  if (!isSupabaseConfigured || !supabase) {
+    throw new Error("Supabase is not configured");
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from("cuvinteziCuvinte")
+      .select(`
+        id, 
+        title, 
+        grammar_block, 
+        definition, 
+        image, 
+        examples,
+        cuvinteziCuvinteTags (
+          cuvinteziTags (
+            label
+          )
+        )
+      `)
+      .order("title", { ascending: true })
+      .range(offset, offset + limit - 1);
+
+    if (error) {
+      console.error("Error fetching all words:", error);
+      throw error;
+    }
+
+    if (!data || data.length === 0) {
+      return [];
+    }
+
+    // Convert Supabase data to VocabularyWord format
+    return data.map((word: any) => {
+      // Extract tags from junction table
+      const tags: string[] = [];
+      if (word.cuvinteziCuvinteTags && Array.isArray(word.cuvinteziCuvinteTags)) {
+        word.cuvinteziCuvinteTags.forEach((junction: any) => {
+          if (junction.cuvinteziTags && junction.cuvinteziTags.label) {
+            tags.push(junction.cuvinteziTags.label);
+          }
+        });
+      }
+
+      // Parse examples if they're strings, otherwise use as-is
+      let examples: string[] = [];
+      if (Array.isArray(word.examples)) {
+        examples = word.examples;
+      } else if (typeof word.examples === "string") {
+        try {
+          examples = JSON.parse(word.examples);
+        } catch {
+          examples = [];
+        }
+      }
+
+      return {
+        id: String(word.id), // Ensure ID is string
+        title: word.title,
+        grammar_block: word.grammar_block || "",
+        definition: word.definition,
+        image: word.image || "",
+        tags,
+        examples,
+      } as VocabularyWord;
+    });
+  } catch (error) {
+    console.error("Failed to fetch all words:", error);
+    throw error;
+  }
+}
+
+/**
+ * Search for words in Supabase by title (partial match, case-insensitive)
+ * @param searchTerm - The search term to match against word titles
+ * @param limit - Maximum number of results to return (default: 50)
+ * @param offset - Number of results to skip (for pagination, default: 0)
+ * @returns Array of VocabularyWord objects matching the search term
+ */
+export async function searchWordsFromSupabase(
+  searchTerm: string,
+  limit: number = 50,
+  offset: number = 0
+): Promise<VocabularyWord[]> {
+  if (!isSupabaseConfigured || !supabase) {
+    throw new Error("Supabase is not configured");
+  }
+
+  if (!searchTerm || searchTerm.trim().length === 0) {
+    return [];
+  }
+
+  try {
+      // Use ilike for case-insensitive partial matching
+      // Supabase range is inclusive on both ends: range(from, to)
+      const { data, error } = await supabase
+        .from("cuvinteziCuvinte")
+        .select(`
+          id, 
+          title, 
+          grammar_block, 
+          definition, 
+          image, 
+          examples,
+          cuvinteziCuvinteTags (
+            cuvinteziTags (
+              label
+            )
+          )
+        `)
+        .ilike("title", `%${searchTerm.trim()}%`)
+        .order("title", { ascending: true })
+        .range(offset, offset + limit - 1);
+
+    if (error) {
+      console.error("Error searching words:", error);
+      throw error;
+    }
+
+    if (!data || data.length === 0) {
+      return [];
+    }
+
+    // Convert Supabase data to VocabularyWord format
+    return data.map((word: any) => {
+      // Extract tags from junction table
+      const tags: string[] = [];
+      if (word.cuvinteziCuvinteTags && Array.isArray(word.cuvinteziCuvinteTags)) {
+        word.cuvinteziCuvinteTags.forEach((junction: any) => {
+          if (junction.cuvinteziTags && junction.cuvinteziTags.label) {
+            tags.push(junction.cuvinteziTags.label);
+          }
+        });
+      }
+
+      // Parse examples if they're strings, otherwise use as-is
+      let examples: string[] = [];
+      if (Array.isArray(word.examples)) {
+        examples = word.examples;
+      } else if (typeof word.examples === "string") {
+        try {
+          examples = JSON.parse(word.examples);
+        } catch {
+          examples = [];
+        }
+      }
+
+      return {
+        id: String(word.id), // Ensure ID is string
+        title: word.title,
+        grammar_block: word.grammar_block || "",
+        definition: word.definition,
+        image: word.image || "",
+        tags,
+        examples,
+      } as VocabularyWord;
+    });
+  } catch (error) {
+    console.error("Failed to search words:", error);
+    throw error;
+  }
+}
+
 export async function fetchWordByIdFromSupabase(wordId: string): Promise<VocabularyWord | null> {
   if (!isSupabaseConfigured || !supabase) {
     throw new Error("Supabase is not configured");

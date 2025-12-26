@@ -22,6 +22,7 @@ import { TestTimeline } from "../components/TestTimeline";
 import * as Notifications from "expo-notifications";
 import * as Device from "expo-device";
 import Constants from "expo-constants";
+import { LogOut } from "lucide-react-native";
 
 export function AccountScreen({
   onNavigateToWord,
@@ -630,19 +631,16 @@ export function AccountScreen({
                 <ThemeIcon mode={theme.mode} color={theme.colors.iconActive} />
               </Pressable>
               <Pressable
-                style={[
-                  styles.logoutButtonHeader,
-                  { backgroundColor: theme.colors.tabActiveBg },
-                ]}
+                accessibilityRole="button"
+                accessibilityLabel="Logout"
+                style={[styles.iconBtn, { backgroundColor: theme.colors.headerIconBg }]}
                 onPress={handleSignOut}
                 disabled={authLoading}
               >
                 {authLoading ? (
-                  <ActivityIndicator size="small" color={theme.colors.textPrimary} />
+                  <ActivityIndicator size="small" color={theme.colors.iconActive} />
                 ) : (
-                  <Text style={[styles.logoutButtonText, { color: theme.colors.textPrimary }]}>
-                    Logout
-                  </Text>
+                  <LogOut size={22} color={theme.colors.iconActive} />
                 )}
               </Pressable>
             </View>

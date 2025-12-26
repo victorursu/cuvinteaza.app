@@ -314,7 +314,7 @@ export function DictionaryScreen({
   );
 }
 
-function WordCard({ word, dailyWordDate }: { word: VocabularyWord; dailyWordDate?: string | null }) {
+export function WordCard({ word, dailyWordDate }: { word: VocabularyWord; dailyWordDate?: string | null }) {
   const [viewportH, setViewportH] = useState(0);
   const [contentH, setContentH] = useState(0);
   const [scrollY, setScrollY] = useState(0);

@@ -187,7 +187,7 @@ export function VocabularyScreen() {
   const ITEM_SPACING = 12;
   const itemWidth = Math.max(0, width - GUTTER * 2);
   const snapInterval = itemWidth + ITEM_SPACING;
-  const contentPadding = Math.max(0, GUTTER - ITEM_SPACING / 2);
+  const contentPadding = GUTTER;
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -227,16 +227,17 @@ export function VocabularyScreen() {
               disableIntervalMomentum
               style={styles.carousel}
               contentContainerStyle={{
-                paddingHorizontal: contentPadding,
+                paddingLeft: contentPadding,
+                paddingRight: contentPadding,
                 // Footer is laid out below content (not overlay), so avoid adding
                 // extra bottom padding that creates a visible gap above the tab bar.
                 paddingBottom: 0,
               }}
-              renderItem={({ item }) => (
+              renderItem={({ item, index }) => (
                 <View
                   style={{
                     width: itemWidth,
-                    marginHorizontal: ITEM_SPACING / 2,
+                    marginRight: index < state.data.length - 1 ? ITEM_SPACING : 0,
                     height: "100%",
                   }}
                 >

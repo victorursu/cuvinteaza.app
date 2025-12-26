@@ -11,6 +11,7 @@ import { TestScreen } from "./src/screens/TestScreen";
 import { RegionalismeScreen } from "./src/screens/RegionalismeScreen";
 import { UrbanismeScreen } from "./src/screens/UrbanismeScreen";
 import { WordDetailScreen } from "./src/screens/WordDetailScreen";
+import { SearchScreen } from "./src/screens/SearchScreen";
 import * as SplashScreen from "expo-splash-screen";
 import { useCallback, useEffect } from "react";
 import { BootSplash } from "./src/screens/BootSplash";
@@ -417,6 +418,8 @@ function AppInner() {
         return <RegionalismeScreen />;
       case "urbanisme":
         return <UrbanismeScreen />;
+      case "cautare":
+        return <SearchScreen onNavigateToWord={setViewingWordId} />;
       case "setari":
         return <StatisticsScreen onNavigateToWord={setViewingWordId} />;
       case "cuvinte":

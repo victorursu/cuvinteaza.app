@@ -10,6 +10,7 @@ import { MapPinIcon } from "./icons/MapPinIcon";
 import { QuizIcon } from "./icons/QuizIcon";
 import { ArrowLeftIcon } from "./icons/ArrowLeftIcon";
 import { ArrowRightIcon } from "./icons/ArrowRightIcon";
+import { SearchIcon } from "./icons/SearchIcon";
 import { useRef, useState } from "react";
 
 export type TabKey =
@@ -18,6 +19,7 @@ export type TabKey =
   | "cuvinte"
   | "regionalisme"
   | "urbanisme"
+  | "cautare"
   | "setari";
 
 const LABELS: Record<TabKey, string> = {
@@ -26,6 +28,7 @@ const LABELS: Record<TabKey, string> = {
   cuvinte: "Cuvinte",
   regionalisme: "Regionalisme",
   urbanisme: "Urbanisme",
+  cautare: "Căutare",
   setari: "Statistici",
 };
 
@@ -99,6 +102,12 @@ export function BottomTabs({
             active={active === "urbanisme"}
             onPress={() => onChange("urbanisme")}
             icon={({ color }) => <BuildingsIcon color={color} />}
+          />
+          <TabButton
+            label={LABELS.cautare}
+            active={active === "cautare"}
+            onPress={() => onChange("cautare")}
+            icon={({ color }) => <SearchIcon color={color} />}
           />
           <TabButton
             label={LABELS.setari}
